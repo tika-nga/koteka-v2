@@ -1,33 +1,39 @@
-name: Flutter CI
+name: Build Koteka APK
 
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+    branches:
+      - main
+  workflow_dispatch:
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
+      - name: Récupérer le projet
         uses: actions/checkout@v4
 
-      - name: Setup Flutter
+      - name: Installer Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Installer Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.29.3'
+          channel: stable
+          cache: true
 
-      - name: Create env files
-        run: |
-          cat <<EOF > map_key.env
-          ${{ secrets.GMAPS_API_KEY }}
-          EOF
-          : > .env
-
-      - name: Install dependencies
+      - name: Installer les dépendances
         run: flutter pub get
 
-      - name: Run tests
-        run: flutter test
+      - name: Compiler APK
+        run: flutter build apk --debug
+
+      - name: Sauvegarder APK Koteka
+        uses: actions/upload-artifact@v4
+        with:
+          name: koteka-debug-apk
+          path: build/app/outputs/flutter-apk/app-debug.apk
