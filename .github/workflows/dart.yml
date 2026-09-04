@@ -31,6 +31,11 @@ jobs:
 
       - name: Préparer les propriétés Android
         run: cp android/local.defaults.properties.example android/local.defaults.properties
+     
+      - name: Préparer les fichiers environnement
+        run: |
+            cp map_key.env.example map_key.env
+            cp .env.example .env
 
       - name: Compiler APK
         run: flutter build apk --debug
