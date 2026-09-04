@@ -21,35 +21,57 @@ class PlaceScreen extends StatelessWidget {
   const PlaceScreen({super.key, required this.place});
 
   Widget _textWithIcon({
-    required BuildContext context,
-    required IconData icon,
-    required String title,
-    VoidCallback? onTap,
-    bool isActive = false,
-  }) {
-    return InkWell(
-      onTap: isActive ? (onTap ?? () {}) : () {},
-      child: Padding(
-        padding: const EdgeInsets.only(left: 10, top: 10, bottom: 10),
-        child: Row(
-          children: [
-            Icon(icon, color: Theme.of(context).colorScheme.primary, size: 24),
-            const SizedBox(width: 10),
-            Text(
-              title,
-              style: TextStyle(
-                fontFamily: 'Mplus1p',
-                fontSize: 14,
-                fontWeight: FontWeight.w300,
-                color: Theme.of(context).colorScheme.primary,
-                decoration: TextDecoration.underline,
-              ),
-            ),
-          ],
-        ),
-      ),
+  required BuildContext context,
+  required Object icon,
+  required String title,
+  VoidCallback? onTap,
+  bool isActive = false,
+}) {
+  final Widget iconWidget;
+
+  if (icon is FaIconData) {
+    iconWidget = FaIcon(
+      icon,
+      color: Theme.of(context).colorScheme.primary,
+      size: 24,
     );
+  } else if (icon is IconData) {
+    iconWidget = Icon(
+      icon,
+      color: Theme.of(context).colorScheme.primary,
+      size: 24,
+    );
+  } else {
+    iconWidget = const SizedBox.shrink();
   }
+
+  return InkWell(
+    onTap: isActive ? (onTap ?? () {}) : () {},
+    child: Padding(
+      padding: const EdgeInsets.only(
+        left: 10,
+        top: 10,
+        bottom: 10,
+      ),
+      child: Row(
+        children: [
+          iconWidget,
+          const SizedBox(width: 10),
+          Text(
+            title,
+            style: TextStyle(
+              fontFamily: 'Mplus1p',
+              fontSize: 14,
+              fontWeight: FontWeight.w300,
+              color: Theme.of(context).colorScheme.primary,
+              decoration: TextDecoration.underline,
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
 
   /// Opens Google Maps with a pre-filled search query
   Future<void> openInGoogleMaps({required String query}) async {
