@@ -4,7 +4,7 @@ import 'package:flutter_marketplace_template/services/language_service.dart';
 class LanguageViewModel extends ChangeNotifier {
   final ILanguageService _languageService;
 
-  Locale _locale = const Locale('pl');
+  Locale _locale = const Locale('fr');
 
   Locale get locale => _locale;
 
