@@ -102,17 +102,13 @@ class _MyAppState extends State<MyApp> {
       child: Consumer2<LanguageViewModel, ThemeViewModel>(
         builder: (context, languageViewModel, themeViewModel, _) {
           return MaterialApp(
-            title: 'Flutter Demo',
+            title: 'Koteka',
             theme: lightTheme,
             darkTheme: darkTheme,
             themeMode: themeViewModel.flutterMode,
             home: const AuthGate(),
             locale: languageViewModel.locale,
             localizationsDelegates: AppLocalizations.localizationsDelegates,
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
-            ],
             supportedLocales: AppLocalizations.supportedLocales,
           );
         },
