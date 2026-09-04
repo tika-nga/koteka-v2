@@ -18,8 +18,8 @@ class LanguageServiceHive implements ILanguageService {
     final box = await Hive.openBox(_settingsBoxName);
     final savedLocale = box.get(
       _localeKey,
-      defaultValue: 'pl',
-    ); // Default language: Polish
+      defaultValue: 'fr',
+    ); // Default language: French
     return Locale(savedLocale);
   }
 
