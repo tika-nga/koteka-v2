@@ -72,7 +72,6 @@ class PlaceScreen extends StatelessWidget {
     ),
   );
 }
-
   /// Opens Google Maps with a pre-filled search query
   Future<void> openInGoogleMaps({required String query}) async {
     final url =
