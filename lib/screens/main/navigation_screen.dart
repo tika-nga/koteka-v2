@@ -1,12 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_marketplace_template/view_models/navigation_view_model.dart';
-import 'package:flutter_marketplace_template/view_models/profile_view_model.dart';
-import 'package:flutter_marketplace_template/views/components/profile_avatar_widget.dart';
-import 'package:material_symbols_icons/material_symbols_icons.dart';
 
-/// Main screen of the app, shown after user logs in,
-/// with bottom navigation bar to switch between home, map and profile screen
+import 'package:flutter_marketplace_template/view_models/navigation_view_model.dart';
+
 class NavigationScreen extends StatefulWidget {
   const NavigationScreen({super.key});
 
@@ -17,24 +13,56 @@ class NavigationScreen extends StatefulWidget {
 class _NavigationScreenState extends State<NavigationScreen> {
   @override
   Widget build(BuildContext context) {
-    final avatarUrl = context.watch<ProfileViewModel>().currentUser?.avatarUrl;
+    final navigation = context.watch<NavigationViewModel>();
+
     return Scaffold(
-      body: Consumer<NavigationViewModel>(
-        builder: (context, navigation, child) {
-          return navigation.currentScreen;
+      body: navigation.currentScreen,
+
+      bottomNavigationBar: NavigationBar(
+        height: 70,
+        selectedIndex: navigation.selectedIndex,
+
+        onDestinationSelected: (index) {
+          context
+              .read<NavigationViewModel>()
+              .onDestinationSelected(index);
         },
+
+        destinations: const [
+          NavigationDestination(
+            icon: Icon(Icons.home_outlined),
+            selectedIcon: Icon(Icons.home),
+            label: 'Accueil',
+          ),
+
+          NavigationDestination(
+            icon: Icon(Icons.search),
+            selectedIcon: Icon(Icons.search),
+            label: 'Rechercher',
+          ),
+
+          NavigationDestination(
+            icon: Icon(Icons.add_circle_outline),
+            selectedIcon: Icon(Icons.add_circle),
+            label: 'Déposer',
+          ),
+
+          NavigationDestination(
+            icon: Icon(Icons.chat_bubble_outline),
+            selectedIcon: Icon(Icons.chat_bubble),
+            label: 'Messages',
+          ),
+
+          NavigationDestination(
+            icon: Icon(Icons.person_outline),
+            selectedIcon: Icon(Icons.person),
+            label: 'Profil',
+          ),
+        ],
       ),
-      bottomNavigationBar: Stack(
-        clipBehavior: Clip.none,
-        alignment: Alignment.bottomCenter,
-        children: [
-          NavigationBarTheme(
-            data: NavigationBarThemeData(
-              backgroundColor: Theme.of(context).colorScheme.surface,
-              indicatorColor: Colors.transparent,
-              iconTheme: WidgetStateProperty.resolveWith<IconThemeData>((
-                states,
-              ) {
+    );
+  }
+}              ) {
                 if (states.contains(WidgetState.selected)) {
                   return IconThemeData(
                     color: Theme.of(context).colorScheme.tertiary,
