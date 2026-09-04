@@ -108,8 +108,7 @@ class _MyAppState extends State<MyApp> {
             themeMode: themeViewModel.flutterMode,
             home: const AuthGate(),
             locale: languageViewModel.locale,
-            localizationsDelegates: const [
-              AppLocalizations.delegate,
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
               GlobalMaterialLocalizations.delegate,
               GlobalWidgetsLocalizations.delegate,
               GlobalCupertinoLocalizations.delegate,
