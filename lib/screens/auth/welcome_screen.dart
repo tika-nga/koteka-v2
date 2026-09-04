@@ -21,8 +21,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     //var screenWidth = size.width;
     //var screenHeight = size.height;
     String selectedLanguage =
-        Localizations.localeOf(context).languageCode == 'pl'
-            ? 'Polski'
+        Localizations.localeOf(context).languageCode == 'fr'
+            ? 'Français'
             : 'English';
 
     return Scaffold(
@@ -48,11 +48,26 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 left: 0,
                 right: 0,
                 child: Center(
-                  child: Image.asset(
-                    'assets/logo.png',
-                    width: 190,
-                    height: 195,
-                  ),
+                  child: const Column(
+  mainAxisSize: MainAxisSize.min,
+  children: [
+    Icon(
+      Icons.storefront,
+      size: 90,
+      color: Colors.white,
+    ),
+    SizedBox(height: 8),
+    Text(
+      'KOTEKA',
+      style: TextStyle(
+        color: Colors.white,
+        fontSize: 42,
+        fontWeight: FontWeight.bold,
+        letterSpacing: 3,
+      ),
+    ),
+  ],
+),
                 ),
               ),
 
