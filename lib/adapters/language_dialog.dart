@@ -62,8 +62,8 @@ Future<void> showLanguageDialog(BuildContext context, String selectedLanguage) a
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            _langOption(context, 'Polski', 'pl', selectedLanguage, languageViewModel),
-            _langOption(context, 'English', 'en', selectedLanguage, languageViewModel),
+            _langOption(context, 'Français', 'fr', selectedLanguage, languageViewModel),
+_langOption(context, 'English', 'en', selectedLanguage, languageViewModel),
           ],
         ),
       );
