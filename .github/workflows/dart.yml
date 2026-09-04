@@ -29,6 +29,9 @@ jobs:
       - name: Installer les dépendances
         run: flutter pub get
 
+      - name: Préparer les propriétés Android
+        run: cp android/local.defaults.properties.example android/local.defaults.properties
+
       - name: Compiler APK
         run: flutter build apk --debug
 
