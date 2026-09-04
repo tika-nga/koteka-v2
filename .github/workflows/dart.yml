@@ -37,6 +37,34 @@ jobs:
             cp map_key.env.example map_key.env
             cp .env.example .env
 
+      - name: Préparer Firebase pour le build test
+        run: |
+          cat > android/app/google-services.json <<'EOF'
+          {
+            "project_info": {
+              "project_number": "1234567890",
+              "project_id": "koteka-debug",
+              "storage_bucket": "koteka-debug.appspot.com"
+           },
+           "client": [
+             {
+          "client_info": {⁸
+            "mobilesdk_app_id": "1:1234567890:android:0000000000000000",
+            "android_client_info": {
+              "package_name": "com.mpitsol.randki"
+            }
+          },
+          "api_key": [
+            {
+              "current_key": "AIzaSyDebugKotekaTemporaryKey"
+                }
+              ]
+            }
+          ],
+          "configuration_version": "1"
+          }
+          EOF
+
       - name: Compiler APK
         run: flutter build apk --debug
 
