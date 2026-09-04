@@ -55,7 +55,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               ? Padding(
                 padding: const EdgeInsets.only(left: 15),
                 child: Text(
-                  AppLocalizations.of(context)!.miejsca,
+                  'Koteka',
                   style: TextStyle(
                     fontFamily: 'NATS',
                     fontSize: 40 * textScale,
