@@ -34,8 +34,8 @@ jobs:
      
       - name: Préparer les fichiers environnement
         run: |
-            cp map_key.env.example map_key.env
-            cp .env.example .env
+         cp map_key.env.example map_key.env
+         printf 'SUPABASE_URL=%s\nSUPABASE_ANON_KEY=%s\n' "${{ secrets.SUPABASE_URL }}" "${{ secrets.SUPABASE_ANON_KEY }}" > .env
 
       - name: Préparer Firebase pour le build test
         run: |
