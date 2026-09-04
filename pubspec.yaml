@@ -51,7 +51,7 @@ dependencies:
     http: ^1.4.0
     shimmer: ^3.0.0
     url_launcher: ^6.2.5
-    font_awesome_flutter: ^10.7.0
+    font_awesome_flutter: ^11.0.0
     image_picker: ^1.1.2
     material_symbols_icons: ^4.2960.0
     flutter_svg: ^2.0.0
