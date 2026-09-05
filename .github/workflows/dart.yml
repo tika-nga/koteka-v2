@@ -33,10 +33,32 @@ jobs:
         run: cp android/local.defaults.properties.example android/local.defaults.properties
      
       - name: Préparer les fichiers environnement
-        run: |
-         cp map_key.env.example map_key.env
-         printf 'SUPABASE_URL=%s\nSUPABASE_ANON_KEY=%s\n' "${{ secrets.SUPABASE_URL }}" "${{ secrets.SUPABASE_ANON_KEY }}" > .env
+      env:
+    SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+    SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+  run: |
+    if [ -z "$SUPABASE_URL" ]; then
+      echo "ERREUR : SUPABASE_URL est vide"
+      exit 1
+    fi
 
+    if [ -z "$SUPABASE_ANON_KEY" ]; then
+      echo "ERREUR : SUPABASE_ANON_KEY est vide"
+      exit 1
+    fi
+
+    case "$SUPABASE_URL" in
+      https://*.supabase.co) ;;
+      *)
+        echo "ERREUR : SUPABASE_URL n'est pas valide"
+        exit 1
+        ;;
+    esac
+
+    cp map_key.env.example map_key.env
+    printf 'SUPABASE_URL=%s\nSUPABASE_ANON_KEY=%s\n' "$SUPABASE_URL" "$SUPABASE_ANON_KEY" > .env
+
+    echo "Configuration Supabase OK"
       - name: Préparer Firebase pour le build test
         run: |
           cat > android/app/google-services.json <<'EOF'
