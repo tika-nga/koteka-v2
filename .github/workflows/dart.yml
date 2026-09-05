@@ -32,7 +32,7 @@ jobs:
       - name: Préparer les propriétés Android
         run: cp android/local.defaults.properties.example android/local.defaults.properties
      
-          - name: Préparer les fichiers environnement
+      - name: Préparer les fichiers environnement
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
