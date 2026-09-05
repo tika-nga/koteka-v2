@@ -26,15 +26,19 @@ class NotificationsServiceSupabase implements INotificationsService {
   }
 
   ///Fetchses the FCM token for the device.
-  @override
-  Future<String?> getFcmToken() async {
+  @overrideFuture<String?> getFcmToken() async {
+  try {
     final messaging = FirebaseMessaging.instance;
 
     await messaging.requestPermission();
 
     final token = await messaging.getToken();
     return token;
+  } catch (e) {
+    Log.error('Firebase Messaging indisponible: $e');
+    return null;
   }
+}
 
   /// Saves the FCM token to Supabase for the given user ID.
   @override
