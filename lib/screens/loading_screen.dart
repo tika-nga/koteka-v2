@@ -1,4 +1,4 @@
-ñimport 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 
 /// A loading screen with a gradient background and centered logo
 class LoadingScreen extends StatefulWidget {
