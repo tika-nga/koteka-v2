@@ -156,29 +156,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                                 const SizedBox(height: 16),
 
-const Text(
-  'Catégories',
-  style: TextStyle(
-    fontSize: 16,
-    fontWeight: FontWeight.w600,
-  ),
-),
-
-const SizedBox(height: 10),
-
-SingleChildScrollView(
-  scrollDirection: Axis.horizontal,
-  child: Row(
-    children: [
-      _categoryChip('Pièces automobiles', Icons.car_repair),
-      _categoryChip('Motos', Icons.two_wheeler),
-      _categoryChip('Pièces motos', Icons.build),
-      _categoryChip('Meubles', Icons.chair),
-      _categoryChip('Vélos', Icons.pedal_bike),
-      _categoryChip('Divers', Icons.category),
-    ],
-  ),
-),
                                 Divider(
                                   height: 5,
                                   thickness: 0.5,
@@ -220,6 +197,7 @@ SingleChildScrollView(
                                           ),
                                         ],
                                       ),
+                                      
                                       const SizedBox(height: 10),
                                       Padding(
                                         padding: EdgeInsets.only(
@@ -234,6 +212,8 @@ SingleChildScrollView(
                                                 context,
                                               ).colorScheme.primary,
                                           onSubmitted: (value) async {
+                                           
+                                            
                                             final filter =
                                                 context.read<FilterViewModel>();
                                             filter.resetFilters();
@@ -250,9 +230,33 @@ SingleChildScrollView(
                                                   buildMarkers: false,
                                                   context: context,
                                                 );
+                                            
                                           },
                                         ),
                                       ),
+                                      const Text(
+  'Catégories',
+  style: TextStyle(
+    fontSize: 16,
+    fontWeight: FontWeight.w600,
+  ),
+),
+
+const SizedBox(height: 10),
+
+SingleChildScrollView(
+  scrollDirection: Axis.horizontal,
+  child: Row(
+    children: [
+      _categoryChip('Pièces automobiles', Icons.car_repair),
+      _categoryChip('Motos', Icons.two_wheeler),
+      _categoryChip('Pièces motos', Icons.build),
+      _categoryChip('Meubles', Icons.chair),
+      _categoryChip('Vélos', Icons.pedal_bike),
+      _categoryChip('Divers', Icons.category),
+    ],
+  ),
+),
                                     ],
                                   ),
                                 ),
