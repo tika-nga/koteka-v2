@@ -350,9 +350,11 @@ class _HomeScreenState extends State<HomeScreen> {
         right: 10 * textScale,
         bottom: 10,
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
+      child: Wrap(
+  alignment: WrapAlignment.center,
+  spacing: 5,
+  runSpacing: 8,
+  children: [
           // Reset filters to default values
           resetFilterButton(
             context,
@@ -363,7 +365,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   _searchController.clear();
                 }),
           ),
-          SizedBox(width: 5),
           // Dropdown menu for sorting listings
           PopupMenuButton<String>(
             constraints: BoxConstraints(maxWidth: 190),
