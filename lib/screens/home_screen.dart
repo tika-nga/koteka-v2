@@ -96,8 +96,8 @@ class _HomeScreenState extends State<HomeScreen> {
     final screenWidth = MediaQuery.of(context).size.width;
     final textScale = screenWidth / 400;
     // String selectedLanguage =
-    //     Localizations.localeOf(context).languageCode == 'pl'
-    //         ? 'Polski'
+    //     Localizations.localeOf(context).languageCode == 'fr'
+    //         ? 'French'
     //         : 'English';
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.background,
@@ -143,7 +143,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 Padding(
                                   padding: EdgeInsets.only(left: 9),
                                   child: Text(
-                                    AppLocalizations.of(context)!.find_a_place,
+                                    'Que recherchez-vous ? / Olingi nini ?',
                                     style: TextStyle(
                                       fontFamily: 'Mplus1p',
                                       fontSize: 24 * textScale,
@@ -154,6 +154,31 @@ class _HomeScreenState extends State<HomeScreen> {
                                     ),
                                   ),
                                 ),
+                                const SizedBox(height: 16),
+
+const Text(
+  'Catégories',
+  style: TextStyle(
+    fontSize: 20,
+    fontWeight: FontWeight.w600,
+  ),
+),
+
+const SizedBox(height: 10),
+
+SingleChildScrollView(
+  scrollDirection: Axis.horizontal,
+  child: Row(
+    children: [
+      _categoryChip('Pièces automobiles', Icons.car_repair),
+      _categoryChip('Motos', Icons.two_wheeler),
+      _categoryChip('Pièces motos', Icons.build),
+      _categoryChip('Meubles', Icons.chair),
+      _categoryChip('Vélos', Icons.pedal_bike),
+      _categoryChip('Divers', Icons.category),
+    ],
+  ),
+),
                                 Divider(
                                   height: 5,
                                   thickness: 0.5,
@@ -181,9 +206,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                           ),
                                           const SizedBox(width: 3),
                                           Text(
-                                            AppLocalizations.of(
-                                              context,
-                                            )!.search_by_name,
+                                            'Rechercher une annonce / Luka eloko',
                                             style: TextStyle(
                                               fontFamily: 'Mplus1p',
                                               fontSize: 20 * textScale,
@@ -206,9 +229,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                           controller: _searchController,
                                           textScale: 1,
                                           hintText:
-                                              AppLocalizations.of(
-                                                context,
-                                              )!.search,
+                                              hintText: 'Ex. téléphone, voiture, meuble...',
                                           primaryColor:
                                               Theme.of(
                                                 context,
@@ -742,4 +763,39 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+  Widget _categoryChip(String label, IconData icon) {
+  return Container(
+    margin: const EdgeInsets.only(right: 10),
+    padding: const EdgeInsets.symmetric(
+      horizontal: 14,
+      vertical: 10,
+    ),
+    decoration: BoxDecoration(
+      color: Theme.of(context).colorScheme.surface,
+      borderRadius: BorderRadius.circular(12),
+      border: Border.all(
+        color: Theme.of(context).colorScheme.primary,
+        width: 1,
+      ),
+    ),
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(
+          icon,
+          size: 22,
+          color: Theme.of(context).colorScheme.primary,
+        ),
+        const SizedBox(width: 7),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w500,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+        ),
+      ],
+    ),
+  );
 }
