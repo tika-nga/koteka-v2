@@ -32,12 +32,23 @@ class _LoadingScreenState extends State<LoadingScreen> {
               left: 0,
               right: 0,
               child: Center(
-                child: Image.asset('assets/logo.png', width: 190, height: 195),
-              ),
-            ),
-          ],
-        ),
+              child: const Column(
+  mainAxisSize: MainAxisSize.min,
+  children: [
+    Icon(
+      Icons.storefront,
+      color: Colors.white,
+      size: 90,
+    ),
+    SizedBox(height: 12),
+    Text(
+      'KOTEKA',
+      style: TextStyle(
+        color: Colors.white,
+        fontSize: 42,
+        fontWeight: FontWeight.bold,
+        letterSpacing: 3,
       ),
-    );
-  }
-}
+    ),
+  ],
+),
