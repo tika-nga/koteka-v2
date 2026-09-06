@@ -146,7 +146,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     'Que recherchez-vous ? / Olingi nini ?',
                                     style: TextStyle(
                                       fontFamily: 'Mplus1p',
-                                      fontSize: 24 * textScale,
+                                      fontSize: 20 * textScale,
                                       letterSpacing: -1,
                                       fontWeight: FontWeight.w500,
                                       color:
@@ -209,7 +209,7 @@ SingleChildScrollView(
                                             'Rechercher une annonce / Luka eloko',
                                             style: TextStyle(
                                               fontFamily: 'Mplus1p',
-                                              fontSize: 20 * textScale,
+                                              fontSize: 16 * textScale,
                                               letterSpacing: -1,
                                               fontWeight: FontWeight.w500,
                                               color:
