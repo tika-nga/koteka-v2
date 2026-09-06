@@ -228,8 +228,7 @@ SingleChildScrollView(
                                         child: SearchByNameField(
                                           controller: _searchController,
                                           textScale: 1,
-                                          hintText:
-                                              hintText: 'Ex. téléphone, voiture, meuble...',
+                                          hintText: 'Ex. téléphone, voiture, meuble...',
                                           primaryColor:
                                               Theme.of(
                                                 context,
