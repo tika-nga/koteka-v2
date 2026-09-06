@@ -159,7 +159,7 @@ class _HomeScreenState extends State<HomeScreen> {
 const Text(
   'Catégories',
   style: TextStyle(
-    fontSize: 20,
+    fontSize: 16,
     fontWeight: FontWeight.w600,
   ),
 ),
@@ -202,7 +202,7 @@ SingleChildScrollView(
                                                 Theme.of(
                                                   context,
                                                 ).colorScheme.primary,
-                                            size: 24 * textScale,
+                                            size: 18 * textScale,
                                           ),
                                           const SizedBox(width: 3),
                                           Text(
