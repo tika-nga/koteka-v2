@@ -796,5 +796,6 @@ SingleChildScrollView(
         ),
       ],
     ),
-  );
+    );
+}
 }
