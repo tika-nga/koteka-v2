@@ -26,28 +26,32 @@ class _LoadingScreenState extends State<LoadingScreen> {
           ),
         ),
         child: Stack(
-          children: [
-            Positioned(
-              top: 329,
-              left: 0,
-              right: 0,
-              child: Center(
-              child: const Column(
-  mainAxisSize: MainAxisSize.min,
   children: [
-    Icon(
-      Icons.storefront,
-      color: Colors.white,
-      size: 90,
-    ),
-    SizedBox(height: 12),
-    Text(
-      'KOTEKA',
-      style: TextStyle(
-        color: Colors.white,
-        fontSize: 42,
-        fontWeight: FontWeight.bold,
-        letterSpacing: 3,
+    Positioned(
+      top: 329,
+      left: 0,
+      right: 0,
+      child: Center(
+        child: const Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.storefront,
+              color: Colors.white,
+              size: 90,
+            ),
+            SizedBox(height: 12),
+            Text(
+              'KOTEKA',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 42,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 3,
+              ),
+            ),
+          ],
+        ),
       ),
     ),
   ],
