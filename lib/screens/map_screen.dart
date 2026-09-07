@@ -309,21 +309,30 @@ class _MapScreenState extends State<MapScreen> {
                               ),
                           infoWindow: InfoWindow(
                             title: AppLocalizations.of(context)!.radius,
-                            snippet: '${filterViewModel.selectedMaxDistance} m',
+                            snippet:
+    '${((filterViewModel.selectedMaxDistance ?? 0) / 1000).round()} km',
                           ),
                           onDrag: (newPos) {
-                            final newR = _distanceMeters(
-                              location,
-                              newPos,
-                            ).clamp(100.0, 100000.0);
-                            filterViewModel.setMaxDistance(newR.round());
+                            final rawDistance = _distanceMeters(
+  location,
+  newPos,
+).clamp(5000.0, 100000.0);
+
+final newR = ((rawDistance / 5000).round() * 5000)
+    .clamp(5000, 100000);
+
+filterViewModel.setMaxDistance(newR);
                           },
                           onDragEnd: (newPos) async {
-                            final newR = _distanceMeters(
-                              location,
-                              newPos,
-                            ).clamp(100.0, 100000.0);
-                            filterViewModel.setMaxDistance(newR.round());
+                            final rawDistance = _distanceMeters(
+  location,
+  newPos,
+).clamp(5000.0, 100000.0);
+
+final newR = ((rawDistance / 5000).round() * 5000)
+    .clamp(5000, 100000);
+
+filterViewModel.setMaxDistance(newR);
                           },
                         ),
                     }.toSet(),
