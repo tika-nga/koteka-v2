@@ -146,7 +146,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     'Que recherchez-vous ? / Olingi nini ?',
                                     style: TextStyle(
                                       fontFamily: 'Mplus1p',
-                                      fontSize: 20 * textScale,
+                                      fontSize: 18 * textScale,
                                       letterSpacing: -1,
                                       fontWeight: FontWeight.w500,
                                       color:
@@ -248,6 +248,7 @@ SingleChildScrollView(
   scrollDirection: Axis.horizontal,
   child: Row(
     children: [
+      _categoryChip('Voitures', Icons.directions_car),
       _categoryChip('Pièces automobiles', Icons.car_repair),
       _categoryChip('Motos', Icons.two_wheeler),
       _categoryChip('Pièces motos', Icons.build),
