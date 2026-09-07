@@ -818,5 +818,6 @@ SingleChildScrollView(
         ],
       ),
     ),
-  );
-  }
+    );
+}
+}
