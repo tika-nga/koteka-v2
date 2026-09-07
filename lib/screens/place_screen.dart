@@ -510,7 +510,7 @@ class PlaceScreen extends StatelessWidget {
                                           ),
                                           const SizedBox(width: 4),
                                           Text(
-                                            '${place.pricepp?.$1} - ${place.pricepp?.$2} zł',
+                                            '${place.pricepp?.$1} - ${place.pricepp?.$2} FC',
                                             style: TextStyle(
                                               color:
                                                   Theme.of(
