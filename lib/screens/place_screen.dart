@@ -1088,7 +1088,7 @@ class PlaceScreen extends StatelessWidget {
                                                           ),
                                                         ),
                                                         Text(
-                                                          '${dp.pricepp.$1} - ${dp.pricepp.$2} zł',
+                                                          '${dp.pricepp.$1} - ${dp.pricepp.$2} FC',
                                                           style: TextStyle(
                                                             fontFamily:
                                                                 'Mplus1p',
