@@ -561,42 +561,46 @@ class _FilterState extends State<Filter> {
                           ),
                           SizedBox(
                             width: 120,
-                            child: TextField(
-                              controller: _maxDistanceController,
-                              keyboardType: TextInputType.number,
-                              inputFormatters: <TextInputFormatter>[
-                                FilteringTextInputFormatter.digitsOnly,
-                              ],
-                              decoration: InputDecoration(
-                                isDense: true,
-                                contentPadding: EdgeInsets.symmetric(
-                                  vertical: 5,
-                                  horizontal: 8,
-                                ),
-                                hintText: "100m",
-                                hintStyle: TextStyle(
-                                  fontFamily: 'Mplus1p',
-                                  fontSize: 14 * textScale,
-                                  fontWeight: FontWeight.w300,
-                                  color: Theme.of(context).colorScheme.primary,
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(5),
-                                  borderSide: BorderSide(
-                                    color:
-                                        Theme.of(context).colorScheme.primary,
-                                    width: 2,
-                                  ),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(5),
-                                  borderSide: BorderSide(
-                                    color:
-                                        Theme.of(context).colorScheme.primary,
-                                    width: 3,
-                                  ),
-                                ),
-                              ),
+                            DropdownButtonFormField<int>(
+  value: filter.selectedMaxDistance,
+  decoration: InputDecoration(
+    isDense: true,
+    contentPadding: const EdgeInsets.symmetric(
+      vertical: 5,
+      horizontal: 8,
+    ),
+    enabledBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(5),
+      borderSide: BorderSide(
+        color: Theme.of(context).colorScheme.primary,
+        width: 2,
+      ),
+    ),
+    focusedBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(5),
+      borderSide: BorderSide(
+        color: Theme.of(context).colorScheme.primary,
+        width: 3,
+      ),
+    ),
+  ),
+  hint: const Text('Distance'),
+  items: List.generate(
+    20,
+    (index) {
+      final km = (index + 1) * 5;
+      final meters = km * 1000;
+
+      return DropdownMenuItem<int>(
+        value: meters,
+        child: Text('$km km'),
+      );
+    },
+  ),
+  onChanged: (value) {
+    filter.setMaxDistance(value);
+  },
+),
                               //jeżeli nie ustawiono customlocalization, używamy lokalizacji użytkownika
                               onChanged: (value) {
                                 if (context
@@ -627,7 +631,7 @@ class _FilterState extends State<Filter> {
               ),
 
               // =======================================
-              // Przycisk filtrowania
+              // // Bouton de filtrage
               // =======================================
               Padding(
                 padding: const EdgeInsets.only(top: 16),
@@ -640,7 +644,7 @@ class _FilterState extends State<Filter> {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
                             content: Text(
-                              "Maksymalna cena nie może być mniejsza niż minimalna.",
+                              "Le prix maximum ne peut pas être inférieur au prix minimum.",
                             ),
                           ),
                         );
@@ -659,7 +663,7 @@ class _FilterState extends State<Filter> {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content: Text(
-                                "Zezwól na dostęp do swojej lokalizacji lub ustaw inną w polu wyboru, aby móc filtrować po odległości.",
+                                "Autorisez l’accès à votre localisation pour utiliser ce filtre.",
                               ),
                             ),
                           );
@@ -676,7 +680,7 @@ class _FilterState extends State<Filter> {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
                             content: Text(
-                              "Zezwól na dostęp do swojej lokalizacji lub ustaw inną w polu wyboru, aby móc sortować po odległości.",
+                               "Autorisez l’accès à votre localisation pour utiliser ce filtre.",
                             ),
                           ),
                         );
