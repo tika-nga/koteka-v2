@@ -207,10 +207,15 @@ const SizedBox(height: 24),
 
             FilledButton.icon(
               onPressed: _image == null
-                  ? null
-                  : () {
-                      // prochaine étape
-                    },
+    ? null
+    : () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const ReviewAdScreen(),
+          ),
+        );
+      },
               icon: const Icon(Icons.arrow_forward),
               label: const Text(
                 'Continuer',
@@ -220,6 +225,46 @@ const SizedBox(height: 24),
           ],
         ),
       ),
+          );
+  }
+}
+      class ReviewAdScreen extends StatelessWidget {
+  const ReviewAdScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Vérifier l’annonce'),
+        centerTitle: true,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Text(
+              'Votre annonce est presque prête',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 20),
+            const Text(
+              'Vérifiez les informations avant de publier votre annonce.',
+            ),
+            const Spacer(),
+            FilledButton(
+              onPressed: () {},
+              child: const Text('Publier l’annonce'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+      }
     );
   }
 }
