@@ -559,63 +559,56 @@ class _FilterState extends State<Filter> {
                               color: Theme.of(context).colorScheme.primary,
                             ),
                           ),
-                          SizedBox(
-                            width: 120,
-                            DropdownButtonFormField<int>(
-  value: filter.selectedMaxDistance,
-  decoration: InputDecoration(
-    isDense: true,
-    contentPadding: const EdgeInsets.symmetric(
-      vertical: 5,
-      horizontal: 8,
-    ),
-    enabledBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(5),
-      borderSide: BorderSide(
-        color: Theme.of(context).colorScheme.primary,
-        width: 2,
+SizedBox(
+  width: 120,
+  child: DropdownButtonFormField<int>(
+    value: filter.selectedMaxDistance,
+    isExpanded: true,
+    decoration: InputDecoration(
+      isDense: true,
+      contentPadding: const EdgeInsets.symmetric(
+        vertical: 5,
+        horizontal: 8,
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(5),
+        borderSide: BorderSide(
+          color: Theme.of(context).colorScheme.primary,
+          width: 2,
+        ),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(5),
+        borderSide: BorderSide(
+          color: Theme.of(context).colorScheme.primary,
+          width: 3,
+        ),
       ),
     ),
-    focusedBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(5),
-      borderSide: BorderSide(
-        color: Theme.of(context).colorScheme.primary,
-        width: 3,
-      ),
-    ),
-  ),
-  hint: const Text('Distance'),
-  items: List.generate(
-    20,
-    (index) {
-      final km = (index + 1) * 5;
-      final meters = km * 1000;
+    hint: const Text('Distance'),
+    items: List.generate(
+      20,
+      (index) {
+        final km = (index + 1) * 5;
+        final meters = km * 1000;
 
-      return DropdownMenuItem<int>(
-        value: meters,
-        child: Text('$km km'),
-      );
-    },
-  ),
-  onChanged: (value) {
-    filter.setMaxDistance(value);
-  },
+        return DropdownMenuItem<int>(
+          value: meters,
+          child: Text('$km km'),
+        );
+      },
+    ),
+    onChanged: (value) {
+  filter.setMaxDistance(value);
+},
 ),
-                            
-                              style: TextStyle(
-                                fontFamily: 'Mplus1p',
-                                fontSize: 14 * textScale,
-                                fontWeight: FontWeight.w300,
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+),
+],
+),
+),
+],
+),
+),
 
               // =======================================
               // // Bouton de filtrage
