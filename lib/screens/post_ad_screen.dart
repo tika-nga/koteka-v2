@@ -1,8 +1,19 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
-class PostAdScreen extends StatelessWidget {
+class PostAdScreen extends StatefulWidget {
   const PostAdScreen({super.key});
+
+  @override
+  State<PostAdScreen> createState() => _PostAdScreenState();
+}
+
+class _PostAdScreenState extends State<PostAdScreen> {
+  final _titleController = TextEditingController();
+  final _priceController = TextEditingController();
+  final _cityController = TextEditingController();
+  final _districtController = TextEditingController();
+  final _descriptionController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -22,9 +33,9 @@ class PostAdScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 24),
-
-          TextField(
-            decoration: InputDecoration(
+TextField(
+  controller: _titleController,
+  decoration: InputDecoration(
               labelText: 'Titre de l’annonce',
               hintText: 'Ex : Samsung Galaxy S22',
               border: OutlineInputBorder(
@@ -36,8 +47,8 @@ class PostAdScreen extends StatelessWidget {
           const SizedBox(height: 16),
 
           TextField(
-            keyboardType: TextInputType.number,
-            decoration: InputDecoration(
+  controller: _priceController,
+  keyboardType: TextInputType.number,
               labelText: 'Prix',
               hintText: 'Prix en FC',
               border: OutlineInputBorder(
@@ -49,7 +60,7 @@ class PostAdScreen extends StatelessWidget {
           const SizedBox(height: 16),
 
           TextField(
-            decoration: InputDecoration(
+  controller: _cityController,
               labelText: 'Ville',
               hintText: 'Ex : Kinshasa',
               border: OutlineInputBorder(
@@ -61,7 +72,7 @@ class PostAdScreen extends StatelessWidget {
           const SizedBox(height: 16),
 
           TextField(
-            decoration: InputDecoration(
+  controller: _districtController,
               labelText: 'Quartier',
               hintText: 'Ex : Gombe',
               border: OutlineInputBorder(
@@ -73,7 +84,8 @@ class PostAdScreen extends StatelessWidget {
           const SizedBox(height: 16),
 
           TextField(
-            maxLines: 5,
+  controller: _descriptionController,
+  maxLines: 5,
             decoration: InputDecoration(
               labelText: 'Description',
               hintText: 'Décrivez votre article',
