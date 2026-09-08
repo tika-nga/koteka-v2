@@ -601,20 +601,7 @@ class _FilterState extends State<Filter> {
     filter.setMaxDistance(value);
   },
 ),
-                              //jeżeli nie ustawiono customlocalization, używamy lokalizacji użytkownika
-                              onChanged: (value) {
-                                if (context
-                                        .read<FilterViewModel>()
-                                        .searchNearbyUser !=
-                                    false) {
-                                  context
-                                      .read<PlacesModel>()
-                                      .updateUserMarker();
-                                }
-
-                                final maxDistance = int.tryParse(value);
-                                filter.setMaxDistance(maxDistance ?? 0);
-                              },
+                            
                               style: TextStyle(
                                 fontFamily: 'Mplus1p',
                                 fontSize: 14 * textScale,
