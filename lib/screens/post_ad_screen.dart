@@ -194,17 +194,26 @@ class _AddPhotoScreenState extends State<AddPhotoScreen> {
             const SizedBox(height: 20),
 
             OutlinedButton.icon(
-              onPressed: _chooseImage,
-              icon: const Icon(Icons.add_photo_alternate_outlined),
-              label: Text(
-                _image == null
-                    ? 'Ajouter une photo'
-                    : 'Changer la photo',
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
+  onPressed: _chooseImage,
+  icon: const Icon(Icons.add_photo_alternate_outlined),
+  label: Text(
+    _image == null
+        ? 'Ajouter une photo'
+        : 'Changer la photo',
+  ),
+),
+
+const SizedBox(height: 24),
+
+FilledButton.icon(
+  onPressed: _image == null
+      ? null
+      : () {
+          // prochaine étape
+        },
+  icon: const Icon(Icons.arrow_forward),
+  label: const Text(
+    'Continuer',
+    style: TextStyle(fontSize: 17),
+  ),
+),
