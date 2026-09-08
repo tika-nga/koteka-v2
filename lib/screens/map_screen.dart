@@ -344,8 +344,9 @@ class _MapScreenState extends State<MapScreen> {
 
   filterViewModel.setMaxDistance(newR);
 },
-                    }.toSet(),
-                circles: circles,
+),
+}.toSet(),
+circles: circles,
                 onMapCreated: (controller) {
                   _mapController = controller;
                   mapViewModel.onUserLocationChanged = (LatLng newPosition) {
