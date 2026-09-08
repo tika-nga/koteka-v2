@@ -73,13 +73,14 @@ TextField(
 
           TextField(
   controller: _districtController,
-              labelText: 'Quartier',
-              hintText: 'Ex : Gombe',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-          ),
+  decoration: InputDecoration(
+    labelText: 'Quartier',
+    hintText: 'Ex : Gombe',
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(12),
+    ),
+  ),
+),
 
           const SizedBox(height: 16),
 
