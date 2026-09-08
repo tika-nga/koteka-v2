@@ -288,30 +288,79 @@ const SizedBox(height: 24),
         title: const Text('Vérifier l’annonce'),
         centerTitle: true,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const Text(
-              'Votre annonce est presque prête',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 20),
-            const Text(
-              'Vérifiez les informations avant de publier votre annonce.',
-            ),
-            const Spacer(),
-            FilledButton(
-              onPressed: () {},
-              child: const Text('Publier l’annonce'),
-            ),
-          ],
+      body: SingleChildScrollView(
+  padding: const EdgeInsets.all(20),
+  child: Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: Image.file(
+          File(imagePath),
+          height: 220,
+          fit: BoxFit.cover,
         ),
       ),
-    );
-  }
-}
+
+      const SizedBox(height: 24),
+
+      Text(
+        title,
+        style: const TextStyle(
+          fontSize: 24,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+
+      const SizedBox(height: 12),
+
+      Text(
+        '$price FC',
+        style: const TextStyle(
+          fontSize: 22,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+
+      const SizedBox(height: 20),
+
+      Text(
+        'Ville : $city',
+        style: const TextStyle(fontSize: 17),
+      ),
+
+      const SizedBox(height: 8),
+
+      Text(
+        'Quartier : $district',
+        style: const TextStyle(fontSize: 17),
+      ),
+
+      const SizedBox(height: 20),
+
+      const Text(
+        'Description',
+        style: TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+
+      const SizedBox(height: 8),
+
+      Text(
+        description,
+        style: const TextStyle(fontSize: 16),
+      ),
+
+      const SizedBox(height: 32),
+
+      FilledButton(
+        onPressed: () {
+          // Publication réelle à brancher ensuite
+        },
+        child: const Text('Publier l’annonce'),
+      ),
+    ],
+  ),
+),
