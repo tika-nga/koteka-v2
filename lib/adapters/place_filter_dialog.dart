@@ -474,7 +474,7 @@ class _FilterState extends State<Filter> {
                       ),
                     ),
                     Text(
-                      '${AppLocalizations.of(context)!.distance} (m)',
+                      '${AppLocalizations.of(context)!.distance} (km)',
                       style: TextStyle(
                         fontFamily: 'Mplus1p',
                         fontSize: 20 * textScale,
