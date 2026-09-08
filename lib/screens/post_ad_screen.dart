@@ -361,6 +361,9 @@ const SizedBox(height: 24),
         },
         child: const Text('Publier l’annonce'),
       ),
-    ],
+                ],
+    ),
   ),
-),
+    );
+  }
+}
