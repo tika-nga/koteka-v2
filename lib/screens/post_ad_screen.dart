@@ -104,7 +104,6 @@ class PostAdScreen extends StatelessWidget {
             ),
           ],
         ),
-      ),
     );
   }
 }
