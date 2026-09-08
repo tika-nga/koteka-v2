@@ -104,8 +104,13 @@ TextField(
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const AddPhotoScreen(),
-                    ),
+                      builder: (context) => AddPhotoScreen(
+  title: _titleController.text,
+  price: _priceController.text,
+  city: _cityController.text,
+  district: _districtController.text,
+  description: _descriptionController.text,
+),
                   );
                 },
                 icon: const Icon(Icons.arrow_forward),
@@ -122,8 +127,20 @@ TextField(
 }
 
 class AddPhotoScreen extends StatefulWidget {
-  const AddPhotoScreen({super.key});
+  final String title;
+  final String price;
+  final String city;
+  final String district;
+  final String description;
 
+  const AddPhotoScreen({
+    super.key,
+    required this.title,
+    required this.price,
+    required this.city,
+    required this.district,
+    required this.description,
+  });
   @override
   State<AddPhotoScreen> createState() => _AddPhotoScreenState();
 }
@@ -136,9 +153,9 @@ class _AddPhotoScreenState extends State<AddPhotoScreen> {
     final source = await showModalBottomSheet<ImageSource>(
       context: context,
       builder: (context) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
+  child: Column(
+    mainAxisSize: MainAxisSize.min,
+    children: [
             ListTile(
               leading: const Icon(Icons.photo_library_outlined),
               title: const Text('Choisir dans la galerie'),
@@ -224,7 +241,14 @@ const SizedBox(height: 24),
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => const ReviewAdScreen(),
+            builder: (context) => ReviewAdScreen(
+              title: widget.title,
+              price: widget.price,
+              city: widget.city,
+              district: widget.district,
+              description: widget.description,
+              imagePath: _image!.path,
+            ),
           ),
         );
       },
@@ -241,8 +265,22 @@ const SizedBox(height: 24),
   }
 }
       class ReviewAdScreen extends StatelessWidget {
-  const ReviewAdScreen({super.key});
+  final String title;
+  final String price;
+  final String city;
+  final String district;
+  final String description;
+  final String imagePath;
 
+  const ReviewAdScreen({
+    super.key,
+    required this.title,
+    required this.price,
+    required this.city,
+    required this.district,
+    required this.description,
+    required this.imagePath,
+  });
   @override
   Widget build(BuildContext context) {
     return Scaffold(
