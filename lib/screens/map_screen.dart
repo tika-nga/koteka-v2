@@ -316,25 +316,33 @@ class _MapScreenState extends State<MapScreen> {
                             final rawDistance = _distanceMeters(
   location,
   newPos,
-).clamp(5000.0, 100000.0);
+).clamp(1000.0, 100000.0);
 
-final newR = ((rawDistance / 5000).round() * 5000)
-    .clamp(5000, 100000);
-
+final newR = <int>[1000, 5000, 10000, 20000, 50000, 100000]
+    .reduce(
+      (a, b) =>
+          (rawDistance - a).abs() < (rawDistance - b).abs()
+              ? a
+              : b,
+    );
 filterViewModel.setMaxDistance(newR);
                           },
                           onDragEnd: (newPos) async {
                             final rawDistance = _distanceMeters(
   location,
   newPos,
-).clamp(5000.0, 100000.0);
+.clamp(1000, 100000);
 
-final newR = ((rawDistance / 5000).round() * 5000)
-    .clamp(5000, 100000);
+final newR = <int>[1000, 5000, 10000, 20000, 50000, 100000]
+    .reduce(
+      (a, b) =>
+          (rawDistance - a).abs() < (rawDistance - b).abs()
+              ? a
+              : b,
+    );
 
 filterViewModel.setMaxDistance(newR);
-                          },
-                        ),
+},
                     }.toSet(),
                 circles: circles,
                 onMapCreated: (controller) {
