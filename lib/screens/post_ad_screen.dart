@@ -205,15 +205,21 @@ class _AddPhotoScreenState extends State<AddPhotoScreen> {
 
 const SizedBox(height: 24),
 
-FilledButton.icon(
-  onPressed: _image == null
-      ? null
-      : () {
-          // prochaine étape
-        },
-  icon: const Icon(Icons.arrow_forward),
-  label: const Text(
-    'Continuer',
-    style: TextStyle(fontSize: 17),
-  ),
-),
+            FilledButton.icon(
+              onPressed: _image == null
+                  ? null
+                  : () {
+                      // prochaine étape
+                    },
+              icon: const Icon(Icons.arrow_forward),
+              label: const Text(
+                'Continuer',
+                style: TextStyle(fontSize: 17),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
