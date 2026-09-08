@@ -118,89 +118,6 @@ class _FilterState extends State<Filter> {
                 thickness: 0.5,
                 color: Color.fromRGBO(195, 196, 215, 1),
               ),
-              // =======================================
-              // Filtry tagów po kategoriach
-              // =======================================
-              if (filter.selectedCategories.isNotEmpty) ...[
-                for (Category category in filter.selectedCategories) ...[
-                  const SizedBox(height: 12),
-                  Padding(
-                    padding: EdgeInsets.only(left: 11),
-                    child: Row(
-                      children: [
-                        Padding(
-                          padding: EdgeInsets.only(right: 5),
-                          child: Icon(
-                            Icons.sell_outlined,
-                            color: Theme.of(context).colorScheme.primary,
-                            size: 22 * textScale,
-                          ),
-                        ),
-                        Text(
-                          "${AppLocalizations.of(context)!.tags} (${getCategoryName(context, category)})",
-                          style: TextStyle(
-                            fontFamily: 'Mplus1p',
-                            fontSize: 20 * textScale,
-                            letterSpacing: -1,
-                            fontWeight: FontWeight.w500,
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.only(left: 11),
-                    child: Wrap(
-                      spacing: 5.0,
-                      runSpacing: -5.0,
-                      children: [
-                        for (String tag in allowedTags[category] ?? [])
-                          FilterChip(
-                            labelPadding: EdgeInsets.symmetric(
-                              horizontal: 0,
-                              vertical: 0,
-                            ),
-                            label: Text(
-                              getLocalizedTag(context, category, tag),
-                              style: TextStyle(
-                                fontFamily: 'Mplus1p',
-                                fontSize: 14 * textScale,
-                                fontWeight: FontWeight.w300,
-                                color:
-                                    Theme.of(context).colorScheme.onSecondary,
-                              ),
-                            ),
-                            selected: filter.selectedTags.contains(tag),
-                            onSelected:
-                                (isSelected) =>
-                                    filter.toggleTag(isSelected, tag),
-                            showCheckmark: false,
-                            backgroundColor:
-                                Theme.of(context).colorScheme.secondary,
-                            selectedColor:
-                                Theme.of(context).colorScheme.tertiary,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              side: BorderSide.none,
-                            ),
-                            side: BorderSide.none,
-                          ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Divider(
-                    height: 1,
-                    thickness: 0.5,
-                    color: Color.fromRGBO(195, 196, 215, 1),
-                  ),
-                ],
-              ],
-
-              // =======================================
-              // Wpisywaczka cen
-              // =======================================
               const SizedBox(height: 12),
               Padding(
                 padding: EdgeInsets.only(left: 11),
@@ -498,18 +415,14 @@ SizedBox(
       ),
     ),
     hint: const Text('Distance'),
-    items: List.generate(
-      20,
-      (index) {
-        final km = (index + 1) * 5;
-        final meters = km * 1000;
-
-        return DropdownMenuItem<int>(
-          value: meters,
-          child: Text('$km km'),
-        );
-      },
-    ),
+    items: const [1, 5, 10, 20, 50, 100]
+    .map(
+      (km) => DropdownMenuItem<int>(
+        value: km * 1000,
+        child: Text('$km km'),
+      ),
+    )
+    .toList(),
     onChanged: (value) {
   filter.setMaxDistance(value);
 },
