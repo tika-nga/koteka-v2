@@ -313,35 +313,36 @@ class _MapScreenState extends State<MapScreen> {
     '${((filterViewModel.selectedMaxDistance ?? 0) / 1000).round()} km',
                           ),
                           onDrag: (newPos) {
-                            final rawDistance = _distanceMeters(
-  location,
-  newPos,
-).clamp(1000.0, 100000.0);
+  final rawDistance = _distanceMeters(
+    location,
+    newPos,
+  ).clamp(1000.0, 100000.0);
 
-final newR = <int>[1000, 5000, 10000, 20000, 50000, 100000]
-    .reduce(
-      (a, b) =>
-          (rawDistance - a).abs() < (rawDistance - b).abs()
-              ? a
-              : b,
-    );
-filterViewModel.setMaxDistance(newR);
-                          },
+  final newR = <int>[1000, 5000, 10000, 20000, 50000, 100000]
+      .reduce(
+        (a, b) =>
+            (rawDistance - a).abs() < (rawDistance - b).abs()
+                ? a
+                : b,
+      );
+
+  filterViewModel.setMaxDistance(newR);
+},
                           onDragEnd: (newPos) async {
-                            final rawDistance = _distanceMeters(
-  location,
-  newPos,
-.clamp(1000, 100000);
+  final rawDistance = _distanceMeters(
+    location,
+    newPos,
+  ).clamp(1000.0, 100000.0);
 
-final newR = <int>[1000, 5000, 10000, 20000, 50000, 100000]
-    .reduce(
-      (a, b) =>
-          (rawDistance - a).abs() < (rawDistance - b).abs()
-              ? a
-              : b,
-    );
+  final newR = <int>[1000, 5000, 10000, 20000, 50000, 100000]
+      .reduce(
+        (a, b) =>
+            (rawDistance - a).abs() < (rawDistance - b).abs()
+                ? a
+                : b,
+      );
 
-filterViewModel.setMaxDistance(newR);
+  filterViewModel.setMaxDistance(newR);
 },
                     }.toSet(),
                 circles: circles,
