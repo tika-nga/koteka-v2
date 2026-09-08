@@ -148,7 +148,7 @@ class _AddPhotoScreenState extends State<AddPhotoScreen> {
 
     if (source == null) return;
 
-    final image = await _picker.pickImage(
+    final image = await _picker pickImage(
       source: source,
       imageQuality: 85,
     );
