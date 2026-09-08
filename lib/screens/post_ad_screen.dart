@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
 class PostAdScreen extends StatelessWidget {
   const PostAdScreen({super.key});
 
@@ -108,8 +109,56 @@ class PostAdScreen extends StatelessWidget {
   }
 }
 
-class AddPhotoScreen extends StatelessWidget {
+class AddPhotoScreen extends StatefulWidget {
   const AddPhotoScreen({super.key});
+
+  @override
+  State<AddPhotoScreen> createState() => _AddPhotoScreenState();
+}
+
+class _AddPhotoScreenState extends State<AddPhotoScreen> {
+  final ImagePicker _picker = ImagePicker();
+  XFile? _image;
+
+  Future<void> _chooseImage() async {
+    final source = await showModalBottomSheet<ImageSource>(
+      context: context,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.photo_library_outlined),
+              title: const Text('Choisir dans la galerie'),
+              onTap: () {
+                Navigator.pop(context, ImageSource.gallery);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.camera_alt_outlined),
+              title: const Text('Prendre une photo'),
+              onTap: () {
+                Navigator.pop(context, ImageSource.camera);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (source == null) return;
+
+    final image = await _picker.pickImage(
+      source: source,
+      imageQuality: 85,
+    );
+
+    if (image != null) {
+      setState(() {
+        _image = image;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -124,17 +173,34 @@ class AddPhotoScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const Text(
-              'Ajoutez des photos de votre article',
+              'Ajoutez une photo de votre article',
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 24),
+
+            if (_image != null)
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Image.file(
+                  File(_image!.path),
+                  height: 220,
+                  fit: BoxFit.cover,
+                ),
+              ),
+
+            const SizedBox(height: 20),
+
             OutlinedButton.icon(
-              onPressed: () {},
+              onPressed: _chooseImage,
               icon: const Icon(Icons.add_photo_alternate_outlined),
-              label: const Text('Ajouter une photo'),
+              label: Text(
+                _image == null
+                    ? 'Ajouter une photo'
+                    : 'Changer la photo',
+              ),
             ),
           ],
         ),
