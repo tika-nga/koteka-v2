@@ -87,16 +87,45 @@ class PostAdScreen extends StatelessWidget {
           SizedBox(
             height: 55,
             child: FilledButton.icon(
-              onPressed: () {},
-              icon: const Icon(Icons.arrow_forward),
-              label: const Text(
-                'Continuer',
-                style: TextStyle(fontSize: 17),
+              onPressed: () {
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => const AddPhotoScreen(),
+    ),
+  );
+},
+        class AddPhotoScreen extends StatelessWidget {
+  const AddPhotoScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Ajouter des photos'),
+        centerTitle: true,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Text(
+              'Ajoutez des photos de votre article',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
               ),
             ),
-          ),
-        ],
+            const SizedBox(height: 24),
+            OutlinedButton.icon(
+              onPressed: () {},
+              icon: const Icon(Icons.add_photo_alternate_outlined),
+              label: const Text('Ajouter une photo'),
+            ),
+          ],
+        ),
       ),
     );
   }
-}
+        }
