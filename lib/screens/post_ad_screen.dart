@@ -82,20 +82,34 @@ class PostAdScreen extends StatelessWidget {
             ),
           ),
 
-          const SizedBox(height: 24),
+                      const SizedBox(height: 24),
 
-          SizedBox(
-            height: 55,
-            child: FilledButton.icon(
-              onPressed: () {
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) => const AddPhotoScreen(),
-    ),
-  );
-},
-        class AddPhotoScreen extends StatelessWidget {
+            SizedBox(
+              height: 55,
+              child: FilledButton.icon(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const AddPhotoScreen(),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.arrow_forward),
+                label: const Text(
+                  'Continuer',
+                  style: TextStyle(fontSize: 17),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class AddPhotoScreen extends StatelessWidget {
   const AddPhotoScreen({super.key});
 
   @override
@@ -128,4 +142,4 @@ class PostAdScreen extends StatelessWidget {
       ),
     );
   }
-        }
+}
