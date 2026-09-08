@@ -303,7 +303,7 @@ class _FilterState extends State<Filter> {
                       ),
                     ),
                     Text(
-                      '${AppLocalizations.of(context)!.price} (zł)',
+                      '${AppLocalizations.of(context)!.price} (FC)',
                       style: TextStyle(
                         fontFamily: 'Mplus1p',
                         fontSize: 20 * textScale,
@@ -346,7 +346,7 @@ class _FilterState extends State<Filter> {
                                   vertical: 5,
                                   horizontal: 8,
                                 ),
-                                hintText: "0 zł",
+                                hintText: "0 FC",
                                 hintStyle: TextStyle(
                                   fontFamily: 'Mplus1p',
                                   fontSize: 14 * textScale,
@@ -413,7 +413,7 @@ class _FilterState extends State<Filter> {
                                   vertical: 5,
                                   horizontal: 8,
                                 ),
-                                hintText: "50 zł",
+                                hintText: "50 FC",
                                 hintStyle: TextStyle(
                                   fontFamily: 'Mplus1p',
                                   fontSize: 14 * textScale,
