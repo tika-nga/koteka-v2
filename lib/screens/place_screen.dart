@@ -828,7 +828,7 @@ class PlaceScreen extends StatelessWidget {
                                               ),
                                             ),
                                             Text(
-                                              '${e.$2} zł',
+                                              '${e.$2} Fc',
                                               style: TextStyle(
                                                 fontFamily: 'Mplus1p',
                                                 fontSize: 14 * textScale,
@@ -868,7 +868,7 @@ class PlaceScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 20),
 
-                  // Wyświetlanie propozycji randek
+                  // Affichage des annonces proposées
                   Container(
                     padding: const EdgeInsets.only(left: 4, top: 3, bottom: 7),
                     decoration: BoxDecoration(
