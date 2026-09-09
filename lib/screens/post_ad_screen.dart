@@ -49,25 +49,27 @@ TextField(
           TextField(
   controller: _priceController,
   keyboardType: TextInputType.number,
-              labelText: 'Prix',
-              hintText: 'Prix en FC',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-          ),
+  decoration: InputDecoration(
+    labelText: 'Prix',
+    hintText: 'Prix en FC',
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(12),
+    ),
+  ),
+),
 
           const SizedBox(height: 16),
 
           TextField(
   controller: _cityController,
-              labelText: 'Ville',
-              hintText: 'Ex : Kinshasa',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-          ),
+  decoration: InputDecoration(
+    labelText: 'Ville',
+    hintText: 'Ex : Kinshasa',
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(12),
+    ),
+  ),
+),
 
           const SizedBox(height: 16),
 
