@@ -104,18 +104,19 @@ TextField(
               height: 55,
               child: FilledButton.icon(
                 onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => AddPhotoScreen(
-  title: _titleController.text,
-  price: _priceController.text,
-  city: _cityController.text,
-  district: _districtController.text,
-  description: _descriptionController.text,
-),
-                  );
-                },
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => AddPhotoScreen(
+        title: _titleController.text,
+        price: _priceController.text,
+        city: _cityController.text,
+        district: _districtController.text,
+        description: _descriptionController.text,
+      ),
+    ),
+  );
+},
                 icon: const Icon(Icons.arrow_forward),
                 label: const Text(
                   'Continuer',
