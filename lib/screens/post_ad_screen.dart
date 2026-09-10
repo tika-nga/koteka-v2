@@ -362,14 +362,47 @@ const SizedBox(height: 24),
       const SizedBox(height: 32),
 
       FilledButton(
-        onPressed: () {
-          // Publication réelle à brancher ensuite
-        },
-        child: const Text('Publier l’annonce'),
-      ),
-                ],
-    ),
-  ),
-    );
-  }
-}
+  onPressed: () async {
+    try {
+      final imageFile = File(imagePath);
+
+      final fileName =
+          'annonces/${DateTime.now().millisecondsSinceEpoch}.jpg';
+
+      final ref = FirebaseStorage.instance.ref().child(fileName);
+
+      await ref.putFile(imageFile);
+
+      final imageUrl = await ref.getDownloadURL();
+
+      await FirebaseFirestore.instance.collection('annonces').add({
+        'title': title,
+        'price': price,
+        'city': city,
+        'district': district,
+        'description': description,
+        'imageUrl': imageUrl,
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+
+      if (!context.mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Annonce publiée avec succès'),
+        ),
+      );
+
+      Navigator.popUntil(context, (route) => route.isFirst);
+    } catch (e) {
+      if (!context.mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erreur lors de la publication : $e'),
+        ),
+      );
+    }
+  },
+  child: const Text('Publier l’annonce'),
+),
