@@ -61,7 +61,7 @@ dependencies:
     permission_handler: ^11.0.0
     image_picker: ^1.1.2
 
-        # Firebase
+  # Firebase
   firebase_core: ^4.3.0
   firebase_messaging: ^16.1.0
   cloud_firestore: ^6.0.0
