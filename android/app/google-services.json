@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "208336990647",
+    "project_id": "koteka-243",
+    "storage_bucket": "koteka-243.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:208336990647:android:84d9ac8208bf8c8058f832",
+        "android_client_info": {
+          "package_name": "com.mpitsol.randki"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCW_UHTL9E4nmXQzg2-kgBaD1oja0bL-RE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
