@@ -366,24 +366,24 @@ const SizedBox(height: 24),
     try {
       final imageFile = File(imagePath);
 
-      final fileName =
-          'annonces/${DateTime.now().millisecondsSinceEpoch}.jpg';
+final fileName =
+    'annonces/${DateTime.now().millisecondsSinceEpoch}.jpg';
 
-      final ref = FirebaseStorage.instance.ref().child(fileName);
+final ref = FirebaseStorage.instance.ref().child(fileName);
 
-      await ref.putFile(imageFile);
+final uploadTask = await ref.putFile(imageFile);
 
-      final imageUrl = await ref.getDownloadURL();
+final imageUrl = await uploadTask.ref.getDownloadURL();
 
-      await FirebaseFirestore.instance.collection('annonces').add({
-        'title': title,
-        'price': price,
-        'city': city,
-        'district': district,
-        'description': description,
-        'imageUrl': imageUrl,
-        'createdAt': FieldValue.serverTimestamp(),
-      });
+await FirebaseFirestore.instance.collection('annonces').add({
+  'title': title,
+  'price': price,
+  'city': city,
+  'district': district,
+  'description': description,
+  'imageUrl': imageUrl,
+  'createdAt': FieldValue.serverTimestamp(),
+});
 
       if (!context.mounted) return;
 
