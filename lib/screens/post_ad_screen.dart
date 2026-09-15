@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
 class PostAdScreen extends StatefulWidget {
   const PostAdScreen({super.key});
 
@@ -366,23 +366,27 @@ const SizedBox(height: 24),
     try {
       final imageFile = File(imagePath);
 
+final supabase = Supabase.instance.client;
+
 final fileName =
-    'annonces/${DateTime.now().millisecondsSinceEpoch}.jpg';
+    '${DateTime.now().millisecondsSinceEpoch}.jpg';
 
-final ref = FirebaseStorage.instance.ref().child(fileName);
+await supabase.storage
+    .from('annonces')
+    .upload(fileName, imageFile);
 
-final uploadTask = await ref.putFile(imageFile);
+final imageUrl = supabase.storage
+    .from('annonces')
+    .getPublicUrl(fileName);
 
-final imageUrl = await uploadTask.ref.getDownloadURL();
-
-await FirebaseFirestore.instance.collection('annonces').add({
+await supabase.from('annonces').insert({
   'title': title,
   'price': price,
   'city': city,
   'district': district,
   'description': description,
   'imageUrl': imageUrl,
-  'createdAt': FieldValue.serverTimestamp(),
+  'createdAt': DateTime.now().toIso8601String(),
 });
 
       if (!context.mounted) return;
