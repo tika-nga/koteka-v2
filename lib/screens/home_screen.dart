@@ -257,9 +257,9 @@ SingleChildScrollView(
       _categoryChip('Vélos', Icons.pedal_bike),
       _categoryChip('Divers', Icons.category),
     ],
+      ),
+    ),
   ),
-),
-
                                 Divider(
                                   height: 5,
                                   thickness: 0.5,
