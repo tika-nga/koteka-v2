@@ -286,82 +286,135 @@ SingleChildScrollView(
                                 ),
                                 const SizedBox(height: 10),
 
-                                /// List of places
-                                Consumer<PlacesModel>(
-                                  builder: (context, homeViewModel, _) {
-                                    final isFetching = homeViewModel.isLoading;
-                                    final loadedPlaces = homeViewModel.places;
+  /// Liste des annonces Koteka depuis Supabase
+FutureBuilder<List<Map<String, dynamic>>>(
+  future: Supabase.instance.client
+      .from('annonces')
+      .select()
+      .order('createdAt', ascending: false),
+  builder: (context, snapshot) {
+    if (snapshot.connectionState == ConnectionState.waiting) {
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.all(30),
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
 
-                                    // placeholders for the next ones that are still loading
-                                    final placeholders =
-                                        isFetching
-                                            ? List.generate(
-                                              5,
-                                              (_) =>
-                                                  PlaceExtension.placeholder(),
-                                            )
-                                            : [];
+    if (snapshot.hasError) {
+      return Padding(
+        padding: const EdgeInsets.all(20),
+        child: Text(
+          'Erreur de chargement : ${snapshot.error}',
+        ),
+      );
+    }
 
-                                    // combine both lists
-                                    final displayPlaces = [
-                                      ...loadedPlaces,
-                                      ...placeholders,
-                                    ];
+    final annonces = snapshot.data ?? [];
 
-                                    return ListView.builder(
-                                      physics:
-                                          const NeverScrollableScrollPhysics(),
-                                      shrinkWrap: true,
-                                      itemCount: displayPlaces.length,
-                                      itemBuilder: (context, index) {
-                                        final place = displayPlaces[index];
+    if (annonces.isEmpty) {
+      return const Padding(
+        padding: EdgeInsets.all(30),
+        child: Center(
+          child: Text(
+            'Aucune annonce disponible pour le moment.',
+            textAlign: TextAlign.center,
+          ),
+        ),
+      );
+    }
 
-                                        // if it's a placeholder, wrap in Skeletonizer
-                                        if (place.id == 'placeholder') {
-                                          return Skeletonizer(
-                                            enabled: true,
-                                            effect: ShimmerEffect(),
-                                            child: PlaceNotice(
-                                              place: place,
-                                              screenWidth: 200,
-                                            ),
-                                          );
-                                        }
+    return ListView.builder(
+      physics: const NeverScrollableScrollPhysics(),
+      shrinkWrap: true,
+      itemCount: annonces.length,
+      itemBuilder: (context, index) {
+        final annonce = annonces[index];
 
-                                        // normal place
-                                        return GestureDetector(
-                                          onTap: () {
-                                            Navigator.of(context).push(
-                                              MaterialPageRoute(
-                                                builder:
-                                                    (context) => PlaceScreen(
-                                                      place: place,
-                                                    ),
-                                              ),
-                                            );
-                                          },
-                                          child: PlaceNotice(
-                                            place: place,
-                                            screenWidth: 200,
-                                          ),
-                                        );
-                                      },
-                                    );
-                                  },
-                                ),
-                              ],
-                            ),
+        final title = annonce['title']?.toString() ?? 'Sans titre';
+        final price = annonce['price']?.toString() ?? '';
+        final city = annonce['city']?.toString() ?? '';
+        final district = annonce['district']?.toString() ?? '';
+        final imageUrl = annonce['imageUrl']?.toString() ?? '';
+
+        return Card(
+          margin: const EdgeInsets.symmetric(
+            horizontal: 12,
+            vertical: 8,
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(10),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: imageUrl.isNotEmpty
+                      ? Image.network(
+                          imageUrl,
+                          width: 120,
+                          height: 120,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Container(
+                              width: 120,
+                              height: 120,
+                              color: Colors.grey.shade200,
+                              child: const Icon(
+                                Icons.image_not_supported,
+                                size: 40,
+                              ),
+                            );
+                          },
+                        )
+                      : Container(
+                          width: 120,
+                          height: 120,
+                          color: Colors.grey.shade200,
+                          child: const Icon(
+                            Icons.image,
+                            size: 40,
                           ),
                         ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        '$price FC',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        district.isNotEmpty
+                            ? '$city • $district'
+                            : city,
                       ),
                     ],
                   ),
                 ),
               ],
             ),
-      ),
+          ),
+        );
+      },
     );
-  }
+  },
+),
 
   /// Builds the action bar with reset filters button and sorting menu
   Widget _buildActionBar(BuildContext context) {
