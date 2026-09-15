@@ -259,9 +259,7 @@ SingleChildScrollView(
     ],
   ),
 ),
-                                    ],
-                                  ),
-                                ),
+
                                 Divider(
                                   height: 5,
                                   thickness: 0.5,
