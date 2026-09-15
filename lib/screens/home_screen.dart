@@ -400,20 +400,11 @@ FutureBuilder<List<Map<String, dynamic>>>(
                         district.isNotEmpty
                             ? '$city • $district'
                             : city,
-                      ),
-                    ],
+                                          ],
                   ),
                 ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-              },
-          ),
-              ],
-            ),
+              );
+            },
           ),
         ],
       ),
