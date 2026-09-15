@@ -226,16 +226,15 @@ class _HomeScreenState extends State<HomeScreen> {
                                             filter.setExpanded(false);
                                             placesModel.clearPlaces();
                                             placesModel.clearMarkers();
-                                            await placesModel
-                                                .fetchFilteredPlaces(
-                                                  buildMarkers: false,
-                                                  context: context,
-                                                );
-                                            
-                                          },
-                                        ),
-                                      ),
-                                      const Text(
+                                            await placesModel.fetchFilteredPlaces(
+  buildMarkers: false,
+  context: context,
+);
+},
+),
+),
+
+const Text(
   'Catégories',
   style: TextStyle(
     fontSize: 16,
