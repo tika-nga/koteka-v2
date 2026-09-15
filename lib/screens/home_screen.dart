@@ -333,7 +333,7 @@ FutureBuilder<List<Map<String, dynamic>>>(
         final price = annonce['price']?.toString() ?? '';
         final city = annonce['city']?.toString() ?? '';
         final district = annonce['district']?.toString() ?? '';
-        final imageUrl = annonce['imageUrl']?.toString() ?? '';
+        final imageUrl = annonce['ImageUrl']?.toString() ?? '';
 
         return Card(
           margin: const EdgeInsets.symmetric(
