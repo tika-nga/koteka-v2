@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_marketplace_template/adapters/place_notice.dart';
 import 'package:flutter_marketplace_template/functions.dart';
 import 'package:flutter_marketplace_template/screens/place_screen.dart';
