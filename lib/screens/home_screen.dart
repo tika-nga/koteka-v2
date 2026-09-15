@@ -413,8 +413,16 @@ FutureBuilder<List<Map<String, dynamic>>>(
         );
       },
     );
-  },
-),
+              },
+          ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
 
   /// Builds the action bar with reset filters button and sorting menu
   Widget _buildActionBar(BuildContext context) {
