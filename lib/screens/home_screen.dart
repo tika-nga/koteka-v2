@@ -24,14 +24,10 @@ class _HomeScreenState extends State<HomeScreen> {
   String selectedSortOption = 'default';
 
   void onScroll() {
-    if (_scrollController.position.pixels >=
-        _scrollController.position.maxScrollExtent - 300) {
-      context.read<PlacesModel>().fetchFilteredPlaces(
-        buildMarkers: false,
-        context: context,
-      );
-    }
-  }
+  // Désactivé temporairement :
+  // les annonces Koteka sont déjà chargées depuis Supabase
+  // par le FutureBuilder.
+}
 
   @override
   void initState() {
