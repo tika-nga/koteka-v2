@@ -233,8 +233,10 @@ class PlaceScreen extends StatelessWidget {
                     children: [
                       // Picture
                       Image.network(
-                        place.profilePicture,
-                        fit: BoxFit.cover,
+  place.profilePicture,
+  width: double.infinity,
+  height: double.infinity,
+  fit: BoxFit.cover,
                         errorBuilder:
                             (context, error, stackTrace) => Container(
                               color: Colors.grey[300],
@@ -1233,64 +1235,7 @@ class PlaceScreen extends StatelessWidget {
                                                                   16,
                                                                   20,
                                                                   94,
-                                                                  1,
-                                                                ),
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ],
-                                                ),
-                                                if (dp.tags != null &&
-                                                    dp.tags!.isNotEmpty)
-                                                  TagList(
-                                                    tags: dp.tags!,
-                                                    textSize: 12,
-                                                    iconSize: 12,
-                                                  ),
-                                              ],
-                                            ),
-                                            const SizedBox(height: 10),
-                                            Text(
-                                              dp.desc,
-                                              style: TextStyle(
-                                                fontFamily: 'Mplus1p',
-                                                fontSize: 14 * textScale,
-                                                letterSpacing: -1,
-                                                fontWeight: FontWeight.w300,
-                                                color:
-                                                    Theme.of(
-                                                      context,
-                                                    ).colorScheme.primary,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  isThreeLine: true,
-                                ),
-                              ),
-                            )
-                          else
-                            Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 8.0),
-                              child: Text(
-                                AppLocalizations.of(context)!.no_date_ideas,
-                                style: TextStyle(
-                                  fontFamily: 'Mplus1p',
-                                  fontSize: 24 * textScale,
-                                  letterSpacing: -1,
-                                  fontWeight: FontWeight.w500,
-                                  color: Theme.of(context).colorScheme.primary,
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
-                  ),
+              
                   const SizedBox(height: 40),
                 ],
               ),
