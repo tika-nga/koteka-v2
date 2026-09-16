@@ -500,6 +500,13 @@ return InkWell(
                     );
                   },
                 ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
 
   Widget _categoryChip(
     String label,
