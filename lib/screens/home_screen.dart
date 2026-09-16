@@ -417,105 +417,89 @@ return InkWell(
       horizontal: 12,
       vertical: 8,
     ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(10),
-                            child: Row(
-                              crossAxisAlignment:
-                                  CrossAxisAlignment.start,
-                              children: [
-                                ClipRRect(
-                                  borderRadius:
-                                      BorderRadius.circular(8),
-                                  child: imageUrl.isNotEmpty
-                                      ? Image.network(
-                                          imageUrl,
-                                          width: 120,
-                                          height: 120,
-                                          fit: BoxFit.cover,
-                                          errorBuilder: (
-                                            context,
-                                            error,
-                                            stackTrace,
-                                          ) {
-                                            return Container(
-                                              width: 120,
-                                              height: 120,
-                                              color: Colors
-                                                  .grey.shade200,
-                                              child: const Icon(
-                                                Icons
-                                                    .image_not_supported,
-                                                size: 40,
-                                              ),
-                                            );
-                                          },
-                                        )
-                                      : Container(
-                                          width: 120,
-                                          height: 120,
-                                          color:
-                                              Colors.grey.shade200,
-                                          child: const Icon(
-                                            Icons.image,
-                                            size: 40,
-                                          ),
-                                        ),
-                                ),
+    child: Padding(
+      padding: const EdgeInsets.all(10),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: imageUrl.isNotEmpty
+                ? Image.network(
+                    imageUrl,
+                    width: 120,
+                    height: 120,
+                    fit: BoxFit.cover,
+                    errorBuilder: (
+                      context,
+                      error,
+                      stackTrace,
+                    ) {
+                      return Container(
+                        width: 120,
+                        height: 120,
+                        color: Colors.grey.shade200,
+                        child: const Icon(
+                          Icons.image_not_supported,
+                          size: 40,
+                        ),
+                      );
+                    },
+                  )
+                : Container(
+                    width: 120,
+                    height: 120,
+                    color: Colors.grey.shade200,
+                    child: const Icon(
+                      Icons.image,
+                      size: 40,
+                    ),
+                  ),
+          ),
 
-                                const SizedBox(width: 12),
+          const SizedBox(width: 12),
 
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        title,
-                                        style:
-                                            const TextStyle(
-                                          fontSize: 17,
-                                          fontWeight:
-                                              FontWeight.bold,
-                                        ),
-                                      ),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
 
-                                      const SizedBox(height: 8),
+                const SizedBox(height: 8),
 
-                                      Text(
-                                        '$price FC',
-                                        style:
-                                            const TextStyle(
-                                          fontSize: 16,
-                                          fontWeight:
-                                              FontWeight.w600,
-                                        ),
-                                      ),
+                Text(
+                  '$price FC',
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
 
-                                      const SizedBox(height: 8),
+                const SizedBox(height: 8),
 
-                                      Text(
-                                        district.isNotEmpty
-                                            ? '$city • $district'
-                                            : city,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
+                Text(
+                  district.isNotEmpty
+                      ? '$city • $district'
+                      : city,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    ),
+  ),
+);
                       },
                     );
                   },
                 ),
-              ],
-            ),
-          );
-        },
-      ),
-    );
-  }
 
   Widget _categoryChip(
     String label,
