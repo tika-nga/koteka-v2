@@ -385,18 +385,38 @@ class _HomeScreenState extends State<HomeScreen> {
     annonce['imageUrl']?.toString() ??
     '';
 
-                        return InkWell(
+                        final place = PlaceExtension.placeholder();
+
+place.id = annonce['id']?.toString() ?? '';
+place.name = title;
+place.address = district.isNotEmpty
+    ? '$city, $district'
+    : city;
+place.profilePicture = imageUrl;
+place.desc =
+    annonce['description']?.toString() ??
+    annonce['desc']?.toString() ??
+    '';
+
+final parsedPrice = int.tryParse(price) ?? 0;
+place.pricepp = (parsedPrice, parsedPrice);
+
+return InkWell(
+  borderRadius: BorderRadius.circular(12),
   onTap: () {
-    Navigator.push(
-      context,
+    Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => PlaceScreen(
-          place: Place.fromJson(annonce),
+          place: place,
         ),
       ),
     );
   },
   child: Card(
+    margin: const EdgeInsets.symmetric(
+      horizontal: 12,
+      vertical: 8,
+    ),
                           child: Padding(
                             padding: const EdgeInsets.all(10),
                             child: Row(
