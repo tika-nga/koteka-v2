@@ -365,6 +365,93 @@ FutureBuilder<List<Map<String, dynamic>>>(
                           },
                         )
                       : Container(
+FutureBuilder<List<Map<String, dynamic>>>(
+  future: Supabase.instance.client
+      .from('annonces')
+      .select()
+      .order('createdAt', ascending: false),
+  builder: (context, snapshot) {
+    if (snapshot.connectionState == ConnectionState.waiting) {
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.all(30),
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
+    if (snapshot.hasError) {
+      return Padding(
+        padding: const EdgeInsets.all(20),
+        child: Text(
+          'Erreur de chargement : ${snapshot.error}',
+        ),
+      );
+    }
+
+    final annonces = snapshot.data ?? [];
+
+    if (annonces.isEmpty) {
+      return const Padding(
+        padding: EdgeInsets.all(30),
+        child: Center(
+          child: Text(
+            'Aucune annonce disponible pour le moment.',
+            textAlign: TextAlign.center,
+          ),
+        ),
+      );
+    }
+
+    return ListView.builder(
+      physics: const NeverScrollableScrollPhysics(),
+      shrinkWrap: true,
+      itemCount: annonces.length,
+      itemBuilder: (context, index) {
+        final annonce = annonces[index];
+
+        final title =
+            annonce['title']?.toString() ?? 'Sans titre';
+        final price =
+            annonce['price']?.toString() ?? '';
+        final city =
+            annonce['city']?.toString() ?? '';
+        final district =
+            annonce['district']?.toString() ?? '';
+        final imageUrl =
+            annonce['imageUrl']?.toString() ?? '';
+
+        return Card(
+          margin: const EdgeInsets.symmetric(
+            horizontal: 12,
+            vertical: 8,
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(10),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: imageUrl.isNotEmpty
+                      ? Image.network(
+                          imageUrl,
+                          width: 120,
+                          height: 120,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Container(
+                              width: 120,
+                              height: 120,
+                              color: Colors.grey.shade200,
+                              child: const Icon(
+                                Icons.image_not_supported,
+                                size: 40,
+                              ),
+                            );
+                          },
+                        )
+                      : Container(
                           width: 120,
                           height: 120,
                           color: Colors.grey.shade200,
@@ -377,7 +464,8 @@ FutureBuilder<List<Map<String, dynamic>>>(
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment:
+                        CrossAxisAlignment.start,
                     children: [
                       Text(
                         title,
@@ -399,17 +487,18 @@ FutureBuilder<List<Map<String, dynamic>>>(
                         district.isNotEmpty
                             ? '$city • $district'
                             : city,
-                                          ],
+                      ),
+                    ],
                   ),
                 ),
-              );
-            },
+              ],
+            ),
           ),
-        ],
-      ),
-    ),
-  );
-}
+        );
+      },
+    );
+  },
+),
 
   /// Builds the action bar with reset filters button and sorting menu
   Widget _buildActionBar(BuildContext context) {
