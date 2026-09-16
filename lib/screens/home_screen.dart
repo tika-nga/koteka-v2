@@ -383,11 +383,18 @@ class _HomeScreenState extends State<HomeScreen> {
     annonce['imageUrl']?.toString() ??
     '';
 
-                        return Card(
-                          margin: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 8,
-                          ),
+                        return InkWell(
+  onTap: () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PlaceScreen(
+          place: Place.fromJson(annonce),
+        ),
+      ),
+    );
+  },
+  child: Card(
                           child: Padding(
                             padding: const EdgeInsets.all(10),
                             child: Row(
