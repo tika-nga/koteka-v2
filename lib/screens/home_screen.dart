@@ -379,7 +379,9 @@ class _HomeScreenState extends State<HomeScreen> {
                             annonce['district']?.toString() ?? '';
 
                         final imageUrl =
-                            annonce['imageUrl']?.toString() ?? '';
+    annonce['ImageUrl']?.toString() ??
+    annonce['imageUrl']?.toString() ??
+    '';
 
                         return Card(
                           margin: const EdgeInsets.symmetric(
