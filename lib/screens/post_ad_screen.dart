@@ -380,13 +380,13 @@ final imageUrl = supabase.storage
     .getPublicUrl(fileName);
 
 await supabase.from('annonces').insert({
-  'title': title,
-  'price': price,
-  'city': city,
-  'district': district,
-  'description': description,
-  'ImageUrl': imageUrl,
-  'createdAt': DateTime.now().toIso8601String(),
+  'title': title.trim(),
+  'price': price.trim(),
+  'city': city.trim(),
+  'district': district.trim(),
+  'description': description.trim(),
+  'imageUrl': imageUrl,
+  'created_at': DateTime.now().toIso8601String(),
 });
 
       if (!context.mounted) return;
