@@ -16,7 +16,17 @@ class _PostAdScreenState extends State<PostAdScreen> {
   final _cityController = TextEditingController();
   final _districtController = TextEditingController();
   final _descriptionController = TextEditingController();
+String? _selectedCategory;
 
+final List<String> _categories = [
+  'Voiture',
+  'Pièces automobiles',
+  'Moto',
+  'Pièces motos',
+  'Meubles',
+  'Vélos',
+  'Divers',
+];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -86,6 +96,30 @@ TextField(
   ),
 ),
 
+          const SizedBox(height: 16),
+
+DropdownButtonFormField<String>(
+  value: _selectedCategory,
+  decoration: InputDecoration(
+    labelText: 'Catégorie',
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(12),
+    ),
+  ),
+  hint: const Text('Choisir une catégorie'),
+  items: _categories.map((category) {
+    return DropdownMenuItem<String>(
+      value: category,
+      child: Text(category),
+    );
+  }).toList(),
+  onChanged: (value) {
+    setState(() {
+      _selectedCategory = value;
+    });
+  },
+),
+          
           const SizedBox(height: 16),
 
           TextField(
