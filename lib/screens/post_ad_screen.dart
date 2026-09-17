@@ -132,15 +132,35 @@ TextField(
 
           const SizedBox(height: 16),
 
-          TextField(
-  controller: _districtController,
+          DropdownButtonFormField<String>(
+  value: _selectedCommune,
   decoration: InputDecoration(
-    labelText: 'Quartier',
-    hintText: 'Ex : Gombe',
+    labelText: 'Commune',
     border: OutlineInputBorder(
       borderRadius: BorderRadius.circular(12),
     ),
   ),
+  hint: Text(
+    _selectedCity == null
+        ? 'Choisissez d’abord une ville'
+        : 'Choisir une commune',
+  ),
+  items: _selectedCity == null
+      ? []
+      : (_communesParVille[_selectedCity] ?? []).map((commune) {
+          return DropdownMenuItem<String>(
+            value: commune,
+            child: Text(commune),
+          );
+        }).toList(),
+  onChanged: _selectedCity == null
+      ? null
+      : (value) {
+          setState(() {
+            _selectedCommune = value;
+            _districtController.text = value ?? '';
+          });
+        },
 ),
 
           const SizedBox(height: 16),
