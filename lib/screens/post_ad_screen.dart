@@ -60,15 +60,6 @@ final Map<String, List<String>> _communesParVille = {
 String? _selectedCity;
 String? _selectedCommune;
 
-final List<String> _categories = [
-  'Voiture',
-  'Pièces automobiles',
-  'Moto',
-  'Pièces motos',
-  'Meubles',
-  'Vélos',
-  'Divers',
-];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
