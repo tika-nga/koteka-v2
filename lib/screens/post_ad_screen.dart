@@ -144,12 +144,13 @@ DropdownButtonFormField<String>(
     context,
     MaterialPageRoute(
       builder: (context) => AddPhotoScreen(
-        title: _titleController.text,
-        price: _priceController.text,
-        city: _cityController.text,
-        district: _districtController.text,
-        description: _descriptionController.text,
-      ),
+  title: _titleController.text,
+  price: _priceController.text,
+  city: _cityController.text,
+  district: _districtController.text,
+  description: _descriptionController.text,
+  category: _selectedCategory ?? 'Divers',
+),
     ),
   );
 },
@@ -172,6 +173,7 @@ class AddPhotoScreen extends StatefulWidget {
   final String city;
   final String district;
   final String description;
+  final String category;
 
   const AddPhotoScreen({
     super.key,
@@ -180,6 +182,7 @@ class AddPhotoScreen extends StatefulWidget {
     required this.city,
     required this.district,
     required this.description,
+    required this.category,
   });
   @override
   State<AddPhotoScreen> createState() => _AddPhotoScreenState();
