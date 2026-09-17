@@ -420,7 +420,7 @@ const SizedBox(height: 24),
       const SizedBox(height: 8),
 
       Text(
-        'Quartier : $district',
+        'Commune : $district',
         style: const TextStyle(fontSize: 17),
       ),
 
