@@ -105,15 +105,29 @@ TextField(
 
           const SizedBox(height: 16),
 
-          TextField(
-  controller: _cityController,
+          DropdownButtonFormField<String>(
+  value: _selectedCity,
   decoration: InputDecoration(
     labelText: 'Ville',
-    hintText: 'Ex : Kinshasa',
     border: OutlineInputBorder(
       borderRadius: BorderRadius.circular(12),
     ),
   ),
+  hint: const Text('Choisir une ville'),
+  items: _communesParVille.keys.map((ville) {
+    return DropdownMenuItem<String>(
+      value: ville,
+      child: Text(ville),
+    );
+  }).toList(),
+  onChanged: (value) {
+    setState(() {
+      _selectedCity = value;
+      _selectedCommune = null;
+      _cityController.text = value ?? '';
+      _districtController.clear();
+    });
+  },
 ),
 
           const SizedBox(height: 16),
