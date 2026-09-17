@@ -24,6 +24,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController _searchController = TextEditingController();
 
   String selectedSortOption = 'default';
+  String? _selectedCategory;
 
   void onScroll() {
   // Désactivé temporairement :
@@ -509,67 +510,65 @@ return InkWell(
   }
 
   Widget _categoryChip(
-    String label,
-    IconData icon,
-  ) {
-    return GestureDetector(
-      onTap: () async {
-        final filter =
-            context.read<FilterViewModel>();
+  String label,
+  String databaseCategory,
+  IconData icon,
+) {
+  final bool isSelected =
+      _selectedCategory == databaseCategory;
 
-        final placesModel =
-            context.read<PlacesModel>();
-
-        filter.resetFilters();
-        filter.setSearchByNameQuery(label);
-
-        placesModel.clearPlaces();
-        placesModel.clearMarkers();
-
-        await placesModel.fetchFilteredPlaces(
-          buildMarkers: false,
-          context: context,
-        );
-      },
-      child: Container(
-        margin: const EdgeInsets.only(right: 10),
-        padding: const EdgeInsets.symmetric(
-          horizontal: 14,
-          vertical: 10,
-        ),
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: Theme.of(context).colorScheme.primary,
-            width: 1,
-          ),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              icon,
-              size: 22,
-              color:
-                  Theme.of(context).colorScheme.primary,
-            ),
-            const SizedBox(width: 7),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w500,
-                color:
-                    Theme.of(context).colorScheme.primary,
-              ),
-            ),
-          ],
+  return GestureDetector(
+    onTap: () {
+      setState(() {
+        if (_selectedCategory == databaseCategory) {
+          _selectedCategory = null;
+        } else {
+          _selectedCategory = databaseCategory;
+        }
+      });
+    },
+    child: Container(
+      margin: const EdgeInsets.only(right: 10),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 14,
+        vertical: 10,
+      ),
+      decoration: BoxDecoration(
+        color: isSelected
+            ? Theme.of(context).colorScheme.secondary
+            : Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.primary,
+          width: isSelected ? 2 : 1,
         ),
       ),
-    );
-  }
-
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            size: 22,
+            color: isSelected
+                ? Theme.of(context).colorScheme.onSecondary
+                : Theme.of(context).colorScheme.primary,
+          ),
+          const SizedBox(width: 7),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w500,
+              color: isSelected
+                  ? Theme.of(context).colorScheme.onSecondary
+                  : Theme.of(context).colorScheme.primary,
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
   /// Builds the action bar with reset filters button and sorting menu
   Widget _buildActionBar(BuildContext context) {
     final filterViewModel =
