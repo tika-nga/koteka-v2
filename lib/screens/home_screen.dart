@@ -326,13 +326,22 @@ _categoryChip(
 
                 /// Liste des annonces Koteka depuis Supabase
                 FutureBuilder<List<Map<String, dynamic>>>(
-                  future: Supabase.instance.client
-                      .from('annonces')
-                      .select()
-                      .order(
-                        'created_at',
-                        ascending: false,
-                      ),
+  future: _selectedCategory == null
+      ? Supabase.instance.client
+          .from('annonces')
+          .select()
+          .order(
+            'created_at',
+            ascending: false,
+          )
+      : Supabase.instance.client
+          .from('annonces')
+          .select()
+          .eq('category', _selectedCategory!)
+          .order(
+            'created_at',
+            ascending: false,
+          ),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState ==
                         ConnectionState.waiting) {
