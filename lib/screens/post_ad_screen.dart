@@ -423,6 +423,7 @@ await supabase.from('annonces').insert({
   'city': city.trim(),
   'district': district.trim(),
   'description': description.trim(),
+  'category': category,
   'imageUrl': imageUrl,
   'created_at': DateTime.now().toIso8601String(),
 });
