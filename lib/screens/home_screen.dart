@@ -249,33 +249,40 @@ class _HomeScreenState extends State<HomeScreen> {
                               child: Row(
                                 children: [
                                   _categoryChip(
-                                    'Voitures',
-                                    Icons.directions_car,
-                                  ),
-                                  _categoryChip(
-                                    'Pièces automobiles',
-                                    Icons.car_repair,
-                                  ),
-                                  _categoryChip(
-                                    'Motos',
-                                    Icons.two_wheeler,
-                                  ),
-                                  _categoryChip(
-                                    'Pièces motos',
-                                    Icons.build,
-                                  ),
-                                  _categoryChip(
-                                    'Meubles',
-                                    Icons.chair,
-                                  ),
-                                  _categoryChip(
-                                    'Vélos',
-                                    Icons.pedal_bike,
-                                  ),
-                                  _categoryChip(
-                                    'Divers',
-                                    Icons.category,
-                                  ),
+  'Voitures',
+  'Voiture',
+  Icons.directions_car,
+),
+_categoryChip(
+  'Pièces automobiles',
+  'Pièces automobiles',
+  Icons.car_repair,
+),
+_categoryChip(
+  'Motos',
+  'Moto',
+  Icons.two_wheeler,
+),
+_categoryChip(
+  'Pièces motos',
+  'Pièces motos',
+  Icons.build,
+),
+_categoryChip(
+  'Meubles',
+  'Meubles',
+  Icons.chair,
+),
+_categoryChip(
+  'Vélos',
+  'Vélos',
+  Icons.pedal_bike,
+),
+_categoryChip(
+  'Divers',
+  'Divers',
+  Icons.category,
+),
                                 ],
                               ),
                             ),
