@@ -27,6 +27,48 @@ final List<String> _categories = [
   'Vélos',
   'Divers',
 ];
+
+final Map<String, List<String>> _communesParVille = {
+  'Kinshasa': [
+    'Bandalungwa',
+    'Barumbu',
+    'Bumbu',
+    'Gombe',
+    'Kalamu',
+    'Kasa-Vubu',
+    'Kimbanseke',
+    'Kinshasa',
+    'Kintambo',
+    'Kisenso',
+    'Lemba',
+    'Limete',
+    'Lingwala',
+    'Makala',
+    'Maluku',
+    'Masina',
+    'Matete',
+    'Mont-Ngafula',
+    'Ndjili',
+    'Ngaba',
+    'Ngaliema',
+    'Ngiri-Ngiri',
+    'Nsele',
+    'Selembao',
+  ],
+};
+
+String? _selectedCity;
+String? _selectedCommune;
+
+final List<String> _categories = [
+  'Voiture',
+  'Pièces automobiles',
+  'Moto',
+  'Pièces motos',
+  'Meubles',
+  'Vélos',
+  'Divers',
+];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
