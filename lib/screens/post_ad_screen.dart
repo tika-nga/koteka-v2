@@ -315,6 +315,7 @@ const SizedBox(height: 24),
   final String district;
   final String description;
   final String imagePath;
+  final String category;
 
   const ReviewAdScreen({
     super.key,
@@ -324,6 +325,7 @@ const SizedBox(height: 24),
     required this.district,
     required this.description,
     required this.imagePath,
+    required this.category,
   });
   @override
   Widget build(BuildContext context) {
