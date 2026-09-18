@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:flutter_marketplace_template/models/place.dart';
@@ -15,7 +16,8 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final ScrollController _scrollController = ScrollController();
-  final TextEditingController _searchController = TextEditingController();
+  final TextEditingController _searchController =
+      TextEditingController();
 
   String? _selectedFamily;
   String? _selectedCategory;
@@ -25,6 +27,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
   String? _selectedCity;
   String? _selectedCommune;
+
+  int? _selectedDistanceKm;
+
+  Position? _userPosition;
+
+  bool _isGettingPosition = false;
 
   String _searchQuery = '';
   String _selectedSort = 'recent';
@@ -65,12 +73,12 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-
     _searchController.addListener(_onSearchChanged);
   }
 
   void _onSearchChanged() {
-    final value = _searchController.text.trim().toLowerCase();
+    final value =
+        _searchController.text.trim().toLowerCase();
 
     if (value == _searchQuery) return;
 
@@ -84,7 +92,6 @@ class _HomeScreenState extends State<HomeScreen> {
     _searchController.removeListener(_onSearchChanged);
     _searchController.dispose();
     _scrollController.dispose();
-
     super.dispose();
   }
 
@@ -100,6 +107,189 @@ class _HomeScreenState extends State<HomeScreen> {
     return List<Map<String, dynamic>>.from(response);
   }
 
+  void _showMessage(String message) {
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+      ),
+    );
+  }
+
+  Future<Position?> _getCurrentPosition() async {
+    final serviceEnabled =
+        await Geolocator.isLocationServiceEnabled();
+
+    if (!serviceEnabled) {
+      if (!mounted) return null;
+
+      final openSettings = await showDialog<bool>(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text(
+              'Localisation désactivée',
+            ),
+            content: const Text(
+              'Activez la localisation du téléphone '
+              'pour rechercher les annonces à proximité.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context, false);
+                },
+                child: const Text('Annuler'),
+              ),
+              FilledButton(
+                onPressed: () {
+                  Navigator.pop(context, true);
+                },
+                child: const Text(
+                  'Ouvrir les paramètres',
+                ),
+              ),
+            ],
+          );
+        },
+      );
+
+      if (openSettings == true) {
+        await Geolocator.openLocationSettings();
+      }
+
+      return null;
+    }
+
+    LocationPermission permission =
+        await Geolocator.checkPermission();
+
+    if (permission == LocationPermission.denied) {
+      permission =
+          await Geolocator.requestPermission();
+    }
+
+    if (permission == LocationPermission.denied) {
+      _showMessage(
+        'La localisation doit être autorisée '
+        'pour utiliser le filtre de distance.',
+      );
+
+      return null;
+    }
+
+    if (permission ==
+        LocationPermission.deniedForever) {
+      if (!mounted) return null;
+
+      final openSettings = await showDialog<bool>(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text(
+              'Autorisation de localisation',
+            ),
+            content: const Text(
+              'L’accès à la localisation a été refusé '
+              'de façon permanente. Vous pouvez '
+              'l’autoriser dans les paramètres de Koteka.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context, false);
+                },
+                child: const Text('Annuler'),
+              ),
+              FilledButton(
+                onPressed: () {
+                  Navigator.pop(context, true);
+                },
+                child: const Text(
+                  'Ouvrir les paramètres',
+                ),
+              ),
+            ],
+          );
+        },
+      );
+
+      if (openSettings == true) {
+        await Geolocator.openAppSettings();
+      }
+
+      return null;
+    }
+
+    try {
+      return await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+        ),
+      );
+    } catch (_) {
+      _showMessage(
+        'Impossible de récupérer votre position.',
+      );
+
+      return null;
+    }
+  }
+
+  Future<void> _applyFilterResult(
+    dynamic result,
+  ) async {
+    Position? newPosition = _userPosition;
+
+    if (result.distanceKm != null) {
+      if (_isGettingPosition) return;
+
+      setState(() {
+        _isGettingPosition = true;
+      });
+
+      try {
+        newPosition =
+            await _getCurrentPosition();
+      } finally {
+        if (mounted) {
+          setState(() {
+            _isGettingPosition = false;
+          });
+        }
+      }
+
+      if (newPosition == null) {
+        return;
+      }
+    } else {
+      newPosition = null;
+    }
+
+    if (!mounted) return;
+
+    setState(() {
+      _selectedMinPrice =
+          result.minPrice;
+
+      _selectedMaxPrice =
+          result.maxPrice;
+
+      _selectedCity =
+          result.city;
+
+      _selectedCommune =
+          result.commune;
+
+      _selectedDistanceKm =
+          result.distanceKm;
+
+      _userPosition =
+          newPosition;
+    });
+  }
+
   void _resetFilters() {
     setState(() {
       _selectedFamily = null;
@@ -111,6 +301,9 @@ class _HomeScreenState extends State<HomeScreen> {
       _selectedCity = null;
       _selectedCommune = null;
 
+      _selectedDistanceKm = null;
+      _userPosition = null;
+
       _selectedSort = 'recent';
 
       _searchController.clear();
@@ -118,8 +311,11 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  int _readPrice(Map<String, dynamic> annonce) {
-    final rawPrice = annonce['price']?.toString() ?? '';
+  int _readPrice(
+    Map<String, dynamic> annonce,
+  ) {
+    final rawPrice =
+        annonce['price']?.toString() ?? '';
 
     final cleaned = rawPrice
         .replaceAll(' ', '')
@@ -129,11 +325,29 @@ class _HomeScreenState extends State<HomeScreen> {
     return int.tryParse(cleaned) ?? 0;
   }
 
-  String _normalize(String? value) {
-    return (value ?? '').trim().toLowerCase();
+  double? _readDouble(dynamic value) {
+    if (value == null) {
+      return null;
+    }
+
+    if (value is num) {
+      return value.toDouble();
+    }
+
+    return double.tryParse(
+      value.toString(),
+    );
   }
 
-  bool _matchesSearch(Map<String, dynamic> annonce) {
+  String _normalize(String? value) {
+    return (value ?? '')
+        .trim()
+        .toLowerCase();
+  }
+
+  bool _matchesSearch(
+    Map<String, dynamic> annonce,
+  ) {
     if (_searchQuery.isEmpty) {
       return true;
     }
@@ -158,25 +372,15 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _matchesFamilyAndCategory(
     Map<String, dynamic> annonce,
   ) {
-    final family = annonce['family']?.toString().trim() ?? '';
+    final family =
+        annonce['family']?.toString().trim() ?? '';
+
     final category =
         annonce['category']?.toString().trim() ?? '';
 
-    if (_selectedFamily != null) {
-      if (family.isNotEmpty) {
-        if (family != _selectedFamily) {
-          return false;
-        }
-      } else {
-        // Compatibilité avec les anciennes annonces
-        // qui n'ont pas encore de valeur "family".
-        final allowedCategories =
-            _categoriesParFamille[_selectedFamily] ?? [];
-
-        if (!allowedCategories.contains(category)) {
-          return false;
-        }
-      }
+    if (_selectedFamily != null &&
+        family != _selectedFamily) {
+      return false;
     }
 
     if (_selectedCategory != null &&
@@ -187,10 +391,40 @@ class _HomeScreenState extends State<HomeScreen> {
     return true;
   }
 
+  double? _distanceKm(
+    Map<String, dynamic> annonce,
+  ) {
+    if (_userPosition == null) {
+      return null;
+    }
+
+    final latitude =
+        _readDouble(annonce['latitude']);
+
+    final longitude =
+        _readDouble(annonce['longitude']);
+
+    if (latitude == null ||
+        longitude == null) {
+      return null;
+    }
+
+    final metres =
+        Geolocator.distanceBetween(
+      _userPosition!.latitude,
+      _userPosition!.longitude,
+      latitude,
+      longitude,
+    );
+
+    return metres / 1000;
+  }
+
   bool _matchesOtherFilters(
     Map<String, dynamic> annonce,
   ) {
-    final price = _readPrice(annonce);
+    final price =
+        _readPrice(annonce);
 
     final city =
         annonce['city']?.toString().trim() ?? '';
@@ -218,22 +452,40 @@ class _HomeScreenState extends State<HomeScreen> {
       return false;
     }
 
+    if (_selectedDistanceKm != null) {
+      final distance =
+          _distanceKm(annonce);
+
+      if (distance == null) {
+        return false;
+      }
+
+      if (distance >
+          _selectedDistanceKm!) {
+        return false;
+      }
+    }
+
     return true;
   }
 
-  List<Map<String, dynamic>> _filterAndSort(
+  List<Map<String, dynamic>>
+      _filterAndSort(
     List<Map<String, dynamic>> annonces,
   ) {
-    final result = annonces.where((annonce) {
+    final result =
+        annonces.where((annonce) {
       if (!_matchesSearch(annonce)) {
         return false;
       }
 
-      if (!_matchesFamilyAndCategory(annonce)) {
+      if (!_matchesFamilyAndCategory(
+          annonce)) {
         return false;
       }
 
-      if (!_matchesOtherFilters(annonce)) {
+      if (!_matchesOtherFilters(
+          annonce)) {
         return false;
       }
 
@@ -243,7 +495,8 @@ class _HomeScreenState extends State<HomeScreen> {
     switch (_selectedSort) {
       case 'price_asc':
         result.sort(
-          (a, b) => _readPrice(a).compareTo(
+          (a, b) => _readPrice(a)
+              .compareTo(
             _readPrice(b),
           ),
         );
@@ -251,7 +504,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
       case 'price_desc':
         result.sort(
-          (a, b) => _readPrice(b).compareTo(
+          (a, b) => _readPrice(b)
+              .compareTo(
             _readPrice(a),
           ),
         );
@@ -260,15 +514,22 @@ class _HomeScreenState extends State<HomeScreen> {
       case 'recent':
       default:
         result.sort((a, b) {
-          final dateA = DateTime.tryParse(
-            a['created_at']?.toString() ?? '',
+          final dateA =
+              DateTime.tryParse(
+            a['created_at']
+                    ?.toString() ??
+                '',
           );
 
-          final dateB = DateTime.tryParse(
-            b['created_at']?.toString() ?? '',
+          final dateB =
+              DateTime.tryParse(
+            b['created_at']
+                    ?.toString() ??
+                '',
           );
 
-          if (dateA == null && dateB == null) {
+          if (dateA == null &&
+              dateB == null) {
             return 0;
           }
 
@@ -289,12 +550,17 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final textScale = screenWidth / 400;
+    final screenWidth =
+        MediaQuery.of(context).size.width;
+
+    final textScale =
+        screenWidth / 400;
 
     return Scaffold(
       backgroundColor:
-          Theme.of(context).colorScheme.surface,
+          Theme.of(context)
+              .colorScheme
+              .surface,
 
       appBar: CustomAppBar(
         showTitle: true,
@@ -302,12 +568,14 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
 
       body: Padding(
-        padding: const EdgeInsets.symmetric(
+        padding:
+            const EdgeInsets.symmetric(
           horizontal: 18,
         ),
         child: ListView(
           controller: _scrollController,
-          padding: const EdgeInsets.only(
+          padding:
+              const EdgeInsets.only(
             left: 10,
             right: 10,
             top: 20,
@@ -321,40 +589,83 @@ class _HomeScreenState extends State<HomeScreen> {
 
             const SizedBox(height: 15),
 
-            FutureBuilder<List<Map<String, dynamic>>>(
+            if (_isGettingPosition)
+              const Padding(
+                padding:
+                    EdgeInsets.only(
+                  bottom: 15,
+                ),
+                child: Row(
+                  mainAxisAlignment:
+                      MainAxisAlignment
+                          .center,
+                  children: [
+                    SizedBox(
+                      width: 18,
+                      height: 18,
+                      child:
+                          CircularProgressIndicator(
+                        strokeWidth: 2,
+                      ),
+                    ),
+                    SizedBox(width: 10),
+                    Text(
+                      'Recherche de votre position...',
+                    ),
+                  ],
+                ),
+              ),
+
+            FutureBuilder<
+                List<Map<String, dynamic>>>(
               future: _loadAnnonces(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState ==
-                    ConnectionState.waiting) {
+              builder:
+                  (context, snapshot) {
+                if (snapshot
+                        .connectionState ==
+                    ConnectionState
+                        .waiting) {
                   return const Center(
                     child: Padding(
-                      padding: EdgeInsets.all(30),
-                      child: CircularProgressIndicator(),
+                      padding:
+                          EdgeInsets.all(
+                              30),
+                      child:
+                          CircularProgressIndicator(),
                     ),
                   );
                 }
 
                 if (snapshot.hasError) {
                   return Padding(
-                    padding: const EdgeInsets.all(20),
+                    padding:
+                        const EdgeInsets
+                            .all(20),
                     child: Text(
                       'Erreur de chargement : ${snapshot.error}',
                     ),
                   );
                 }
 
-                final annonces = snapshot.data ?? [];
+                final annonces =
+                    snapshot.data ?? [];
 
                 final annoncesFiltrees =
-                    _filterAndSort(annonces);
+                    _filterAndSort(
+                        annonces);
 
-                if (annoncesFiltrees.isEmpty) {
+                if (annoncesFiltrees
+                    .isEmpty) {
                   return const Padding(
-                    padding: EdgeInsets.all(30),
+                    padding:
+                        EdgeInsets.all(
+                            30),
                     child: Center(
                       child: Text(
                         'Aucune annonce ne correspond à votre recherche.',
-                        textAlign: TextAlign.center,
+                        textAlign:
+                            TextAlign
+                                .center,
                       ),
                     ),
                   );
@@ -364,11 +675,15 @@ class _HomeScreenState extends State<HomeScreen> {
                   physics:
                       const NeverScrollableScrollPhysics(),
                   shrinkWrap: true,
-                  itemCount: annoncesFiltrees.length,
-                  itemBuilder: (context, index) {
+                  itemCount:
+                      annoncesFiltrees
+                          .length,
+                  itemBuilder:
+                      (context, index) {
                     return _buildAnnonceCard(
                       context,
-                      annoncesFiltrees[index],
+                      annoncesFiltrees[
+                          index],
                     );
                   },
                 );
@@ -387,19 +702,24 @@ class _HomeScreenState extends State<HomeScreen> {
     final subCategories =
         _selectedFamily == null
             ? <String>[]
-            : _categoriesParFamille[_selectedFamily] ??
+            : _categoriesParFamille[
+                    _selectedFamily] ??
                 <String>[];
 
     return Container(
-      padding: const EdgeInsets.only(
+      padding:
+          const EdgeInsets.only(
         left: 15,
         right: 15,
         top: 10,
         bottom: 15,
       ),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(8),
+        color: Theme.of(context)
+            .colorScheme
+            .surface,
+        borderRadius:
+            BorderRadius.circular(8),
         boxShadow: const [
           BoxShadow(
             color: Color.fromRGBO(
@@ -418,16 +738,19 @@ class _HomeScreenState extends State<HomeScreen> {
             CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.only(
+            padding:
+                const EdgeInsets.only(
               left: 9,
             ),
             child: Text(
               'Que recherchez-vous ? / Olingi nini ?',
               style: TextStyle(
                 fontFamily: 'Mplus1p',
-                fontSize: 18 * textScale,
+                fontSize:
+                    18 * textScale,
                 letterSpacing: -1,
-                fontWeight: FontWeight.w500,
+                fontWeight:
+                    FontWeight.w500,
                 color: Theme.of(context)
                     .colorScheme
                     .primary,
@@ -451,28 +774,39 @@ class _HomeScreenState extends State<HomeScreen> {
           const SizedBox(height: 14),
 
           TextField(
-            controller: _searchController,
-            textInputAction: TextInputAction.search,
-            decoration: InputDecoration(
-              prefixIcon: const Icon(
+            controller:
+                _searchController,
+            textInputAction:
+                TextInputAction.search,
+            decoration:
+                InputDecoration(
+              prefixIcon:
+                  const Icon(
                 Icons.search,
               ),
               suffixIcon:
-                  _searchController.text.isEmpty
+                  _searchController
+                          .text
+                          .isEmpty
                       ? null
                       : IconButton(
-                          icon: const Icon(
+                          icon:
+                              const Icon(
                             Icons.close,
                           ),
-                          onPressed: () {
-                            _searchController.clear();
+                          onPressed:
+                              () {
+                            _searchController
+                                .clear();
                           },
                         ),
               hintText:
                   'Téléphone, voiture, meuble...',
-              border: OutlineInputBorder(
+              border:
+                  OutlineInputBorder(
                 borderRadius:
-                    BorderRadius.circular(12),
+                    BorderRadius
+                        .circular(12),
               ),
             ),
           ),
@@ -483,45 +817,58 @@ class _HomeScreenState extends State<HomeScreen> {
             'Catégories',
             style: TextStyle(
               fontSize: 16,
-              fontWeight: FontWeight.w600,
+              fontWeight:
+                  FontWeight.w600,
             ),
           ),
 
           const SizedBox(height: 9),
 
           SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
+            scrollDirection:
+                Axis.horizontal,
             child: Row(
               children:
-                  _categoriesParFamille.keys.map(
+                  _categoriesParFamille
+                      .keys
+                      .map(
                 (family) {
                   return _familyChip(
                     family,
-                    _familyIcons[family] ??
-                        Icons.category_outlined,
+                    _familyIcons[
+                            family] ??
+                        Icons
+                            .category_outlined,
                   );
                 },
               ).toList(),
             ),
           ),
 
-          if (_selectedFamily != null) ...[
-            const SizedBox(height: 12),
+          if (_selectedFamily !=
+              null) ...[
+            const SizedBox(
+                height: 12),
 
             Text(
               _selectedFamily!,
-              style: const TextStyle(
+              style:
+                  const TextStyle(
                 fontSize: 14,
-                fontWeight: FontWeight.w600,
+                fontWeight:
+                    FontWeight.w600,
               ),
             ),
 
             const SizedBox(height: 7),
 
             SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
+              scrollDirection:
+                  Axis.horizontal,
               child: Row(
-                children: subCategories.map(
+                children:
+                    subCategories
+                        .map(
                   (category) {
                     return _subCategoryChip(
                       category,
@@ -559,23 +906,35 @@ class _HomeScreenState extends State<HomeScreen> {
                   _selectedCity,
               initialCommune:
                   _selectedCommune,
+              initialDistanceKm:
+                  _selectedDistanceKm,
               onFilter: (result) {
-                setState(() {
-                  _selectedMinPrice =
-                      result.minPrice;
-
-                  _selectedMaxPrice =
-                      result.maxPrice;
-
-                  _selectedCity =
-                      result.city;
-
-                  _selectedCommune =
-                      result.commune;
-                });
+                _applyFilterResult(
+                  result,
+                );
               },
             ),
           ),
+
+          if (_selectedDistanceKm !=
+              null) ...[
+            const SizedBox(height: 8),
+
+            Center(
+              child: Text(
+                'À moins de $_selectedDistanceKm km de ma position',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight:
+                      FontWeight.w500,
+                  color:
+                      Theme.of(context)
+                          .colorScheme
+                          .primary,
+                ),
+              ),
+            ),
+          ],
 
           const SizedBox(height: 10),
 
@@ -610,18 +969,23 @@ class _HomeScreenState extends State<HomeScreen> {
         setState(() {
           if (selected) {
             _selectedFamily = null;
-            _selectedCategory = null;
+            _selectedCategory =
+                null;
           } else {
-            _selectedFamily = family;
-            _selectedCategory = null;
+            _selectedFamily =
+                family;
+            _selectedCategory =
+                null;
           }
         });
       },
       child: Container(
-        margin: const EdgeInsets.only(
+        margin:
+            const EdgeInsets.only(
           right: 7,
         ),
-        padding: const EdgeInsets.symmetric(
+        padding:
+            const EdgeInsets.symmetric(
           horizontal: 9,
           vertical: 7,
         ),
@@ -634,16 +998,19 @@ class _HomeScreenState extends State<HomeScreen> {
                   .colorScheme
                   .surface,
           borderRadius:
-              BorderRadius.circular(10),
+              BorderRadius.circular(
+                  10),
           border: Border.all(
             color: Theme.of(context)
                 .colorScheme
                 .primary,
-            width: selected ? 1.5 : 1,
+            width:
+                selected ? 1.5 : 1,
           ),
         ),
         child: Row(
-          mainAxisSize: MainAxisSize.min,
+          mainAxisSize:
+              MainAxisSize.min,
           children: [
             Icon(
               icon,
@@ -656,14 +1023,13 @@ class _HomeScreenState extends State<HomeScreen> {
                       .colorScheme
                       .primary,
             ),
-
             const SizedBox(width: 5),
-
             Text(
               family,
               style: TextStyle(
                 fontSize: 12.5,
-                fontWeight: FontWeight.w500,
+                fontWeight:
+                    FontWeight.w500,
                 color: selected
                     ? Theme.of(context)
                         .colorScheme
@@ -683,23 +1049,28 @@ class _HomeScreenState extends State<HomeScreen> {
     String category,
   ) {
     final selected =
-        _selectedCategory == category;
+        _selectedCategory ==
+            category;
 
     return GestureDetector(
       onTap: () {
         setState(() {
           if (selected) {
-            _selectedCategory = null;
+            _selectedCategory =
+                null;
           } else {
-            _selectedCategory = category;
+            _selectedCategory =
+                category;
           }
         });
       },
       child: Container(
-        margin: const EdgeInsets.only(
+        margin:
+            const EdgeInsets.only(
           right: 7,
         ),
-        padding: const EdgeInsets.symmetric(
+        padding:
+            const EdgeInsets.symmetric(
           horizontal: 10,
           vertical: 6,
         ),
@@ -712,19 +1083,22 @@ class _HomeScreenState extends State<HomeScreen> {
                   .colorScheme
                   .surface,
           borderRadius:
-              BorderRadius.circular(20),
+              BorderRadius.circular(
+                  20),
           border: Border.all(
             color: Theme.of(context)
                 .colorScheme
                 .primary
-                .withValues(alpha: 0.55),
+                .withValues(
+                    alpha: 0.55),
           ),
         ),
         child: Text(
           category,
           style: TextStyle(
             fontSize: 12,
-            fontWeight: FontWeight.w500,
+            fontWeight:
+                FontWeight.w500,
             color: Theme.of(context)
                 .colorScheme
                 .primary,
@@ -738,14 +1112,17 @@ class _HomeScreenState extends State<HomeScreen> {
     BuildContext context,
   ) {
     return Wrap(
-      alignment: WrapAlignment.center,
+      alignment:
+          WrapAlignment.center,
       spacing: 8,
       runSpacing: 8,
       children: [
         SizedBox(
           height: 38,
-          child: OutlinedButton.icon(
-            onPressed: _resetFilters,
+          child:
+              OutlinedButton.icon(
+            onPressed:
+                _resetFilters,
             icon: const Icon(
               Icons.refresh,
               size: 19,
@@ -757,10 +1134,12 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
 
         PopupMenuButton<String>(
-          initialValue: _selectedSort,
+          initialValue:
+              _selectedSort,
           onSelected: (value) {
             setState(() {
-              _selectedSort = value;
+              _selectedSort =
+                  value;
             });
           },
           itemBuilder: (context) {
@@ -787,37 +1166,45 @@ class _HomeScreenState extends State<HomeScreen> {
           },
           child: Container(
             height: 38,
-            padding: const EdgeInsets.symmetric(
+            padding:
+                const EdgeInsets
+                    .symmetric(
               horizontal: 14,
             ),
-            decoration: BoxDecoration(
-              color: Theme.of(context)
-                  .colorScheme
-                  .secondary,
+            decoration:
+                BoxDecoration(
+              color:
+                  Theme.of(context)
+                      .colorScheme
+                      .secondary,
               borderRadius:
-                  BorderRadius.circular(8),
+                  BorderRadius
+                      .circular(8),
             ),
             child: Row(
-              mainAxisSize: MainAxisSize.min,
+              mainAxisSize:
+                  MainAxisSize.min,
               children: [
                 Icon(
                   Icons.sort,
                   size: 20,
-                  color: Theme.of(context)
+                  color: Theme.of(
+                          context)
                       .colorScheme
                       .onSecondary,
                 ),
-
-                const SizedBox(width: 6),
-
+                const SizedBox(
+                    width: 6),
                 Text(
                   'Trier',
                   style: TextStyle(
-                    color: Theme.of(context)
+                    color: Theme.of(
+                            context)
                         .colorScheme
                         .onSecondary,
                     fontWeight:
-                        FontWeight.w500,
+                        FontWeight
+                            .w500,
                   ),
                 ),
               ],
@@ -833,46 +1220,67 @@ class _HomeScreenState extends State<HomeScreen> {
     Map<String, dynamic> annonce,
   ) {
     final title =
-        annonce['title']?.toString() ??
+        annonce['title']
+                ?.toString() ??
             'Sans titre';
 
     final price =
-        annonce['price']?.toString() ?? '';
+        annonce['price']
+                ?.toString() ??
+            '';
 
     final city =
-        annonce['city']?.toString() ?? '';
+        annonce['city']
+                ?.toString() ??
+            '';
 
     final district =
-        annonce['district']?.toString() ?? '';
+        annonce['district']
+                ?.toString() ??
+            '';
 
     final family =
-        annonce['family']?.toString() ?? '';
+        annonce['family']
+                ?.toString() ??
+            '';
 
     final category =
-        annonce['category']?.toString() ?? '';
+        annonce['category']
+                ?.toString() ??
+            '';
 
     final imageUrl =
-        annonce['ImageUrl']?.toString() ??
-            annonce['imageUrl']?.toString() ??
+        annonce['imageUrl']
+                ?.toString() ??
             '';
+
+    final distance =
+        _selectedDistanceKm == null
+            ? null
+            : _distanceKm(
+                annonce);
 
     final place =
         PlaceExtension.placeholder();
 
     place.id =
-        annonce['id']?.toString() ?? '';
+        annonce['id']
+                ?.toString() ??
+            '';
 
     place.name = title;
 
-    place.address = district.isNotEmpty
-        ? '$city, $district'
-        : city;
+    place.address =
+        district.isNotEmpty
+            ? '$city, $district'
+            : city;
 
-    place.profilePicture = imageUrl;
+    place.profilePicture =
+        imageUrl;
 
     place.desc =
-        annonce['description']?.toString() ??
-            annonce['desc']?.toString() ??
+        annonce['description']
+                ?.toString() ??
             '';
 
     final parsedPrice =
@@ -884,7 +1292,9 @@ class _HomeScreenState extends State<HomeScreen> {
     );
 
     return InkWell(
-      borderRadius: BorderRadius.circular(12),
+      borderRadius:
+          BorderRadius.circular(
+              12),
       onTap: () {
         Navigator.of(context).push(
           MaterialPageRoute(
@@ -896,57 +1306,72 @@ class _HomeScreenState extends State<HomeScreen> {
         );
       },
       child: Card(
-        margin: const EdgeInsets.symmetric(
+        margin:
+            const EdgeInsets
+                .symmetric(
           horizontal: 12,
           vertical: 8,
         ),
         child: Padding(
-          padding: const EdgeInsets.all(10),
+          padding:
+              const EdgeInsets.all(
+                  10),
           child: Row(
             crossAxisAlignment:
-                CrossAxisAlignment.start,
+                CrossAxisAlignment
+                    .start,
             children: [
               ClipRRect(
                 borderRadius:
-                    BorderRadius.circular(8),
-                child: imageUrl.isNotEmpty
-                    ? Image.network(
-                        imageUrl,
-                        width: 120,
-                        height: 120,
-                        fit: BoxFit.cover,
-                        errorBuilder: (
-                          context,
-                          error,
-                          stackTrace,
-                        ) {
-                          return _imagePlaceholder();
-                        },
-                      )
-                    : _imagePlaceholder(),
+                    BorderRadius
+                        .circular(8),
+                child:
+                    imageUrl.isNotEmpty
+                        ? Image.network(
+                            imageUrl,
+                            width: 120,
+                            height:
+                                120,
+                            fit: BoxFit
+                                .cover,
+                            errorBuilder:
+                                (
+                              context,
+                              error,
+                              stackTrace,
+                            ) {
+                              return _imagePlaceholder();
+                            },
+                          )
+                        : _imagePlaceholder(),
               ),
 
-              const SizedBox(width: 12),
+              const SizedBox(
+                  width: 12),
 
               Expanded(
                 child: Column(
                   crossAxisAlignment:
-                      CrossAxisAlignment.start,
+                      CrossAxisAlignment
+                          .start,
                   children: [
                     Text(
                       title,
                       maxLines: 2,
                       overflow:
-                          TextOverflow.ellipsis,
+                          TextOverflow
+                              .ellipsis,
                       style:
                           const TextStyle(
                         fontSize: 17,
                         fontWeight:
-                            FontWeight.bold,
+                            FontWeight
+                                .bold,
                       ),
                     ),
 
-                    const SizedBox(height: 7),
+                    const SizedBox(
+                        height: 7),
 
                     Text(
                       '$price FC',
@@ -954,13 +1379,17 @@ class _HomeScreenState extends State<HomeScreen> {
                           const TextStyle(
                         fontSize: 16,
                         fontWeight:
-                            FontWeight.w600,
+                            FontWeight
+                                .w600,
                       ),
                     ),
 
-                    if (family.isNotEmpty ||
-                        category.isNotEmpty) ...[
-                      const SizedBox(height: 7),
+                    if (family
+                            .isNotEmpty ||
+                        category
+                            .isNotEmpty) ...[
+                      const SizedBox(
+                          height: 7),
 
                       Text(
                         [
@@ -969,22 +1398,29 @@ class _HomeScreenState extends State<HomeScreen> {
                         ]
                             .where(
                               (value) =>
-                                  value.isNotEmpty,
+                                  value
+                                      .isNotEmpty,
                             )
-                            .join(' • '),
+                            .join(
+                                ' • '),
                         maxLines: 1,
                         overflow:
-                            TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 12.5,
-                          color: Theme.of(context)
+                            TextOverflow
+                                .ellipsis,
+                        style:
+                            TextStyle(
+                          fontSize:
+                              12.5,
+                          color: Theme.of(
+                                  context)
                               .colorScheme
                               .primary,
                         ),
                       ),
                     ],
 
-                    const SizedBox(height: 7),
+                    const SizedBox(
+                        height: 7),
 
                     Text(
                       district.isNotEmpty
@@ -992,8 +1428,40 @@ class _HomeScreenState extends State<HomeScreen> {
                           : city,
                       maxLines: 1,
                       overflow:
-                          TextOverflow.ellipsis,
+                          TextOverflow
+                              .ellipsis,
                     ),
+
+                    if (distance !=
+                        null) ...[
+                      const SizedBox(
+                          height: 7),
+
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons
+                                .near_me_outlined,
+                            size: 16,
+                          ),
+                          const SizedBox(
+                              width: 4),
+                          Expanded(
+                            child: Text(
+                              '${distance.toStringAsFixed(distance < 10 ? 1 : 0)} km',
+                              style:
+                                  const TextStyle(
+                                fontSize:
+                                    12.5,
+                                fontWeight:
+                                    FontWeight
+                                        .w500,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ],
                 ),
               ),
@@ -1008,9 +1476,11 @@ class _HomeScreenState extends State<HomeScreen> {
     return Container(
       width: 120,
       height: 120,
-      color: Colors.grey.shade200,
+      color:
+          Colors.grey.shade200,
       child: const Icon(
-        Icons.image_not_supported_outlined,
+        Icons
+            .image_not_supported_outlined,
         size: 40,
       ),
     );
