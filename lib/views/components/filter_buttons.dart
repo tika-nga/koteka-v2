@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import 'package:flutter_marketplace_template/adapters/place_filter_dialog.dart';
 import 'package:flutter_marketplace_template/l10n/app_localizations.dart';
 import 'package:flutter_marketplace_template/screens/map_screen.dart';
@@ -15,6 +16,7 @@ Widget filterButton(
   int? initialMaxPrice,
   String? initialCity,
   String? initialCommune,
+  int? initialDistanceKm,
   ValueChanged<KotekaFilterResult>? onFilter,
 }) {
   return TextButton(
@@ -25,6 +27,7 @@ Widget filterButton(
         initialMaxPrice: initialMaxPrice,
         initialCity: initialCity,
         initialCommune: initialCommune,
+        initialDistanceKm: initialDistanceKm,
       );
 
       if (result != null && onFilter != null) {
