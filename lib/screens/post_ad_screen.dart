@@ -1,5 +1,6 @@
-import 'package:flutter/material.dart';
 import 'dart:io';
+
+import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -16,52 +17,159 @@ class _PostAdScreenState extends State<PostAdScreen> {
   final _cityController = TextEditingController();
   final _districtController = TextEditingController();
   final _descriptionController = TextEditingController();
-String? _selectedCategory;
 
-final List<String> _categories = [
-  'Voiture',
-  'Pièces automobiles',
-  'Moto',
-  'Pièces motos',
-  'Meubles',
-  'Vélos',
-  'Divers',
-];
+  String? _selectedFamily;
+  String? _selectedCategory;
+  String? _selectedCity;
+  String? _selectedCommune;
 
-final Map<String, List<String>> _communesParVille = {
-  'Kinshasa': [
-    'Bandalungwa',
-    'Barumbu',
-    'Bumbu',
-    'Gombe',
-    'Kalamu',
-    'Kasa-Vubu',
-    'Kimbanseke',
-    'Kinshasa',
-    'Kintambo',
-    'Kisenso',
-    'Lemba',
-    'Limete',
-    'Lingwala',
-    'Makala',
-    'Maluku',
-    'Masina',
-    'Matete',
-    'Mont-Ngafula',
-    'Ndjili',
-    'Ngaba',
-    'Ngaliema',
-    'Ngiri-Ngiri',
-    'Nsele',
-    'Selembao',
-  ],
-};
+  final Map<String, List<String>> _categoriesParFamille = {
+    'Véhicules': [
+      'Voitures',
+      'Camions',
+      'Motos',
+      'Vélos',
+      'Pièces automobiles',
+      'Pièces moto/quad',
+    ],
+    'Électronique': [
+      'Ordinateurs',
+      'Photo / Audio / Caméra',
+      'Consoles et jeux vidéo',
+    ],
+    'Électroménager': [
+      'Électroménager',
+    ],
+    'Maison / Ndaku': [
+      'Ameublement',
+    ],
+    'Autres': [
+      'Autres',
+    ],
+  };
 
-String? _selectedCity;
-String? _selectedCommune;
+  final Map<String, List<String>> _communesParVille = {
+    'Kinshasa': [
+      'Bandalungwa',
+      'Barumbu',
+      'Bumbu',
+      'Gombe',
+      'Kalamu',
+      'Kasa-Vubu',
+      'Kimbanseke',
+      'Kinshasa',
+      'Kintambo',
+      'Kisenso',
+      'Lemba',
+      'Limete',
+      'Lingwala',
+      'Makala',
+      'Maluku',
+      'Masina',
+      'Matete',
+      'Mont-Ngafula',
+      'Ndjili',
+      'Ngaba',
+      'Ngaliema',
+      'Ngiri-Ngiri',
+      'Nsele',
+      'Selembao',
+    ],
+  };
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _priceController.dispose();
+    _cityController.dispose();
+    _districtController.dispose();
+    _descriptionController.dispose();
+    super.dispose();
+  }
+
+  void _continueToPhotos() {
+    final title = _titleController.text.trim();
+    final price = _priceController.text.trim();
+    final description = _descriptionController.text.trim();
+
+    if (title.isEmpty) {
+      _showMessage('Veuillez saisir le titre de l’annonce.');
+      return;
+    }
+
+    if (price.isEmpty || int.tryParse(price) == null) {
+      _showMessage('Veuillez saisir un prix valide.');
+      return;
+    }
+
+    if (_selectedFamily == null) {
+      _showMessage('Veuillez choisir une famille.');
+      return;
+    }
+
+    if (_selectedCategory == null) {
+      _showMessage('Veuillez choisir une sous-catégorie.');
+      return;
+    }
+
+    if (_selectedCity == null) {
+      _showMessage('Veuillez choisir une ville.');
+      return;
+    }
+
+    if (_selectedCommune == null) {
+      _showMessage('Veuillez choisir une commune.');
+      return;
+    }
+
+    if (description.isEmpty) {
+      _showMessage('Veuillez ajouter une description.');
+      return;
+    }
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AddPhotoScreen(
+          title: title,
+          price: price,
+          city: _selectedCity!,
+          district: _selectedCommune!,
+          description: description,
+          family: _selectedFamily!,
+          category: _selectedCategory!,
+        ),
+      ),
+    );
+  }
+
+  void _showMessage(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+      ),
+    );
+  }
+
+  InputDecoration _decoration({
+    required String label,
+    String? hint,
+  }) {
+    return InputDecoration(
+      labelText: label,
+      hintText: hint,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
+    final categories = _selectedFamily == null
+        ? <String>[]
+        : _categoriesParFamille[_selectedFamily] ?? <String>[];
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Déposer une annonce'),
@@ -77,162 +185,174 @@ String? _selectedCommune;
               fontWeight: FontWeight.bold,
             ),
           ),
+
           const SizedBox(height: 24),
-TextField(
-  controller: _titleController,
-  decoration: InputDecoration(
-              labelText: 'Titre de l’annonce',
-              hintText: 'Ex : Samsung Galaxy S22',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
+
+          TextField(
+            controller: _titleController,
+            decoration: _decoration(
+              label: 'Titre de l’annonce',
+              hint: 'Ex : Samsung Galaxy S22',
             ),
           ),
 
           const SizedBox(height: 16),
 
           TextField(
-  controller: _priceController,
-  keyboardType: TextInputType.number,
-  decoration: InputDecoration(
-    labelText: 'Prix',
-    hintText: 'Prix en FC',
-    border: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(12),
-    ),
-  ),
-),
-
-          const SizedBox(height: 16),
-
-          DropdownButtonFormField<String>(
-  value: _selectedCity,
-  decoration: InputDecoration(
-    labelText: 'Ville',
-    border: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(12),
-    ),
-  ),
-  hint: const Text('Choisir une ville'),
-  items: _communesParVille.keys.map((ville) {
-    return DropdownMenuItem<String>(
-      value: ville,
-      child: Text(ville),
-    );
-  }).toList(),
-  onChanged: (value) {
-    setState(() {
-      _selectedCity = value;
-      _selectedCommune = null;
-      _cityController.text = value ?? '';
-      _districtController.clear();
-    });
-  },
-),
-
-          const SizedBox(height: 16),
-
-          DropdownButtonFormField<String>(
-  value: _selectedCommune,
-  decoration: InputDecoration(
-    labelText: 'Commune',
-    border: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(12),
-    ),
-  ),
-  hint: Text(
-    _selectedCity == null
-        ? 'Choisissez d’abord une ville'
-        : 'Choisir une commune',
-  ),
-  items: _selectedCity == null
-      ? []
-      : (_communesParVille[_selectedCity] ?? []).map((commune) {
-          return DropdownMenuItem<String>(
-            value: commune,
-            child: Text(commune),
-          );
-        }).toList(),
-  onChanged: _selectedCity == null
-      ? null
-      : (value) {
-          setState(() {
-            _selectedCommune = value;
-            _districtController.text = value ?? '';
-          });
-        },
-),
-
-          const SizedBox(height: 16),
-
-DropdownButtonFormField<String>(
-  value: _selectedCategory,
-  decoration: InputDecoration(
-    labelText: 'Catégorie',
-    border: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(12),
-    ),
-  ),
-  hint: const Text('Choisir une catégorie'),
-  items: _categories.map((category) {
-    return DropdownMenuItem<String>(
-      value: category,
-      child: Text(category),
-    );
-  }).toList(),
-  onChanged: (value) {
-    setState(() {
-      _selectedCategory = value;
-    });
-  },
-),
-          
-          const SizedBox(height: 16),
-
-          TextField(
-  controller: _descriptionController,
-  maxLines: 5,
-            decoration: InputDecoration(
-              labelText: 'Description',
-              hintText: 'Décrivez votre article',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
+            controller: _priceController,
+            keyboardType: TextInputType.number,
+            decoration: _decoration(
+              label: 'Prix',
+              hint: 'Prix en FC',
             ),
           ),
 
-                      const SizedBox(height: 24),
+          const SizedBox(height: 16),
 
-            SizedBox(
-              height: 55,
-              child: FilledButton.icon(
-                onPressed: () {
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) => AddPhotoScreen(
-  title: _titleController.text,
-  price: _priceController.text,
-  city: _cityController.text,
-  district: _districtController.text,
-  description: _descriptionController.text,
-  category: _selectedCategory ?? 'Divers',
-),
-    ),
-  );
-},
-                icon: const Icon(Icons.arrow_forward),
-                label: const Text(
-                  'Continuer',
-                  style: TextStyle(fontSize: 17),
+          DropdownButtonFormField<String>(
+            value: _selectedFamily,
+            isExpanded: true,
+            decoration: _decoration(
+              label: 'Famille',
+            ),
+            hint: const Text('Choisir une famille'),
+            items: _categoriesParFamille.keys.map((family) {
+              return DropdownMenuItem<String>(
+                value: family,
+                child: Text(family),
+              );
+            }).toList(),
+            onChanged: (value) {
+              setState(() {
+                _selectedFamily = value;
+                _selectedCategory = null;
+              });
+            },
+          ),
+
+          const SizedBox(height: 16),
+
+          DropdownButtonFormField<String>(
+            value: _selectedCategory,
+            isExpanded: true,
+            decoration: _decoration(
+              label: 'Sous-catégorie',
+            ),
+            hint: Text(
+              _selectedFamily == null
+                  ? 'Choisissez d’abord une famille'
+                  : 'Choisir une sous-catégorie',
+            ),
+            items: categories.map((category) {
+              return DropdownMenuItem<String>(
+                value: category,
+                child: Text(
+                  category,
+                  overflow: TextOverflow.ellipsis,
                 ),
+              );
+            }).toList(),
+            onChanged: _selectedFamily == null
+                ? null
+                : (value) {
+                    setState(() {
+                      _selectedCategory = value;
+                    });
+                  },
+          ),
+
+          const SizedBox(height: 16),
+
+          DropdownButtonFormField<String>(
+            value: _selectedCity,
+            isExpanded: true,
+            decoration: _decoration(
+              label: 'Ville',
+            ),
+            hint: const Text('Choisir une ville'),
+            items: _communesParVille.keys.map((ville) {
+              return DropdownMenuItem<String>(
+                value: ville,
+                child: Text(ville),
+              );
+            }).toList(),
+            onChanged: (value) {
+              setState(() {
+                _selectedCity = value;
+                _selectedCommune = null;
+
+                _cityController.text = value ?? '';
+                _districtController.clear();
+              });
+            },
+          ),
+
+          const SizedBox(height: 16),
+
+          DropdownButtonFormField<String>(
+            value: _selectedCommune,
+            isExpanded: true,
+            decoration: _decoration(
+              label: 'Commune',
+            ),
+            hint: Text(
+              _selectedCity == null
+                  ? 'Choisissez d’abord une ville'
+                  : 'Choisir une commune',
+            ),
+            items: _selectedCity == null
+                ? <DropdownMenuItem<String>>[]
+                : (_communesParVille[_selectedCity] ?? [])
+                    .map(
+                      (commune) => DropdownMenuItem<String>(
+                        value: commune,
+                        child: Text(commune),
+                      ),
+                    )
+                    .toList(),
+            onChanged: _selectedCity == null
+                ? null
+                : (value) {
+                    setState(() {
+                      _selectedCommune = value;
+                      _districtController.text = value ?? '';
+                    });
+                  },
+          ),
+
+          const SizedBox(height: 16),
+
+          TextField(
+            controller: _descriptionController,
+            maxLines: 5,
+            decoration: _decoration(
+              label: 'Description',
+              hint: 'Décrivez votre article',
+            ),
+          ),
+
+          const SizedBox(height: 24),
+
+          SizedBox(
+            height: 55,
+            child: FilledButton.icon(
+              onPressed: _continueToPhotos,
+              icon: const Icon(Icons.arrow_forward),
+              label: const Text(
+                'Continuer',
+                style: TextStyle(fontSize: 17),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
+      ),
     );
   }
 }
+
+// ==========================================================
+// AJOUT PHOTO
+// ==========================================================
 
 class AddPhotoScreen extends StatefulWidget {
   final String title;
@@ -240,6 +360,7 @@ class AddPhotoScreen extends StatefulWidget {
   final String city;
   final String district;
   final String description;
+  final String family;
   final String category;
 
   const AddPhotoScreen({
@@ -249,40 +370,59 @@ class AddPhotoScreen extends StatefulWidget {
     required this.city,
     required this.district,
     required this.description,
+    required this.family,
     required this.category,
   });
+
   @override
   State<AddPhotoScreen> createState() => _AddPhotoScreenState();
 }
 
 class _AddPhotoScreenState extends State<AddPhotoScreen> {
   final ImagePicker _picker = ImagePicker();
+
   XFile? _image;
 
   Future<void> _chooseImage() async {
     final source = await showModalBottomSheet<ImageSource>(
       context: context,
-      builder: (context) => SafeArea(
-  child: Column(
-    mainAxisSize: MainAxisSize.min,
-    children: [
-            ListTile(
-              leading: const Icon(Icons.photo_library_outlined),
-              title: const Text('Choisir dans la galerie'),
-              onTap: () {
-                Navigator.pop(context, ImageSource.gallery);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.camera_alt_outlined),
-              title: const Text('Prendre une photo'),
-              onTap: () {
-                Navigator.pop(context, ImageSource.camera);
-              },
-            ),
-          ],
-        ),
-      ),
+      builder: (context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(
+                  Icons.photo_library_outlined,
+                ),
+                title: const Text(
+                  'Choisir dans la galerie',
+                ),
+                onTap: () {
+                  Navigator.pop(
+                    context,
+                    ImageSource.gallery,
+                  );
+                },
+              ),
+              ListTile(
+                leading: const Icon(
+                  Icons.camera_alt_outlined,
+                ),
+                title: const Text(
+                  'Prendre une photo',
+                ),
+                onTap: () {
+                  Navigator.pop(
+                    context,
+                    ImageSource.camera,
+                  );
+                },
+              ),
+            ],
+          ),
+        );
+      },
     );
 
     if (source == null) return;
@@ -292,11 +432,31 @@ class _AddPhotoScreenState extends State<AddPhotoScreen> {
       imageQuality: 85,
     );
 
-    if (image != null) {
+    if (image != null && mounted) {
       setState(() {
         _image = image;
       });
     }
+  }
+
+  void _continueToReview() {
+    if (_image == null) return;
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ReviewAdScreen(
+          title: widget.title,
+          price: widget.price,
+          city: widget.city,
+          district: widget.district,
+          description: widget.description,
+          imagePath: _image!.path,
+          family: widget.family,
+          category: widget.category,
+        ),
+      ),
+    );
   }
 
   @override
@@ -306,7 +466,7 @@ class _AddPhotoScreenState extends State<AddPhotoScreen> {
         title: const Text('Ajouter des photos'),
         centerTitle: true,
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -318,6 +478,7 @@ class _AddPhotoScreenState extends State<AddPhotoScreen> {
                 fontWeight: FontWeight.bold,
               ),
             ),
+
             const SizedBox(height: 24),
 
             if (_image != null)
@@ -328,41 +489,41 @@ class _AddPhotoScreenState extends State<AddPhotoScreen> {
                   height: 220,
                   fit: BoxFit.cover,
                 ),
+              )
+            else
+              Container(
+                height: 220,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  color: Colors.grey.shade200,
+                ),
+                child: const Center(
+                  child: Icon(
+                    Icons.add_photo_alternate_outlined,
+                    size: 60,
+                  ),
+                ),
               ),
 
             const SizedBox(height: 20),
 
             OutlinedButton.icon(
-  onPressed: _chooseImage,
-  icon: const Icon(Icons.add_photo_alternate_outlined),
-  label: Text(
-    _image == null
-        ? 'Ajouter une photo'
-        : 'Changer la photo',
-  ),
-),
+              onPressed: _chooseImage,
+              icon: const Icon(
+                Icons.add_photo_alternate_outlined,
+              ),
+              label: Text(
+                _image == null
+                    ? 'Ajouter une photo'
+                    : 'Changer la photo',
+              ),
+            ),
 
-const SizedBox(height: 24),
+            const SizedBox(height: 24),
 
             FilledButton.icon(
-              onPressed: _image == null
-    ? null
-    : () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ReviewAdScreen(
-  title: widget.title,
-  price: widget.price,
-  city: widget.city,
-  district: widget.district,
-  description: widget.description,
-  imagePath: _image!.path,
-  category: widget.category,
-),
-          ),
-        );
-      },
+              onPressed:
+                  _image == null ? null : _continueToReview,
               icon: const Icon(Icons.arrow_forward),
               label: const Text(
                 'Continuer',
@@ -372,16 +533,22 @@ const SizedBox(height: 24),
           ],
         ),
       ),
-          );
+    );
   }
 }
-      class ReviewAdScreen extends StatelessWidget {
+
+// ==========================================================
+// VÉRIFICATION ET PUBLICATION
+// ==========================================================
+
+class ReviewAdScreen extends StatefulWidget {
   final String title;
   final String price;
   final String city;
   final String district;
   final String description;
   final String imagePath;
+  final String family;
   final String category;
 
   const ReviewAdScreen({
@@ -392,8 +559,87 @@ const SizedBox(height: 24),
     required this.district,
     required this.description,
     required this.imagePath,
+    required this.family,
     required this.category,
   });
+
+  @override
+  State<ReviewAdScreen> createState() => _ReviewAdScreenState();
+}
+
+class _ReviewAdScreenState extends State<ReviewAdScreen> {
+  bool _isPublishing = false;
+
+  Future<void> _publishAd() async {
+    if (_isPublishing) return;
+
+    setState(() {
+      _isPublishing = true;
+    });
+
+    try {
+      final supabase = Supabase.instance.client;
+      final imageFile = File(widget.imagePath);
+
+      final fileName =
+          '${DateTime.now().millisecondsSinceEpoch}.jpg';
+
+      await supabase.storage
+          .from('annonces')
+          .upload(fileName, imageFile);
+
+      final imageUrl = supabase.storage
+          .from('annonces')
+          .getPublicUrl(fileName);
+
+      await supabase.from('annonces').insert({
+        'title': widget.title.trim(),
+        'price': widget.price.trim(),
+        'city': widget.city.trim(),
+        'district': widget.district.trim(),
+        'description': widget.description.trim(),
+
+        // Nouvelle organisation Koteka
+        'family': widget.family,
+        'category': widget.category,
+
+        'imageUrl': imageUrl,
+        'created_at': DateTime.now().toIso8601String(),
+      });
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Annonce publiée avec succès',
+          ),
+        ),
+      );
+
+      Navigator.popUntil(
+        context,
+        (route) => route.isFirst,
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Erreur lors de la publication : $e',
+          ),
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isPublishing = false;
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -402,125 +648,124 @@ const SizedBox(height: 24),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
-  padding: const EdgeInsets.all(20),
-  child: Column(
-    crossAxisAlignment: CrossAxisAlignment.stretch,
-    children: [
-      ClipRRect(
-        borderRadius: BorderRadius.circular(12),
-        child: Image.file(
-          File(imagePath),
-          height: 220,
-          fit: BoxFit.cover,
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: Image.file(
+                File(widget.imagePath),
+                height: 220,
+                fit: BoxFit.cover,
+              ),
+            ),
+
+            const SizedBox(height: 24),
+
+            Text(
+              widget.title,
+              style: const TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+
+            const SizedBox(height: 12),
+
+            Text(
+              '${widget.price} FC',
+              style: const TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
+            _informationRow(
+              'Famille',
+              widget.family,
+            ),
+
+            const SizedBox(height: 8),
+
+            _informationRow(
+              'Sous-catégorie',
+              widget.category,
+            ),
+
+            const SizedBox(height: 8),
+
+            _informationRow(
+              'Ville',
+              widget.city,
+            ),
+
+            const SizedBox(height: 8),
+
+            _informationRow(
+              'Commune',
+              widget.district,
+            ),
+
+            const SizedBox(height: 20),
+
+            const Text(
+              'Description',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+
+            const SizedBox(height: 8),
+
+            Text(
+              widget.description,
+              style: const TextStyle(
+                fontSize: 16,
+              ),
+            ),
+
+            const SizedBox(height: 32),
+
+            SizedBox(
+              height: 52,
+              child: FilledButton(
+                onPressed:
+                    _isPublishing ? null : _publishAd,
+                child: _isPublishing
+                    ? const SizedBox(
+                        width: 22,
+                        height: 22,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                        ),
+                      )
+                    : const Text(
+                        'Publier l’annonce',
+                        style: TextStyle(
+                          fontSize: 17,
+                        ),
+                      ),
+              ),
+            ),
+          ],
         ),
       ),
+    );
+  }
 
-      const SizedBox(height: 24),
-
-      Text(
-        title,
-        style: const TextStyle(
-          fontSize: 24,
-          fontWeight: FontWeight.bold,
-        ),
+  Widget _informationRow(
+    String label,
+    String value,
+  ) {
+    return Text(
+      '$label : $value',
+      style: const TextStyle(
+        fontSize: 17,
       ),
-
-      const SizedBox(height: 12),
-
-      Text(
-        '$price FC',
-        style: const TextStyle(
-          fontSize: 22,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-
-      const SizedBox(height: 20),
-
-      Text(
-        'Ville : $city',
-        style: const TextStyle(fontSize: 17),
-      ),
-
-      const SizedBox(height: 8),
-
-      Text(
-        'Commune : $district',
-        style: const TextStyle(fontSize: 17),
-      ),
-
-      const SizedBox(height: 20),
-
-      const Text(
-        'Description',
-        style: TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-
-      const SizedBox(height: 8),
-
-      Text(
-        description,
-        style: const TextStyle(fontSize: 16),
-      ),
-
-      const SizedBox(height: 32),
-
-      FilledButton(
-  onPressed: () async {
-    try {
-      final imageFile = File(imagePath);
-
-final supabase = Supabase.instance.client;
-
-final fileName =
-    '${DateTime.now().millisecondsSinceEpoch}.jpg';
-
-await supabase.storage
-    .from('annonces')
-    .upload(fileName, imageFile);
-
-final imageUrl = supabase.storage
-    .from('annonces')
-    .getPublicUrl(fileName);
-
-await supabase.from('annonces').insert({
-  'title': title.trim(),
-  'price': price.trim(),
-  'city': city.trim(),
-  'district': district.trim(),
-  'description': description.trim(),
-  'category': category,
-  'imageUrl': imageUrl,
-  'created_at': DateTime.now().toIso8601String(),
-});
-
-      if (!context.mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Annonce publiée avec succès'),
-        ),
-      );
-
-      Navigator.popUntil(context, (route) => route.isFirst);
-    } catch (e) {
-      if (!context.mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Erreur lors de la publication : $e'),
-        ),
-      );
-    }
-  },
-        child: const Text('Publier l’annonce'),
-    ),
-        ],
-      ),
-    ),
-  );
-}
+    );
+  }
 }
