@@ -6,12 +6,14 @@ class KotekaFilterResult {
   final int? maxPrice;
   final String? city;
   final String? commune;
+  final int? distanceKm;
 
   const KotekaFilterResult({
     this.minPrice,
     this.maxPrice,
     this.city,
     this.commune,
+    this.distanceKm,
   });
 }
 
@@ -21,6 +23,7 @@ Future<KotekaFilterResult?> showPlaceFilterDialog(
   int? initialMaxPrice,
   String? initialCity,
   String? initialCommune,
+  int? initialDistanceKm,
 }) async {
   return showDialog<KotekaFilterResult>(
     context: context,
@@ -38,6 +41,7 @@ Future<KotekaFilterResult?> showPlaceFilterDialog(
             initialMaxPrice: initialMaxPrice,
             initialCity: initialCity,
             initialCommune: initialCommune,
+            initialDistanceKm: initialDistanceKm,
           ),
         ),
       ),
@@ -50,6 +54,7 @@ class Filter extends StatefulWidget {
   final int? initialMaxPrice;
   final String? initialCity;
   final String? initialCommune;
+  final int? initialDistanceKm;
 
   const Filter({
     super.key,
@@ -57,6 +62,7 @@ class Filter extends StatefulWidget {
     this.initialMaxPrice,
     this.initialCity,
     this.initialCommune,
+    this.initialDistanceKm,
   });
 
   @override
@@ -69,6 +75,16 @@ class _FilterState extends State<Filter> {
 
   String? _selectedCity;
   String? _selectedCommune;
+  int? _selectedDistanceKm;
+
+  final List<int> _distances = [
+    1,
+    5,
+    10,
+    20,
+    50,
+    100,
+  ];
 
   final Map<String, List<String>> _communesParVille = {
     'Kinshasa': [
@@ -112,6 +128,7 @@ class _FilterState extends State<Filter> {
     );
 
     _selectedCity = widget.initialCity;
+    _selectedDistanceKm = widget.initialDistanceKm;
 
     if (_selectedCity != null &&
         (_communesParVille[_selectedCity] ?? [])
@@ -153,6 +170,7 @@ class _FilterState extends State<Filter> {
         maxPrice: maxPrice,
         city: _selectedCity,
         commune: _selectedCommune,
+        distanceKm: _selectedDistanceKm,
       ),
     );
   }
@@ -177,12 +195,14 @@ class _FilterState extends State<Filter> {
             mainAxisAlignment:
                 MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'Filtrer les annonces',
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w600,
-                  color: primaryColor,
+              Expanded(
+                child: Text(
+                  'Filtrer les annonces',
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w600,
+                    color: primaryColor,
+                  ),
                 ),
               ),
               IconButton(
@@ -244,7 +264,47 @@ class _FilterState extends State<Filter> {
             ],
           ),
 
-          const SizedBox(height: 20),
+          const SizedBox(height: 22),
+
+          Text(
+            'Distance',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: primaryColor,
+            ),
+          ),
+
+          const SizedBox(height: 6),
+
+          const Text(
+            'Autour de ma position actuelle',
+          ),
+
+          const SizedBox(height: 10),
+
+          DropdownButtonFormField<int>(
+            value: _selectedDistanceKm,
+            isExpanded: true,
+            decoration: const InputDecoration(
+              labelText: 'Rayon de recherche',
+              border: OutlineInputBorder(),
+            ),
+            hint: const Text('Toutes les distances'),
+            items: _distances.map((distance) {
+              return DropdownMenuItem<int>(
+                value: distance,
+                child: Text('$distance km'),
+              );
+            }).toList(),
+            onChanged: (value) {
+              setState(() {
+                _selectedDistanceKm = value;
+              });
+            },
+          ),
+
+          const SizedBox(height: 22),
 
           DropdownButtonFormField<String>(
             value: _selectedCity,
@@ -304,16 +364,15 @@ class _FilterState extends State<Filter> {
 
           const SizedBox(height: 22),
 
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+          Wrap(
+            alignment: WrapAlignment.center,
+            spacing: 12,
+            runSpacing: 10,
             children: [
               OutlinedButton(
                 onPressed: _resetFilter,
                 child: const Text('Réinitialiser'),
               ),
-
-              const SizedBox(width: 12),
-
               ElevatedButton.icon(
                 onPressed: _applyFilter,
                 icon: const Icon(Icons.tune),
