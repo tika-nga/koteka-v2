@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -14,14 +15,14 @@ class PostAdScreen extends StatefulWidget {
 class _PostAdScreenState extends State<PostAdScreen> {
   final _titleController = TextEditingController();
   final _priceController = TextEditingController();
-  final _cityController = TextEditingController();
-  final _districtController = TextEditingController();
   final _descriptionController = TextEditingController();
 
   String? _selectedFamily;
   String? _selectedCategory;
   String? _selectedCity;
   String? _selectedCommune;
+
+  bool _isGettingLocation = false;
 
   final Map<String, List<String>> _categoriesParFamille = {
     'Véhicules': [
@@ -81,69 +82,13 @@ class _PostAdScreenState extends State<PostAdScreen> {
   void dispose() {
     _titleController.dispose();
     _priceController.dispose();
-    _cityController.dispose();
-    _districtController.dispose();
     _descriptionController.dispose();
     super.dispose();
   }
 
-  void _continueToPhotos() {
-    final title = _titleController.text.trim();
-    final price = _priceController.text.trim();
-    final description = _descriptionController.text.trim();
-
-    if (title.isEmpty) {
-      _showMessage('Veuillez saisir le titre de l’annonce.');
-      return;
-    }
-
-    if (price.isEmpty || int.tryParse(price) == null) {
-      _showMessage('Veuillez saisir un prix valide.');
-      return;
-    }
-
-    if (_selectedFamily == null) {
-      _showMessage('Veuillez choisir une famille.');
-      return;
-    }
-
-    if (_selectedCategory == null) {
-      _showMessage('Veuillez choisir une sous-catégorie.');
-      return;
-    }
-
-    if (_selectedCity == null) {
-      _showMessage('Veuillez choisir une ville.');
-      return;
-    }
-
-    if (_selectedCommune == null) {
-      _showMessage('Veuillez choisir une commune.');
-      return;
-    }
-
-    if (description.isEmpty) {
-      _showMessage('Veuillez ajouter une description.');
-      return;
-    }
-
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => AddPhotoScreen(
-          title: title,
-          price: price,
-          city: _selectedCity!,
-          district: _selectedCommune!,
-          description: description,
-          family: _selectedFamily!,
-          category: _selectedCategory!,
-        ),
-      ),
-    );
-  }
-
   void _showMessage(String message) {
+    if (!mounted) return;
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
@@ -164,15 +109,235 @@ class _PostAdScreenState extends State<PostAdScreen> {
     );
   }
 
+  Future<Position?> _getCurrentPosition() async {
+    final serviceEnabled =
+        await Geolocator.isLocationServiceEnabled();
+
+    if (!serviceEnabled) {
+      if (!mounted) return null;
+
+      final openSettings = await showDialog<bool>(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text(
+              'Localisation désactivée',
+            ),
+            content: const Text(
+              'Activez la localisation du téléphone '
+              'pour enregistrer la position de votre annonce.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context, false);
+                },
+                child: const Text('Annuler'),
+              ),
+              FilledButton(
+                onPressed: () {
+                  Navigator.pop(context, true);
+                },
+                child: const Text(
+                  'Ouvrir les paramètres',
+                ),
+              ),
+            ],
+          );
+        },
+      );
+
+      if (openSettings == true) {
+        await Geolocator.openLocationSettings();
+      }
+
+      return null;
+    }
+
+    LocationPermission permission =
+        await Geolocator.checkPermission();
+
+    if (permission == LocationPermission.denied) {
+      permission =
+          await Geolocator.requestPermission();
+    }
+
+    if (permission == LocationPermission.denied) {
+      _showMessage(
+        'La localisation doit être autorisée '
+        'pour publier l’annonce.',
+      );
+      return null;
+    }
+
+    if (permission ==
+        LocationPermission.deniedForever) {
+      if (!mounted) return null;
+
+      final openSettings = await showDialog<bool>(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text(
+              'Autorisation de localisation',
+            ),
+            content: const Text(
+              'L’accès à la localisation a été refusé '
+              'de façon permanente. Vous pouvez '
+              'l’autoriser dans les paramètres de Koteka.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context, false);
+                },
+                child: const Text('Annuler'),
+              ),
+              FilledButton(
+                onPressed: () {
+                  Navigator.pop(context, true);
+                },
+                child: const Text(
+                  'Ouvrir les paramètres',
+                ),
+              ),
+            ],
+          );
+        },
+      );
+
+      if (openSettings == true) {
+        await Geolocator.openAppSettings();
+      }
+
+      return null;
+    }
+
+    try {
+      return await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+        ),
+      );
+    } catch (e) {
+      _showMessage(
+        'Impossible de récupérer votre position.',
+      );
+      return null;
+    }
+  }
+
+  Future<void> _continueToPhotos() async {
+    final title = _titleController.text.trim();
+    final price = _priceController.text.trim();
+    final description =
+        _descriptionController.text.trim();
+
+    if (title.isEmpty) {
+      _showMessage(
+        'Veuillez saisir le titre de l’annonce.',
+      );
+      return;
+    }
+
+    if (price.isEmpty ||
+        int.tryParse(price) == null) {
+      _showMessage(
+        'Veuillez saisir un prix valide.',
+      );
+      return;
+    }
+
+    if (_selectedFamily == null) {
+      _showMessage(
+        'Veuillez choisir une famille.',
+      );
+      return;
+    }
+
+    if (_selectedCategory == null) {
+      _showMessage(
+        'Veuillez choisir une sous-catégorie.',
+      );
+      return;
+    }
+
+    if (_selectedCity == null) {
+      _showMessage(
+        'Veuillez choisir une ville.',
+      );
+      return;
+    }
+
+    if (_selectedCommune == null) {
+      _showMessage(
+        'Veuillez choisir une commune.',
+      );
+      return;
+    }
+
+    if (description.isEmpty) {
+      _showMessage(
+        'Veuillez ajouter une description.',
+      );
+      return;
+    }
+
+    if (_isGettingLocation) return;
+
+    setState(() {
+      _isGettingLocation = true;
+    });
+
+    try {
+      final position =
+          await _getCurrentPosition();
+
+      if (!mounted) return;
+
+      if (position == null) {
+        return;
+      }
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => AddPhotoScreen(
+            title: title,
+            price: price,
+            city: _selectedCity!,
+            district: _selectedCommune!,
+            description: description,
+            family: _selectedFamily!,
+            category: _selectedCategory!,
+            latitude: position.latitude,
+            longitude: position.longitude,
+          ),
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isGettingLocation = false;
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final categories = _selectedFamily == null
-        ? <String>[]
-        : _categoriesParFamille[_selectedFamily] ?? <String>[];
+    final categories =
+        _selectedFamily == null
+            ? <String>[]
+            : _categoriesParFamille[
+                    _selectedFamily] ??
+                <String>[];
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Déposer une annonce'),
+        title: const Text(
+          'Déposer une annonce',
+        ),
         centerTitle: true,
       ),
       body: ListView(
@@ -215,13 +380,18 @@ class _PostAdScreenState extends State<PostAdScreen> {
             decoration: _decoration(
               label: 'Famille',
             ),
-            hint: const Text('Choisir une famille'),
-            items: _categoriesParFamille.keys.map((family) {
-              return DropdownMenuItem<String>(
-                value: family,
-                child: Text(family),
-              );
-            }).toList(),
+            hint: const Text(
+              'Choisir une famille',
+            ),
+            items:
+                _categoriesParFamille.keys.map(
+              (family) {
+                return DropdownMenuItem<String>(
+                  value: family,
+                  child: Text(family),
+                );
+              },
+            ).toList(),
             onChanged: (value) {
               setState(() {
                 _selectedFamily = value;
@@ -243,22 +413,27 @@ class _PostAdScreenState extends State<PostAdScreen> {
                   ? 'Choisissez d’abord une famille'
                   : 'Choisir une sous-catégorie',
             ),
-            items: categories.map((category) {
-              return DropdownMenuItem<String>(
-                value: category,
-                child: Text(
-                  category,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              );
-            }).toList(),
-            onChanged: _selectedFamily == null
-                ? null
-                : (value) {
-                    setState(() {
-                      _selectedCategory = value;
-                    });
-                  },
+            items: categories.map(
+              (category) {
+                return DropdownMenuItem<String>(
+                  value: category,
+                  child: Text(
+                    category,
+                    overflow:
+                        TextOverflow.ellipsis,
+                  ),
+                );
+              },
+            ).toList(),
+            onChanged:
+                _selectedFamily == null
+                    ? null
+                    : (value) {
+                        setState(() {
+                          _selectedCategory =
+                              value;
+                        });
+                      },
           ),
 
           const SizedBox(height: 16),
@@ -269,20 +444,22 @@ class _PostAdScreenState extends State<PostAdScreen> {
             decoration: _decoration(
               label: 'Ville',
             ),
-            hint: const Text('Choisir une ville'),
-            items: _communesParVille.keys.map((ville) {
-              return DropdownMenuItem<String>(
-                value: ville,
-                child: Text(ville),
-              );
-            }).toList(),
+            hint: const Text(
+              'Choisir une ville',
+            ),
+            items:
+                _communesParVille.keys.map(
+              (ville) {
+                return DropdownMenuItem<String>(
+                  value: ville,
+                  child: Text(ville),
+                );
+              },
+            ).toList(),
             onChanged: (value) {
               setState(() {
                 _selectedCity = value;
                 _selectedCommune = null;
-
-                _cityController.text = value ?? '';
-                _districtController.clear();
               });
             },
           ),
@@ -302,32 +479,70 @@ class _PostAdScreenState extends State<PostAdScreen> {
             ),
             items: _selectedCity == null
                 ? <DropdownMenuItem<String>>[]
-                : (_communesParVille[_selectedCity] ?? [])
+                : (_communesParVille[
+                            _selectedCity] ??
+                        [])
                     .map(
-                      (commune) => DropdownMenuItem<String>(
+                      (commune) =>
+                          DropdownMenuItem<
+                              String>(
                         value: commune,
                         child: Text(commune),
                       ),
                     )
                     .toList(),
-            onChanged: _selectedCity == null
-                ? null
-                : (value) {
-                    setState(() {
-                      _selectedCommune = value;
-                      _districtController.text = value ?? '';
-                    });
-                  },
+            onChanged:
+                _selectedCity == null
+                    ? null
+                    : (value) {
+                        setState(() {
+                          _selectedCommune =
+                              value;
+                        });
+                      },
           ),
 
           const SizedBox(height: 16),
 
           TextField(
-            controller: _descriptionController,
+            controller:
+                _descriptionController,
             maxLines: 5,
             decoration: _decoration(
               label: 'Description',
-              hint: 'Décrivez votre article',
+              hint:
+                  'Décrivez votre article',
+            ),
+          ),
+
+          const SizedBox(height: 18),
+
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Theme.of(context)
+                  .colorScheme
+                  .surfaceContainerHighest,
+              borderRadius:
+                  BorderRadius.circular(12),
+            ),
+            child: const Row(
+              crossAxisAlignment:
+                  CrossAxisAlignment.start,
+              children: [
+                Icon(
+                  Icons.location_on_outlined,
+                ),
+                SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    'Votre position sera utilisée '
+                    'pour permettre aux acheteurs '
+                    'de rechercher les annonces '
+                    'situées à proximité.',
+                  ),
+                ),
+              ],
             ),
           ),
 
@@ -336,11 +551,28 @@ class _PostAdScreenState extends State<PostAdScreen> {
           SizedBox(
             height: 55,
             child: FilledButton.icon(
-              onPressed: _continueToPhotos,
-              icon: const Icon(Icons.arrow_forward),
-              label: const Text(
-                'Continuer',
-                style: TextStyle(fontSize: 17),
+              onPressed: _isGettingLocation
+                  ? null
+                  : _continueToPhotos,
+              icon: _isGettingLocation
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child:
+                          CircularProgressIndicator(
+                        strokeWidth: 2,
+                      ),
+                    )
+                  : const Icon(
+                      Icons.arrow_forward,
+                    ),
+              label: Text(
+                _isGettingLocation
+                    ? 'Localisation...'
+                    : 'Continuer',
+                style: const TextStyle(
+                  fontSize: 17,
+                ),
               ),
             ),
           ),
@@ -363,6 +595,9 @@ class AddPhotoScreen extends StatefulWidget {
   final String family;
   final String category;
 
+  final double latitude;
+  final double longitude;
+
   const AddPhotoScreen({
     super.key,
     required this.title,
@@ -372,28 +607,37 @@ class AddPhotoScreen extends StatefulWidget {
     required this.description,
     required this.family,
     required this.category,
+    required this.latitude,
+    required this.longitude,
   });
 
   @override
-  State<AddPhotoScreen> createState() => _AddPhotoScreenState();
+  State<AddPhotoScreen> createState() =>
+      _AddPhotoScreenState();
 }
 
-class _AddPhotoScreenState extends State<AddPhotoScreen> {
-  final ImagePicker _picker = ImagePicker();
+class _AddPhotoScreenState
+    extends State<AddPhotoScreen> {
+  final ImagePicker _picker =
+      ImagePicker();
 
   XFile? _image;
 
   Future<void> _chooseImage() async {
-    final source = await showModalBottomSheet<ImageSource>(
+    final source =
+        await showModalBottomSheet<
+            ImageSource>(
       context: context,
       builder: (context) {
         return SafeArea(
           child: Column(
-            mainAxisSize: MainAxisSize.min,
+            mainAxisSize:
+                MainAxisSize.min,
             children: [
               ListTile(
                 leading: const Icon(
-                  Icons.photo_library_outlined,
+                  Icons
+                      .photo_library_outlined,
                 ),
                 title: const Text(
                   'Choisir dans la galerie',
@@ -427,7 +671,8 @@ class _AddPhotoScreenState extends State<AddPhotoScreen> {
 
     if (source == null) return;
 
-    final image = await _picker.pickImage(
+    final image =
+        await _picker.pickImage(
       source: source,
       imageQuality: 85,
     );
@@ -445,15 +690,19 @@ class _AddPhotoScreenState extends State<AddPhotoScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => ReviewAdScreen(
+        builder: (context) =>
+            ReviewAdScreen(
           title: widget.title,
           price: widget.price,
           city: widget.city,
           district: widget.district,
-          description: widget.description,
+          description:
+              widget.description,
           imagePath: _image!.path,
           family: widget.family,
           category: widget.category,
+          latitude: widget.latitude,
+          longitude: widget.longitude,
         ),
       ),
     );
@@ -463,19 +712,23 @@ class _AddPhotoScreenState extends State<AddPhotoScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Ajouter des photos'),
+        title:
+            const Text('Ajouter des photos'),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
+        padding:
+            const EdgeInsets.all(20),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+          crossAxisAlignment:
+              CrossAxisAlignment.stretch,
           children: [
             const Text(
               'Ajoutez une photo de votre article',
               style: TextStyle(
                 fontSize: 24,
-                fontWeight: FontWeight.bold,
+                fontWeight:
+                    FontWeight.bold,
               ),
             ),
 
@@ -483,7 +736,9 @@ class _AddPhotoScreenState extends State<AddPhotoScreen> {
 
             if (_image != null)
               ClipRRect(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius:
+                    BorderRadius.circular(
+                        12),
                 child: Image.file(
                   File(_image!.path),
                   height: 220,
@@ -494,12 +749,16 @@ class _AddPhotoScreenState extends State<AddPhotoScreen> {
               Container(
                 height: 220,
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  color: Colors.grey.shade200,
+                  borderRadius:
+                      BorderRadius.circular(
+                          12),
+                  color:
+                      Colors.grey.shade200,
                 ),
                 child: const Center(
                   child: Icon(
-                    Icons.add_photo_alternate_outlined,
+                    Icons
+                        .add_photo_alternate_outlined,
                     size: 60,
                   ),
                 ),
@@ -510,7 +769,8 @@ class _AddPhotoScreenState extends State<AddPhotoScreen> {
             OutlinedButton.icon(
               onPressed: _chooseImage,
               icon: const Icon(
-                Icons.add_photo_alternate_outlined,
+                Icons
+                    .add_photo_alternate_outlined,
               ),
               label: Text(
                 _image == null
@@ -522,12 +782,16 @@ class _AddPhotoScreenState extends State<AddPhotoScreen> {
             const SizedBox(height: 24),
 
             FilledButton.icon(
-              onPressed:
-                  _image == null ? null : _continueToReview,
-              icon: const Icon(Icons.arrow_forward),
+              onPressed: _image == null
+                  ? null
+                  : _continueToReview,
+              icon: const Icon(
+                Icons.arrow_forward,
+              ),
               label: const Text(
                 'Continuer',
-                style: TextStyle(fontSize: 17),
+                style:
+                    TextStyle(fontSize: 17),
               ),
             ),
           ],
@@ -538,10 +802,11 @@ class _AddPhotoScreenState extends State<AddPhotoScreen> {
 }
 
 // ==========================================================
-// VÉRIFICATION ET PUBLICATION
+// VÉRIFICATION + PUBLICATION
 // ==========================================================
 
-class ReviewAdScreen extends StatefulWidget {
+class ReviewAdScreen
+    extends StatefulWidget {
   final String title;
   final String price;
   final String city;
@@ -550,6 +815,9 @@ class ReviewAdScreen extends StatefulWidget {
   final String imagePath;
   final String family;
   final String category;
+
+  final double latitude;
+  final double longitude;
 
   const ReviewAdScreen({
     super.key,
@@ -561,13 +829,17 @@ class ReviewAdScreen extends StatefulWidget {
     required this.imagePath,
     required this.family,
     required this.category,
+    required this.latitude,
+    required this.longitude,
   });
 
   @override
-  State<ReviewAdScreen> createState() => _ReviewAdScreenState();
+  State<ReviewAdScreen> createState() =>
+      _ReviewAdScreenState();
 }
 
-class _ReviewAdScreenState extends State<ReviewAdScreen> {
+class _ReviewAdScreenState
+    extends State<ReviewAdScreen> {
   bool _isPublishing = false;
 
   Future<void> _publishAd() async {
@@ -578,38 +850,55 @@ class _ReviewAdScreenState extends State<ReviewAdScreen> {
     });
 
     try {
-      final supabase = Supabase.instance.client;
-      final imageFile = File(widget.imagePath);
+      final supabase =
+          Supabase.instance.client;
+
+      final imageFile =
+          File(widget.imagePath);
 
       final fileName =
           '${DateTime.now().millisecondsSinceEpoch}.jpg';
 
       await supabase.storage
           .from('annonces')
-          .upload(fileName, imageFile);
+          .upload(
+            fileName,
+            imageFile,
+          );
 
-      final imageUrl = supabase.storage
+      final imageUrl =
+          supabase.storage
+              .from('annonces')
+              .getPublicUrl(fileName);
+
+      await supabase
           .from('annonces')
-          .getPublicUrl(fileName);
-
-      await supabase.from('annonces').insert({
+          .insert({
         'title': widget.title.trim(),
         'price': widget.price.trim(),
         'city': widget.city.trim(),
-        'district': widget.district.trim(),
-        'description': widget.description.trim(),
+        'district':
+            widget.district.trim(),
+        'description':
+            widget.description.trim(),
 
-        // Nouvelle organisation Koteka
         'family': widget.family,
         'category': widget.category,
 
+        // Position de l'annonce
+        'latitude': widget.latitude,
+        'longitude': widget.longitude,
+
         'imageUrl': imageUrl,
-        'created_at': DateTime.now().toIso8601String(),
+        'created_at':
+            DateTime.now()
+                .toIso8601String(),
       });
 
       if (!mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
+      ScaffoldMessenger.of(context)
+          .showSnackBar(
         const SnackBar(
           content: Text(
             'Annonce publiée avec succès',
@@ -624,7 +913,8 @@ class _ReviewAdScreenState extends State<ReviewAdScreen> {
     } catch (e) {
       if (!mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
+      ScaffoldMessenger.of(context)
+          .showSnackBar(
         SnackBar(
           content: Text(
             'Erreur lors de la publication : $e',
@@ -640,20 +930,36 @@ class _ReviewAdScreenState extends State<ReviewAdScreen> {
     }
   }
 
+  Widget _informationRow(
+    String label,
+    String value,
+  ) {
+    return Text(
+      '$label : $value',
+      style: const TextStyle(
+        fontSize: 17,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Vérifier l’annonce'),
+        title:
+            const Text('Vérifier l’annonce'),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
+        padding:
+            const EdgeInsets.all(20),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+          crossAxisAlignment:
+              CrossAxisAlignment.stretch,
           children: [
             ClipRRect(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius:
+                  BorderRadius.circular(12),
               child: Image.file(
                 File(widget.imagePath),
                 height: 220,
@@ -667,7 +973,8 @@ class _ReviewAdScreenState extends State<ReviewAdScreen> {
               widget.title,
               style: const TextStyle(
                 fontSize: 24,
-                fontWeight: FontWeight.bold,
+                fontWeight:
+                    FontWeight.bold,
               ),
             ),
 
@@ -677,7 +984,8 @@ class _ReviewAdScreenState extends State<ReviewAdScreen> {
               '${widget.price} FC',
               style: const TextStyle(
                 fontSize: 22,
-                fontWeight: FontWeight.bold,
+                fontWeight:
+                    FontWeight.bold,
               ),
             ),
 
@@ -715,7 +1023,8 @@ class _ReviewAdScreenState extends State<ReviewAdScreen> {
               'Description',
               style: TextStyle(
                 fontSize: 18,
-                fontWeight: FontWeight.bold,
+                fontWeight:
+                    FontWeight.bold,
               ),
             ),
 
@@ -733,13 +1042,15 @@ class _ReviewAdScreenState extends State<ReviewAdScreen> {
             SizedBox(
               height: 52,
               child: FilledButton(
-                onPressed:
-                    _isPublishing ? null : _publishAd,
+                onPressed: _isPublishing
+                    ? null
+                    : _publishAd,
                 child: _isPublishing
                     ? const SizedBox(
                         width: 22,
                         height: 22,
-                        child: CircularProgressIndicator(
+                        child:
+                            CircularProgressIndicator(
                           strokeWidth: 2,
                         ),
                       )
@@ -753,18 +1064,6 @@ class _ReviewAdScreenState extends State<ReviewAdScreen> {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _informationRow(
-    String label,
-    String value,
-  ) {
-    return Text(
-      '$label : $value',
-      style: const TextStyle(
-        fontSize: 17,
       ),
     );
   }
