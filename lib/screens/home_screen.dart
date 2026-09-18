@@ -25,6 +25,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   String selectedSortOption = 'default';
   String? _selectedCategory;
+  int? _selectedMinPrice;
+int? _selectedMaxPrice;
+String? _selectedCity;
+String? _selectedCommune;
 
   void onScroll() {
   // Désactivé temporairement :
