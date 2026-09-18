@@ -14,7 +14,13 @@ Widget filterButton(
   VoidCallback? onFilter,
 }) {
   return TextButton(
-    onPressed: () => showPlaceFilterDialog(context),
+    onPressed: () async {
+  await showPlaceFilterDialog(context);
+
+  if (onFilter != null) {
+    onFilter();
+  }
+},
       backgroundColor: Theme.of(context).colorScheme.secondary,
       padding: EdgeInsets.symmetric(
         horizontal: 10 * textScale,
