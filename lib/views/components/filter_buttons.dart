@@ -8,10 +8,13 @@ import 'package:flutter_marketplace_template/view_models/navigation_view_model.d
 import 'package:flutter_marketplace_template/view_models/places_model.dart';
 
 /// Component for filter and reset filter buttons used in places list and map.
-Widget filterButton(BuildContext context, double textScale) {
+Widget filterButton(
+  BuildContext context,
+  double textScale, {
+  VoidCallback? onFilter,
+}) {
   return TextButton(
     onPressed: () => showPlaceFilterDialog(context),
-    style: TextButton.styleFrom(
       backgroundColor: Theme.of(context).colorScheme.secondary,
       padding: EdgeInsets.symmetric(
         horizontal: 10 * textScale,
