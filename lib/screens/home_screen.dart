@@ -27,7 +27,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   String? _selectedCity;
   String? _selectedCommune;
-
   int? _selectedDistanceKm;
 
   Position? _userPosition;
@@ -63,24 +62,29 @@ class _HomeScreenState extends State<HomeScreen> {
   };
 
   final Map<String, IconData> _familyIcons = {
-    'Véhicules': Icons.directions_car,
-    'Électronique': Icons.devices,
-    'Électroménager': Icons.kitchen,
-    'Maison / Ndaku': Icons.home_outlined,
+    'Véhicules': Icons.directions_car_outlined,
+    'Électronique': Icons.devices_outlined,
+    'Électroménager': Icons.kitchen_outlined,
+    'Maison / Ndaku': Icons.chair_outlined,
     'Autres': Icons.category_outlined,
   };
 
   @override
   void initState() {
     super.initState();
-    _searchController.addListener(_onSearchChanged);
+
+    _searchController.addListener(
+      _onSearchChanged,
+    );
   }
 
   void _onSearchChanged() {
     final value =
         _searchController.text.trim().toLowerCase();
 
-    if (value == _searchQuery) return;
+    if (value == _searchQuery) {
+      return;
+    }
 
     setState(() {
       _searchQuery = value;
@@ -89,9 +93,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void dispose() {
-    _searchController.removeListener(_onSearchChanged);
+    _searchController.removeListener(
+      _onSearchChanged,
+    );
+
     _searchController.dispose();
     _scrollController.dispose();
+
     super.dispose();
   }
 
@@ -104,11 +112,15 @@ class _HomeScreenState extends State<HomeScreen> {
           ascending: false,
         );
 
-    return List<Map<String, dynamic>>.from(response);
+    return List<Map<String, dynamic>>.from(
+      response,
+    );
   }
 
   void _showMessage(String message) {
-    if (!mounted) return;
+    if (!mounted) {
+      return;
+    }
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -122,9 +134,12 @@ class _HomeScreenState extends State<HomeScreen> {
         await Geolocator.isLocationServiceEnabled();
 
     if (!serviceEnabled) {
-      if (!mounted) return null;
+      if (!mounted) {
+        return null;
+      }
 
-      final openSettings = await showDialog<bool>(
+      final openSettings =
+          await showDialog<bool>(
         context: context,
         builder: (context) {
           return AlertDialog(
@@ -138,13 +153,21 @@ class _HomeScreenState extends State<HomeScreen> {
             actions: [
               TextButton(
                 onPressed: () {
-                  Navigator.pop(context, false);
+                  Navigator.pop(
+                    context,
+                    false,
+                  );
                 },
-                child: const Text('Annuler'),
+                child: const Text(
+                  'Annuler',
+                ),
               ),
               FilledButton(
                 onPressed: () {
-                  Navigator.pop(context, true);
+                  Navigator.pop(
+                    context,
+                    true,
+                  );
                 },
                 child: const Text(
                   'Ouvrir les paramètres',
@@ -181,9 +204,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (permission ==
         LocationPermission.deniedForever) {
-      if (!mounted) return null;
+      if (!mounted) {
+        return null;
+      }
 
-      final openSettings = await showDialog<bool>(
+      final openSettings =
+          await showDialog<bool>(
         context: context,
         builder: (context) {
           return AlertDialog(
@@ -191,20 +217,28 @@ class _HomeScreenState extends State<HomeScreen> {
               'Autorisation de localisation',
             ),
             content: const Text(
-              'L’accès à la localisation a été refusé '
-              'de façon permanente. Vous pouvez '
-              'l’autoriser dans les paramètres de Koteka.',
+              'L’accès à la localisation a été refusé. '
+              'Vous pouvez l’autoriser dans les '
+              'paramètres de Koteka.',
             ),
             actions: [
               TextButton(
                 onPressed: () {
-                  Navigator.pop(context, false);
+                  Navigator.pop(
+                    context,
+                    false,
+                  );
                 },
-                child: const Text('Annuler'),
+                child: const Text(
+                  'Annuler',
+                ),
               ),
               FilledButton(
                 onPressed: () {
-                  Navigator.pop(context, true);
+                  Navigator.pop(
+                    context,
+                    true,
+                  );
                 },
                 child: const Text(
                   'Ouvrir les paramètres',
@@ -224,7 +258,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
     try {
       return await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(
+        locationSettings:
+            const LocationSettings(
           accuracy: LocationAccuracy.high,
         ),
       );
@@ -243,7 +278,9 @@ class _HomeScreenState extends State<HomeScreen> {
     Position? newPosition = _userPosition;
 
     if (result.distanceKm != null) {
-      if (_isGettingPosition) return;
+      if (_isGettingPosition) {
+        return;
+      }
 
       setState(() {
         _isGettingPosition = true;
@@ -267,7 +304,9 @@ class _HomeScreenState extends State<HomeScreen> {
       newPosition = null;
     }
 
-    if (!mounted) return;
+    if (!mounted) {
+      return;
+    }
 
     setState(() {
       _selectedMinPrice =
@@ -399,10 +438,14 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     final latitude =
-        _readDouble(annonce['latitude']);
+        _readDouble(
+      annonce['latitude'],
+    );
 
     final longitude =
-        _readDouble(annonce['longitude']);
+        _readDouble(
+      annonce['longitude'],
+    );
 
     if (latitude == null ||
         longitude == null) {
@@ -469,34 +512,24 @@ class _HomeScreenState extends State<HomeScreen> {
     return true;
   }
 
-  List<Map<String, dynamic>>
-      _filterAndSort(
+  List<Map<String, dynamic>> _filterAndSort(
     List<Map<String, dynamic>> annonces,
   ) {
     final result =
         annonces.where((annonce) {
-      if (!_matchesSearch(annonce)) {
-        return false;
-      }
-
-      if (!_matchesFamilyAndCategory(
-          annonce)) {
-        return false;
-      }
-
-      if (!_matchesOtherFilters(
-          annonce)) {
-        return false;
-      }
-
-      return true;
+      return _matchesSearch(annonce) &&
+          _matchesFamilyAndCategory(
+            annonce,
+          ) &&
+          _matchesOtherFilters(
+            annonce,
+          );
     }).toList();
 
     switch (_selectedSort) {
       case 'price_asc':
         result.sort(
-          (a, b) => _readPrice(a)
-              .compareTo(
+          (a, b) => _readPrice(a).compareTo(
             _readPrice(b),
           ),
         );
@@ -504,8 +537,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
       case 'price_desc':
         result.sort(
-          (a, b) => _readPrice(b)
-              .compareTo(
+          (a, b) => _readPrice(b).compareTo(
             _readPrice(a),
           ),
         );
@@ -516,16 +548,12 @@ class _HomeScreenState extends State<HomeScreen> {
         result.sort((a, b) {
           final dateA =
               DateTime.tryParse(
-            a['created_at']
-                    ?.toString() ??
-                '',
+            a['created_at']?.toString() ?? '',
           );
 
           final dateB =
               DateTime.tryParse(
-            b['created_at']
-                    ?.toString() ??
-                '',
+            b['created_at']?.toString() ?? '',
           );
 
           if (dateA == null &&
@@ -541,7 +569,9 @@ class _HomeScreenState extends State<HomeScreen> {
             return -1;
           }
 
-          return dateB.compareTo(dateA);
+          return dateB.compareTo(
+            dateA,
+          );
         });
     }
 
@@ -550,55 +580,54 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth =
-        MediaQuery.of(context).size.width;
-
-    final textScale =
-        screenWidth / 400;
-
     return Scaffold(
       backgroundColor:
-          Theme.of(context)
-              .colorScheme
-              .surface,
+          Theme.of(context).colorScheme.surface,
 
-      appBar: CustomAppBar(
+      appBar: const CustomAppBar(
         showTitle: true,
-        showMenu: true,
+        showMenu: false,
+        showChat: false,
       ),
 
-      body: Padding(
-        padding:
-            const EdgeInsets.symmetric(
-          horizontal: 18,
-        ),
+      body: RefreshIndicator(
+        onRefresh: () async {
+          setState(() {});
+        },
         child: ListView(
           controller: _scrollController,
+          physics:
+              const AlwaysScrollableScrollPhysics(),
           padding:
-              const EdgeInsets.only(
-            left: 10,
-            right: 10,
-            top: 20,
-            bottom: 30,
+              const EdgeInsets.fromLTRB(
+            16,
+            16,
+            16,
+            30,
           ),
           children: [
-            _buildSearchPanel(
-              context,
-              textScale,
-            ),
+            _buildSearchBar(),
 
-            const SizedBox(height: 15),
+            const SizedBox(height: 20),
+
+            _buildCategorySection(),
+
+            const SizedBox(height: 18),
+
+            _buildFilterRow(),
+
+            if (_selectedDistanceKm != null)
+              _buildDistanceInformation(),
 
             if (_isGettingPosition)
               const Padding(
                 padding:
-                    EdgeInsets.only(
-                  bottom: 15,
+                    EdgeInsets.symmetric(
+                  vertical: 14,
                 ),
                 child: Row(
                   mainAxisAlignment:
-                      MainAxisAlignment
-                          .center,
+                      MainAxisAlignment.center,
                   children: [
                     SizedBox(
                       width: 18,
@@ -609,27 +638,32 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                     SizedBox(width: 10),
-                    Text(
-                      'Recherche de votre position...',
+                    Flexible(
+                      child: Text(
+                        'Recherche de votre position...',
+                      ),
                     ),
                   ],
                 ),
               ),
+
+            const SizedBox(height: 10),
+
+            _buildSectionTitle(),
+
+            const SizedBox(height: 8),
 
             FutureBuilder<
                 List<Map<String, dynamic>>>(
               future: _loadAnnonces(),
               builder:
                   (context, snapshot) {
-                if (snapshot
-                        .connectionState ==
-                    ConnectionState
-                        .waiting) {
-                  return const Center(
-                    child: Padding(
-                      padding:
-                          EdgeInsets.all(
-                              30),
+                if (snapshot.connectionState ==
+                    ConnectionState.waiting) {
+                  return const Padding(
+                    padding:
+                        EdgeInsets.all(30),
+                    child: Center(
                       child:
                           CircularProgressIndicator(),
                     ),
@@ -639,10 +673,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 if (snapshot.hasError) {
                   return Padding(
                     padding:
-                        const EdgeInsets
-                            .all(20),
+                        const EdgeInsets.all(
+                      20,
+                    ),
                     child: Text(
-                      'Erreur de chargement : ${snapshot.error}',
+                      'Erreur de chargement : '
+                      '${snapshot.error}',
+                      textAlign:
+                          TextAlign.center,
                     ),
                   );
                 }
@@ -652,40 +690,36 @@ class _HomeScreenState extends State<HomeScreen> {
 
                 final annoncesFiltrees =
                     _filterAndSort(
-                        annonces);
+                  annonces,
+                );
 
-                if (annoncesFiltrees
-                    .isEmpty) {
+                if (annoncesFiltrees.isEmpty) {
                   return const Padding(
                     padding:
-                        EdgeInsets.all(
-                            30),
+                        EdgeInsets.symmetric(
+                      vertical: 40,
+                    ),
                     child: Center(
                       child: Text(
-                        'Aucune annonce ne correspond à votre recherche.',
+                        'Aucune annonce ne correspond '
+                        'à votre recherche.',
                         textAlign:
-                            TextAlign
-                                .center,
+                            TextAlign.center,
                       ),
                     ),
                   );
                 }
 
-                return ListView.builder(
-                  physics:
-                      const NeverScrollableScrollPhysics(),
-                  shrinkWrap: true,
-                  itemCount:
-                      annoncesFiltrees
-                          .length,
-                  itemBuilder:
-                      (context, index) {
-                    return _buildAnnonceCard(
-                      context,
-                      annoncesFiltrees[
-                          index],
-                    );
-                  },
+                return Column(
+                  children:
+                      annoncesFiltrees.map(
+                    (annonce) {
+                      return _buildAnnonceCard(
+                        context,
+                        annonce,
+                      );
+                    },
+                  ).toList(),
                 );
               },
             ),
@@ -695,10 +729,82 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildSearchPanel(
-    BuildContext context,
-    double textScale,
-  ) {
+  Widget _buildSearchBar() {
+    return TextField(
+      controller: _searchController,
+      textInputAction:
+          TextInputAction.search,
+      decoration: InputDecoration(
+        hintText:
+            'Que recherchez-vous ? / Olingi nini ?',
+        prefixIcon:
+            const Icon(
+          Icons.search,
+        ),
+        suffixIcon:
+            _searchController.text.isEmpty
+                ? null
+                : IconButton(
+                    tooltip:
+                        'Effacer la recherche',
+                    onPressed: () {
+                      _searchController.clear();
+                    },
+                    icon: const Icon(
+                      Icons.close,
+                    ),
+                  ),
+        filled: true,
+        fillColor:
+            Theme.of(context).colorScheme.surface,
+        contentPadding:
+            const EdgeInsets.symmetric(
+          vertical: 14,
+        ),
+        border: OutlineInputBorder(
+          borderRadius:
+              BorderRadius.circular(14),
+          borderSide:
+              BorderSide(
+            color: Theme.of(context)
+                .colorScheme
+                .primary
+                .withValues(
+                  alpha: 0.25,
+                ),
+          ),
+        ),
+        enabledBorder:
+            OutlineInputBorder(
+          borderRadius:
+              BorderRadius.circular(14),
+          borderSide:
+              BorderSide(
+            color: Theme.of(context)
+                .colorScheme
+                .primary
+                .withValues(
+                  alpha: 0.25,
+                ),
+          ),
+        ),
+        focusedBorder:
+            OutlineInputBorder(
+          borderRadius:
+              BorderRadius.circular(14),
+          borderSide:
+              BorderSide(
+            width: 1.5,
+            color: Theme.of(context)
+                .colorScheme
+                .primary,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCategorySection() {
     final subCategories =
         _selectedFamily == null
             ? <String>[]
@@ -706,330 +812,132 @@ class _HomeScreenState extends State<HomeScreen> {
                     _selectedFamily] ??
                 <String>[];
 
-    return Container(
-      padding:
-          const EdgeInsets.only(
-        left: 15,
-        right: 15,
-        top: 10,
-        bottom: 15,
-      ),
-      decoration: BoxDecoration(
-        color: Theme.of(context)
-            .colorScheme
-            .surface,
-        borderRadius:
-            BorderRadius.circular(8),
-        boxShadow: const [
-          BoxShadow(
-            color: Color.fromRGBO(
-              16,
-              20,
-              94,
-              0.25,
-            ),
-            blurRadius: 3,
-            spreadRadius: 2,
+    return Column(
+      crossAxisAlignment:
+          CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Catégories',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight:
+                FontWeight.w700,
           ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding:
-                const EdgeInsets.only(
-              left: 9,
-            ),
-            child: Text(
-              'Que recherchez-vous ? / Olingi nini ?',
-              style: TextStyle(
-                fontFamily: 'Mplus1p',
-                fontSize:
-                    18 * textScale,
-                letterSpacing: -1,
-                fontWeight:
-                    FontWeight.w500,
-                color: Theme.of(context)
-                    .colorScheme
-                    .primary,
-              ),
-            ),
-          ),
+        ),
 
-          const SizedBox(height: 16),
+        const SizedBox(height: 12),
 
-          const Divider(
-            height: 5,
-            thickness: 0.5,
-            color: Color.fromRGBO(
-              195,
-              196,
-              215,
-              1,
-            ),
-          ),
-
-          const SizedBox(height: 14),
-
-          TextField(
-            controller:
-                _searchController,
-            textInputAction:
-                TextInputAction.search,
-            decoration:
-                InputDecoration(
-              prefixIcon:
-                  const Icon(
-                Icons.search,
-              ),
-              suffixIcon:
-                  _searchController
-                          .text
-                          .isEmpty
-                      ? null
-                      : IconButton(
-                          icon:
-                              const Icon(
-                            Icons.close,
-                          ),
-                          onPressed:
-                              () {
-                            _searchController
-                                .clear();
-                          },
-                        ),
-              hintText:
-                  'Téléphone, voiture, meuble...',
-              border:
-                  OutlineInputBorder(
-                borderRadius:
-                    BorderRadius
-                        .circular(12),
-              ),
-            ),
-          ),
-
-          const SizedBox(height: 18),
-
-          const Text(
-            'Catégories',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight:
-                  FontWeight.w600,
-            ),
-          ),
-
-          const SizedBox(height: 9),
-
-          SingleChildScrollView(
-            scrollDirection:
-                Axis.horizontal,
-            child: Row(
-              children:
-                  _categoriesParFamille
-                      .keys
-                      .map(
-                (family) {
-                  return _familyChip(
-                    family,
-                    _familyIcons[
-                            family] ??
-                        Icons
-                            .category_outlined,
-                  );
-                },
-              ).toList(),
-            ),
-          ),
-
-          if (_selectedFamily !=
-              null) ...[
-            const SizedBox(
-                height: 12),
-
-            Text(
-              _selectedFamily!,
-              style:
-                  const TextStyle(
-                fontSize: 14,
-                fontWeight:
-                    FontWeight.w600,
-              ),
-            ),
-
-            const SizedBox(height: 7),
-
-            SingleChildScrollView(
-              scrollDirection:
-                  Axis.horizontal,
-              child: Row(
-                children:
-                    subCategories
-                        .map(
-                  (category) {
-                    return _subCategoryChip(
-                      category,
-                    );
-                  },
-                ).toList(),
-              ),
-            ),
-          ],
-
-          const SizedBox(height: 16),
-
-          const Divider(
-            height: 5,
-            thickness: 0.5,
-            color: Color.fromRGBO(
-              195,
-              196,
-              215,
-              1,
-            ),
-          ),
-
-          const SizedBox(height: 12),
-
-          Center(
-            child: filterButton(
-              context,
-              textScale,
-              initialMinPrice:
-                  _selectedMinPrice,
-              initialMaxPrice:
-                  _selectedMaxPrice,
-              initialCity:
-                  _selectedCity,
-              initialCommune:
-                  _selectedCommune,
-              initialDistanceKm:
-                  _selectedDistanceKm,
-              onFilter: (result) {
-                _applyFilterResult(
-                  result,
+        SingleChildScrollView(
+          scrollDirection:
+              Axis.horizontal,
+          child: Row(
+            children:
+                _categoriesParFamille.keys.map(
+              (family) {
+                return _familyButton(
+                  family,
+                  _familyIcons[family] ??
+                      Icons.category_outlined,
                 );
               },
+            ).toList(),
+          ),
+        ),
+
+        if (_selectedFamily != null) ...[
+          const SizedBox(height: 14),
+
+          Text(
+            _selectedFamily!,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight:
+                  FontWeight.w600,
+              color: Theme.of(context)
+                  .colorScheme
+                  .primary,
             ),
           ),
 
-          if (_selectedDistanceKm !=
-              null) ...[
-            const SizedBox(height: 8),
+          const SizedBox(height: 8),
 
-            Center(
-              child: Text(
-                'À moins de $_selectedDistanceKm km de ma position',
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight:
-                      FontWeight.w500,
-                  color:
-                      Theme.of(context)
-                          .colorScheme
-                          .primary,
-                ),
-              ),
-            ),
-          ],
-
-          const SizedBox(height: 10),
-
-          _buildActionBar(context),
-
-          const SizedBox(height: 4),
-
-          const Divider(
-            height: 5,
-            thickness: 0.5,
-            color: Color.fromRGBO(
-              195,
-              196,
-              215,
-              1,
-            ),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children:
+                subCategories.map(
+              (category) {
+                return _subCategoryButton(
+                  category,
+                );
+              },
+            ).toList(),
           ),
         ],
-      ),
+      ],
     );
   }
 
-  Widget _familyChip(
+  Widget _familyButton(
     String family,
     IconData icon,
   ) {
     final selected =
         _selectedFamily == family;
 
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          if (selected) {
-            _selectedFamily = null;
-            _selectedCategory =
-                null;
-          } else {
-            _selectedFamily =
-                family;
-            _selectedCategory =
-                null;
-          }
-        });
-      },
-      child: Container(
-        margin:
-            const EdgeInsets.only(
-          right: 7,
-        ),
-        padding:
-            const EdgeInsets.symmetric(
-          horizontal: 9,
-          vertical: 7,
-        ),
-        decoration: BoxDecoration(
-          color: selected
-              ? Theme.of(context)
-                  .colorScheme
-                  .secondary
-              : Theme.of(context)
-                  .colorScheme
-                  .surface,
-          borderRadius:
-              BorderRadius.circular(
-                  10),
-          border: Border.all(
-            color: Theme.of(context)
-                .colorScheme
-                .primary,
-            width:
-                selected ? 1.5 : 1,
+    return Padding(
+      padding:
+          const EdgeInsets.only(
+        right: 10,
+      ),
+      child: InkWell(
+        borderRadius:
+            BorderRadius.circular(14),
+        onTap: () {
+          setState(() {
+            if (selected) {
+              _selectedFamily = null;
+              _selectedCategory = null;
+            } else {
+              _selectedFamily = family;
+              _selectedCategory = null;
+            }
+          });
+        },
+        child: Container(
+          width: 92,
+          padding:
+              const EdgeInsets.symmetric(
+            horizontal: 6,
+            vertical: 10,
           ),
-        ),
-        child: Row(
-          mainAxisSize:
-              MainAxisSize.min,
-          children: [
-            Icon(
-              icon,
-              size: 17,
-              color: selected
-                  ? Theme.of(context)
-                      .colorScheme
-                      .onSecondary
-                  : Theme.of(context)
-                      .colorScheme
-                      .primary,
+          decoration: BoxDecoration(
+            color: selected
+                ? Theme.of(context)
+                    .colorScheme
+                    .secondary
+                : Theme.of(context)
+                    .colorScheme
+                    .surface,
+            borderRadius:
+                BorderRadius.circular(14),
+            border: Border.all(
+              color: Theme.of(context)
+                  .colorScheme
+                  .primary
+                  .withValues(
+                    alpha:
+                        selected ? 0.8 : 0.2,
+                  ),
             ),
-            const SizedBox(width: 5),
-            Text(
-              family,
-              style: TextStyle(
-                fontSize: 12.5,
-                fontWeight:
-                    FontWeight.w500,
+          ),
+          child: Column(
+            mainAxisSize:
+                MainAxisSize.min,
+            children: [
+              Icon(
+                icon,
+                size: 25,
                 color: selected
                     ? Theme.of(context)
                         .colorScheme
@@ -1038,6 +946,171 @@ class _HomeScreenState extends State<HomeScreen> {
                         .colorScheme
                         .primary,
               ),
+
+              const SizedBox(height: 6),
+
+              Text(
+                family,
+                maxLines: 2,
+                textAlign:
+                    TextAlign.center,
+                overflow:
+                    TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 11.5,
+                  height: 1.15,
+                  fontWeight:
+                      FontWeight.w600,
+                  color: selected
+                      ? Theme.of(context)
+                          .colorScheme
+                          .onSecondary
+                      : Theme.of(context)
+                          .colorScheme
+                          .primary,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _subCategoryButton(
+    String category,
+  ) {
+    final selected =
+        _selectedCategory == category;
+
+    return ChoiceChip(
+      label: Text(
+        category,
+        overflow:
+            TextOverflow.ellipsis,
+      ),
+      selected: selected,
+      onSelected: (_) {
+        setState(() {
+          _selectedCategory =
+              selected
+                  ? null
+                  : category;
+        });
+      },
+    );
+  }
+
+  Widget _buildFilterRow() {
+    final screenWidth =
+        MediaQuery.of(context).size.width;
+
+    final textScale =
+        screenWidth / 400;
+
+    return Row(
+      children: [
+        Expanded(
+          child: filterButton(
+            context,
+            textScale,
+            initialMinPrice:
+                _selectedMinPrice,
+            initialMaxPrice:
+                _selectedMaxPrice,
+            initialCity:
+                _selectedCity,
+            initialCommune:
+                _selectedCommune,
+            initialDistanceKm:
+                _selectedDistanceKm,
+            onFilter: (result) {
+              _applyFilterResult(
+                result,
+              );
+            },
+          ),
+        ),
+
+        const SizedBox(width: 10),
+
+        Expanded(
+          child: OutlinedButton.icon(
+            onPressed:
+                _resetFilters,
+            icon: const Icon(
+              Icons.refresh,
+              size: 18,
+            ),
+            label: const FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                'Réinitialiser',
+              ),
+            ),
+            style:
+                OutlinedButton.styleFrom(
+              minimumSize:
+                  const Size(
+                0,
+                42,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDistanceInformation() {
+    return Padding(
+      padding:
+          const EdgeInsets.only(
+        top: 10,
+      ),
+      child: Container(
+        width: double.infinity,
+        padding:
+            const EdgeInsets.symmetric(
+          horizontal: 12,
+          vertical: 9,
+        ),
+        decoration: BoxDecoration(
+          color: Theme.of(context)
+              .colorScheme
+              .primary
+              .withValues(
+                alpha: 0.06,
+              ),
+          borderRadius:
+              BorderRadius.circular(10),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              Icons.near_me_outlined,
+              size: 18,
+              color: Theme.of(context)
+                  .colorScheme
+                  .primary,
+            ),
+
+            const SizedBox(width: 8),
+
+            Expanded(
+              child: Text(
+                'Annonces à moins de '
+                '$_selectedDistanceKm km',
+                style: TextStyle(
+                  fontSize: 13,
+                  color:
+                      Theme.of(context)
+                          .colorScheme
+                          .primary,
+                  fontWeight:
+                      FontWeight.w500,
+                ),
+              ),
             ),
           ],
         ),
@@ -1045,101 +1118,28 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _subCategoryChip(
-    String category,
-  ) {
-    final selected =
-        _selectedCategory ==
-            category;
-
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          if (selected) {
-            _selectedCategory =
-                null;
-          } else {
-            _selectedCategory =
-                category;
-          }
-        });
-      },
-      child: Container(
-        margin:
-            const EdgeInsets.only(
-          right: 7,
-        ),
-        padding:
-            const EdgeInsets.symmetric(
-          horizontal: 10,
-          vertical: 6,
-        ),
-        decoration: BoxDecoration(
-          color: selected
-              ? Theme.of(context)
-                  .colorScheme
-                  .tertiary
-              : Theme.of(context)
-                  .colorScheme
-                  .surface,
-          borderRadius:
-              BorderRadius.circular(
-                  20),
-          border: Border.all(
-            color: Theme.of(context)
-                .colorScheme
-                .primary
-                .withValues(
-                    alpha: 0.55),
-          ),
-        ),
-        child: Text(
-          category,
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight:
-                FontWeight.w500,
-            color: Theme.of(context)
-                .colorScheme
-                .primary,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildActionBar(
-    BuildContext context,
-  ) {
-    return Wrap(
-      alignment:
-          WrapAlignment.center,
-      spacing: 8,
-      runSpacing: 8,
+  Widget _buildSectionTitle() {
+    return Row(
       children: [
-        SizedBox(
-          height: 38,
-          child:
-              OutlinedButton.icon(
-            onPressed:
-                _resetFilters,
-            icon: const Icon(
-              Icons.refresh,
-              size: 19,
-            ),
-            label: const Text(
-              'Réinitialiser',
+        const Expanded(
+          child: Text(
+            'Annonces récentes',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight:
+                  FontWeight.w700,
             ),
           ),
         ),
 
         PopupMenuButton<String>(
+          tooltip:
+              'Trier les annonces',
           initialValue:
               _selectedSort,
           onSelected: (value) {
             setState(() {
-              _selectedSort =
-                  value;
+              _selectedSort = value;
             });
           },
           itemBuilder: (context) {
@@ -1153,59 +1153,48 @@ class _HomeScreenState extends State<HomeScreen> {
               PopupMenuItem<String>(
                 value: 'price_asc',
                 child: Text(
-                  'Prix : du moins cher au plus cher',
+                  'Prix croissant',
                 ),
               ),
               PopupMenuItem<String>(
                 value: 'price_desc',
                 child: Text(
-                  'Prix : du plus cher au moins cher',
+                  'Prix décroissant',
                 ),
               ),
             ];
           },
           child: Container(
-            height: 38,
             padding:
-                const EdgeInsets
-                    .symmetric(
-              horizontal: 14,
+                const EdgeInsets.symmetric(
+              horizontal: 10,
+              vertical: 7,
             ),
-            decoration:
-                BoxDecoration(
-              color:
-                  Theme.of(context)
-                      .colorScheme
-                      .secondary,
+            decoration: BoxDecoration(
               borderRadius:
-                  BorderRadius
-                      .circular(8),
+                  BorderRadius.circular(
+                10,
+              ),
+              border: Border.all(
+                color: Theme.of(context)
+                    .colorScheme
+                    .primary
+                    .withValues(
+                      alpha: 0.25,
+                    ),
+              ),
             ),
-            child: Row(
+            child: const Row(
               mainAxisSize:
                   MainAxisSize.min,
               children: [
                 Icon(
                   Icons.sort,
-                  size: 20,
-                  color: Theme.of(
-                          context)
-                      .colorScheme
-                      .onSecondary,
+                  size: 18,
                 ),
-                const SizedBox(
-                    width: 6),
+                SizedBox(width: 5),
                 Text(
                   'Trier',
-                  style: TextStyle(
-                    color: Theme.of(
-                            context)
-                        .colorScheme
-                        .onSecondary,
-                    fontWeight:
-                        FontWeight
-                            .w500,
-                  ),
                 ),
               ],
             ),
@@ -1220,53 +1209,39 @@ class _HomeScreenState extends State<HomeScreen> {
     Map<String, dynamic> annonce,
   ) {
     final title =
-        annonce['title']
-                ?.toString() ??
+        annonce['title']?.toString() ??
             'Sans titre';
 
     final price =
-        annonce['price']
-                ?.toString() ??
-            '';
+        annonce['price']?.toString() ?? '';
 
     final city =
-        annonce['city']
-                ?.toString() ??
-            '';
+        annonce['city']?.toString() ?? '';
 
     final district =
-        annonce['district']
-                ?.toString() ??
-            '';
+        annonce['district']?.toString() ?? '';
 
     final family =
-        annonce['family']
-                ?.toString() ??
-            '';
+        annonce['family']?.toString() ?? '';
 
     final category =
-        annonce['category']
-                ?.toString() ??
-            '';
+        annonce['category']?.toString() ?? '';
 
     final imageUrl =
-        annonce['imageUrl']
-                ?.toString() ??
-            '';
+        annonce['imageUrl']?.toString() ?? '';
 
     final distance =
         _selectedDistanceKm == null
             ? null
             : _distanceKm(
-                annonce);
+                annonce,
+              );
 
     final place =
         PlaceExtension.placeholder();
 
     place.id =
-        annonce['id']
-                ?.toString() ??
-            '';
+        annonce['id']?.toString() ?? '';
 
     place.name = title;
 
@@ -1284,205 +1259,219 @@ class _HomeScreenState extends State<HomeScreen> {
             '';
 
     final parsedPrice =
-        _readPrice(annonce);
+        _readPrice(
+      annonce,
+    );
 
     place.pricepp = (
       parsedPrice,
       parsedPrice,
     );
 
-    return InkWell(
-      borderRadius:
-          BorderRadius.circular(
-              12),
-      onTap: () {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) =>
-                PlaceScreen(
-              place: place,
-            ),
-          ),
-        );
-      },
-      child: Card(
-        margin:
-            const EdgeInsets
-                .symmetric(
-          horizontal: 12,
-          vertical: 8,
+    return Padding(
+      padding:
+          const EdgeInsets.only(
+        bottom: 12,
+      ),
+      child: Material(
+        color:
+            Theme.of(context)
+                .colorScheme
+                .surface,
+        elevation: 1.5,
+        shadowColor:
+            Colors.black.withValues(
+          alpha: 0.12,
         ),
-        child: Padding(
-          padding:
-              const EdgeInsets.all(
-                  10),
-          child: Row(
-            crossAxisAlignment:
-                CrossAxisAlignment
-                    .start,
-            children: [
-              ClipRRect(
-                borderRadius:
-                    BorderRadius
-                        .circular(8),
-                child:
-                    imageUrl.isNotEmpty
-                        ? Image.network(
-                            imageUrl,
-                            width: 120,
-                            height:
-                                120,
-                            fit: BoxFit
-                                .cover,
-                            errorBuilder:
-                                (
-                              context,
-                              error,
-                              stackTrace,
-                            ) {
-                              return _imagePlaceholder();
-                            },
-                          )
-                        : _imagePlaceholder(),
+        borderRadius:
+            BorderRadius.circular(14),
+        clipBehavior:
+            Clip.antiAlias,
+        child: InkWell(
+          onTap: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) =>
+                    PlaceScreen(
+                  place: place,
+                ),
               ),
-
-              const SizedBox(
-                  width: 12),
-
-              Expanded(
-                child: Column(
-                  crossAxisAlignment:
-                      CrossAxisAlignment
-                          .start,
-                  children: [
-                    Text(
-                      title,
-                      maxLines: 2,
-                      overflow:
-                          TextOverflow
-                              .ellipsis,
-                      style:
-                          const TextStyle(
-                        fontSize: 17,
-                        fontWeight:
-                            FontWeight
-                                .bold,
-                      ),
-                    ),
-
-                    const SizedBox(
-                        height: 7),
-
-                    Text(
-                      '$price FC',
-                      style:
-                          const TextStyle(
-                        fontSize: 16,
-                        fontWeight:
-                            FontWeight
-                                .w600,
-                      ),
-                    ),
-
-                    if (family
-                            .isNotEmpty ||
-                        category
-                            .isNotEmpty) ...[
-                      const SizedBox(
-                          height: 7),
-
-                      Text(
-                        [
-                          family,
-                          category,
-                        ]
-                            .where(
-                              (value) =>
-                                  value
-                                      .isNotEmpty,
+            );
+          },
+          child: Padding(
+            padding:
+                const EdgeInsets.all(
+              10,
+            ),
+            child: Row(
+              crossAxisAlignment:
+                  CrossAxisAlignment.start,
+              children: [
+                ClipRRect(
+                  borderRadius:
+                      BorderRadius.circular(
+                    10,
+                  ),
+                  child:
+                      imageUrl.isNotEmpty
+                          ? Image.network(
+                              imageUrl,
+                              width: 112,
+                              height: 112,
+                              fit:
+                                  BoxFit.cover,
+                              errorBuilder: (
+                                context,
+                                error,
+                                stackTrace,
+                              ) {
+                                return _imagePlaceholder();
+                              },
                             )
-                            .join(
-                                ' • '),
-                        maxLines: 1,
-                        overflow:
-                            TextOverflow
-                                .ellipsis,
-                        style:
-                            TextStyle(
-                          fontSize:
-                              12.5,
-                          color: Theme.of(
-                                  context)
-                              .colorScheme
-                              .primary,
-                        ),
-                      ),
-                    ],
+                          : _imagePlaceholder(),
+                ),
 
-                    const SizedBox(
-                        height: 7),
+                const SizedBox(width: 12),
 
-                    Text(
-                      district.isNotEmpty
-                          ? '$city • $district'
-                          : city,
-                      maxLines: 1,
-                      overflow:
-                          TextOverflow
-                              .ellipsis,
+                Expanded(
+                  child: ConstrainedBox(
+                    constraints:
+                        const BoxConstraints(
+                      minHeight: 112,
                     ),
-
-                    if (distance !=
-                        null) ...[
-                      const SizedBox(
-                          height: 7),
-
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons
-                                .near_me_outlined,
-                            size: 16,
+                    child: Column(
+                      crossAxisAlignment:
+                          CrossAxisAlignment
+                              .start,
+                      children: [
+                        Text(
+                          title,
+                          maxLines: 2,
+                          overflow:
+                              TextOverflow
+                                  .ellipsis,
+                          style:
+                              const TextStyle(
+                            fontSize: 16,
+                            fontWeight:
+                                FontWeight
+                                    .w700,
                           ),
+                        ),
+
+                        const SizedBox(
+                          height: 5,
+                        ),
+
+                        Text(
+                          '$price FC',
+                          maxLines: 1,
+                          overflow:
+                              TextOverflow
+                                  .ellipsis,
+                          style:
+                              TextStyle(
+                            fontSize: 16,
+                            fontWeight:
+                                FontWeight
+                                    .w700,
+                            color:
+                                Theme.of(
+                                        context)
+                                    .colorScheme
+                                    .primary,
+                          ),
+                        ),
+
+                        if (category.isNotEmpty ||
+                            family.isNotEmpty) ...[
                           const SizedBox(
-                              width: 4),
-                          Expanded(
-                            child: Text(
-                              '${distance.toStringAsFixed(distance < 10 ? 1 : 0)} km',
-                              style:
-                                  const TextStyle(
-                                fontSize:
-                                    12.5,
-                                fontWeight:
-                                    FontWeight
-                                        .w500,
-                              ),
+                            height: 5,
+                          ),
+                          Text(
+                            category.isNotEmpty
+                                ? category
+                                : family,
+                            maxLines: 1,
+                            overflow:
+                                TextOverflow
+                                    .ellipsis,
+                            style:
+                                const TextStyle(
+                              fontSize: 12,
                             ),
                           ),
                         ],
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 
-  Widget _imagePlaceholder() {
-    return Container(
-      width: 120,
-      height: 120,
-      color:
-          Colors.grey.shade200,
-      child: const Icon(
-        Icons
-            .image_not_supported_outlined,
-        size: 40,
-      ),
-    );
-  }
-}
+                        const SizedBox(
+                          height: 5,
+                        ),
+
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons
+                                  .location_on_outlined,
+                              size: 15,
+                            ),
+                            const SizedBox(
+                              width: 3,
+                            ),
+                            Expanded(
+                              child: Text(
+                                district.isNotEmpty
+                                    ? '$city • $district'
+                                    : city,
+                                maxLines: 1,
+                                overflow:
+                                    TextOverflow
+                                        .ellipsis,
+                                style:
+                                    const TextStyle(
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        if (distance !=
+                            null) ...[
+                          const SizedBox(
+                            height: 4,
+                          ),
+                          Row(
+                            children: [
+                              const Icon(
+                                Icons
+                                    .near_me_outlined,
+                                size: 14,
+                              ),
+                              const SizedBox(
+                                width: 4,
+                              ),
+                              Expanded(
+                                child: Text(
+                                  '${distance.toStringAsFixed(distance < 10 ? 1 : 0)} km',
+                                  maxLines: 1,
+                                  overflow:
+                                      TextOverflow
+                                          .ellipsis,
+                                  style:
+                                      const TextStyle(
+                                    fontSize: 12,
+                                    fontWeight:
+                                        FontWeight
+                                            .w500,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ),
+
+                const SizedBox(width: 4
