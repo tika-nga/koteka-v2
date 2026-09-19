@@ -1,191 +1,109 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_marketplace_template/screens/chats_list_screen.dart';
-import 'package:flutter_marketplace_template/services/auth_service.dart';
-import 'package:flutter_marketplace_template/l10n/app_localizations.dart';
-import 'package:flutter_marketplace_template/view_models/auth_view_model.dart';
-import 'package:flutter_marketplace_template/view_models/navigation_view_model.dart';
-import 'package:flutter_marketplace_template/adapters/language_dialog.dart';
 
-/// Custom AppBar widget with configurable options
-/// [showTitle] - whether to show the title
-/// [showMenu] - whether to show the menu button
-/// [showChat] - whether to show the chat button
-class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
+import 'package:flutter_marketplace_template/view_models/auth_view_model.dart';
+
+/// Barre supérieure principale de Koteka.
+///
+/// - Sur les écrans principaux : affiche uniquement "Koteka".
+/// - Sur les pages secondaires : affiche une flèche retour.
+/// - Pas de menu hamburger.
+/// - Pas d'icône Messages : les messages sont accessibles
+///   depuis la navigation inférieure.
+class CustomAppBar extends StatelessWidget
+    implements PreferredSizeWidget {
   final bool showTitle;
+
+  // Conservés pour éviter de casser les écrans
+  // qui utilisent encore les anciens paramètres.
   final bool showMenu;
   final bool showChat;
 
   const CustomAppBar({
-    Key? key,
+    super.key,
     required this.showTitle,
-    required this.showMenu,
-    this.showChat = true,
-  }) : super(key: key);
+    this.showMenu = false,
+    this.showChat = false,
+  });
 
   @override
   Widget build(BuildContext context) {
-    String selectedLanguage =
-        Localizations.localeOf(context).languageCode == 'pl'
-            ? 'Polski'
-            : 'English';
-    final screenWidth = MediaQuery.of(context).size.width;
-    final double textScale = screenWidth / 400;
+    final screenWidth =
+        MediaQuery.of(context).size.width;
+
+    final double textScale =
+        screenWidth / 400;
+
     return AppBar(
-      backgroundColor: Theme.of(context).colorScheme.surface,
+      automaticallyImplyLeading: false,
+      backgroundColor:
+          Theme.of(context).colorScheme.surface,
       surfaceTintColor: Colors.transparent,
-      elevation: 3,
-      shadowColor: const Color.fromRGBO(16, 20, 94, 0.25),
-      leading:
-          !showTitle
-              ? IconButton(
-                icon: Icon(
-                  Icons.arrow_back,
-                  color: Theme.of(context).colorScheme.primary,
-                  size: 28 * textScale,
-                ),
-                onPressed: () {
-                  context.read<AuthViewModel>().clearErrors();
-                  Navigator.of(context).pop();
-                },
-              )
-              : null,
-      title:
-          showTitle
-              ? Padding(
-                padding: const EdgeInsets.only(left: 15),
-                child: Text(
-                  'Koteka',
-                  style: TextStyle(
-                    fontFamily: 'NATS',
-                    fontSize: 40 * textScale,
-                    color: Theme.of(context).colorScheme.primary,
-                    letterSpacing: -1,
-                  ),
-                ),
-              )
-              : null,
-      actions: [
-        if (showMenu)
-          Padding(
-            padding: const EdgeInsets.only(right: 20),
-            child: PopupMenuButton<String>(
-              onSelected: (value) async {
-                switch (value) {
-                  case 'logout':
-                    await context.read<IAuthService>().logout();
-                    break;
-                  case 'map':
-                    if (Navigator.of(context).canPop()) {
-                      Navigator.of(context).pop();
-                    }
-                    context.read<NavigationViewModel>().onDestinationSelected(
-                      1,
-                    );
-                    break;
-                  case 'profile':
-                    if (Navigator.of(context).canPop()) {
-                      Navigator.of(context).pop();
-                    }
-                    context.read<NavigationViewModel>().onDestinationSelected(
-                      2,
-                    );
-                    break;
-                  case 'language':
-                    showLanguageDialog(context, selectedLanguage);
-                    break;
-                }
-              },
-              color: Theme.of(context).colorScheme.surface,
-              elevation: 8,
-              shadowColor: const Color.fromRGBO(16, 20, 94, 0.25),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
+      elevation: 2,
+      shadowColor:
+          const Color.fromRGBO(
+        16,
+        20,
+        94,
+        0.18,
+      ),
+
+      leading: showTitle
+          ? null
+          : IconButton(
+              tooltip: 'Retour',
               icon: Icon(
-                Icons.menu,
-                color: Theme.of(context).colorScheme.primary,
-                size: 30 * textScale,
-              ),
-              itemBuilder: (BuildContext context) => _menuItems(context),
-            ),
-          ),
-        if (showChat)
-          Padding(
-            padding: const EdgeInsets.only(right: 12),
-            child: IconButton(
-              icon: Icon(
-                Icons.chat_outlined,
-                color: const Color.fromRGBO(16, 20, 94, 1),
-                size: 28 * textScale,
+                Icons.arrow_back,
+                color: Theme.of(context)
+                    .colorScheme
+                    .primary,
+                size: 27 * textScale,
               ),
               onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) => ChatsListScreen()),
-                );
+                try {
+                  context
+                      .read<AuthViewModel>()
+                      .clearErrors();
+                } catch (_) {
+                  // Certains écrans peuvent ne pas
+                  // utiliser AuthViewModel.
+                }
+
+                Navigator.of(context).maybePop();
               },
             ),
-          ),
-      ],
-    );
-  }
 
-  List<PopupMenuItem<String>> _menuItems(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final double textScale = screenWidth / 400;
-    final textStyle = TextStyle(
-      fontFamily: 'Mplus1p',
-      fontSize: 16 * textScale,
-      letterSpacing: -1,
-      fontWeight: FontWeight.w500,
-      color: Theme.of(context).colorScheme.onSecondary,
-    );
-
-    PopupMenuItem<String> buildItem(String value, IconData icon, String label) {
-      return PopupMenuItem(
-        value: value,
-        child: Center(
-          child: Container(
-            width: 131,
-            height: 36,
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.secondary,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  icon,
-                  color: Theme.of(context).colorScheme.onSecondary,
-                  size: 24 * textScale,
+      title: showTitle
+          ? Padding(
+              padding:
+                  const EdgeInsets.only(
+                left: 8,
+              ),
+              child: Text(
+                'Koteka',
+                style: TextStyle(
+                  fontFamily: 'NATS',
+                  fontSize:
+                      40 * textScale,
+                  height: 1,
+                  color:
+                      Theme.of(context)
+                          .colorScheme
+                          .primary,
+                  letterSpacing: -1,
                 ),
-                const SizedBox(width: 5),
-                Text(label, style: textStyle),
-              ],
-            ),
-          ),
-        ),
-      );
-    }
+              ),
+            )
+          : null,
 
-    return [
-      buildItem(
-        'language',
-        Icons.language_outlined,
-        AppLocalizations.of(context)!.language,
-      ),
-      buildItem('map', Icons.map_outlined, AppLocalizations.of(context)!.map),
-      buildItem(
-        'profile',
-        Icons.account_circle_outlined,
-        AppLocalizations.of(context)!.account,
-      ),
-      buildItem('logout', Icons.logout, AppLocalizations.of(context)!.log_out),
-    ];
+      centerTitle: false,
+
+      // Plus de hamburger ni d'icône chat.
+      actions: const [],
+    );
   }
 
   @override
-  Size get preferredSize => Size.fromHeight(55); // możesz dopasować wysokość
+  Size get preferredSize =>
+      const Size.fromHeight(55);
 }
