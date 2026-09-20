@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import 'package:flutter_marketplace_template/models/place.dart';
+import 'package:flutter_marketplace_template/screens/chat_screen.dart';
+import 'package:flutter_marketplace_template/services/chat_service.dart';
+import 'package:flutter_marketplace_template/services/fetch_response.dart';
 import 'package:flutter_marketplace_template/view_models/favorite_places_view_model.dart';
 
 /// Page de détail d'une annonce Koteka
-class PlaceScreen extends StatelessWidget {
+class PlaceScreen extends StatefulWidget {
   final Place place;
 
   const PlaceScreen({
@@ -13,15 +17,125 @@ class PlaceScreen extends StatelessWidget {
   });
 
   @override
+  State<PlaceScreen> createState() => _PlaceScreenState();
+}
+
+class _PlaceScreenState extends State<PlaceScreen> {
+  bool _isOpeningConversation = false;
+
+  Future<void> _openConversation() async {
+    if (_isOpeningConversation) {
+      return;
+    }
+
+    final annonceId = int.tryParse(
+      widget.place.id,
+    );
+
+    if (annonceId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Impossible d’identifier cette annonce.',
+          ),
+        ),
+      );
+
+      return;
+    }
+
+    setState(() {
+      _isOpeningConversation = true;
+    });
+
+    try {
+      final chatService =
+          context.read<IChatService>();
+
+      final response =
+          await chatService.getOrCreateConversation(
+        annonceId: annonceId,
+      );
+
+      if (!mounted) {
+        return;
+      }
+
+      if (response is FetchOneSuccess<String>) {
+        final conversationId = response.item;
+
+        await Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => ChatScreen(
+              chatId: conversationId,
+              chatDeletedAt: null,
+              lastReadMessageId: null,
+              hasUnreadMessages: false,
+            ),
+          ),
+        );
+
+        return;
+      }
+
+      if (response is FetchOneFailure<String>) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              response.message,
+            ),
+          ),
+        );
+
+        return;
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Impossible d’ouvrir la conversation.',
+          ),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) {
+        return;
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Erreur lors de l’ouverture de la conversation : $e',
+          ),
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isOpeningConversation = false;
+        });
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
+    final place = widget.place;
+    final screenWidth =
+        MediaQuery.of(context).size.width;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F7),
 
       appBar: AppBar(
         backgroundColor: Colors.white,
-        foregroundColor: const Color.fromRGBO(16, 20, 94, 1),
+        foregroundColor:
+            const Color.fromRGBO(
+          16,
+          20,
+          94,
+          1,
+        ),
         elevation: 0,
         title: const Text(
           'Détail de l’annonce',
@@ -33,51 +147,51 @@ class PlaceScreen extends StatelessWidget {
 
       body: SingleChildScrollView(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment:
+              CrossAxisAlignment.start,
           children: [
-
-            // =========================
-            // PHOTO DE L'ANNONCE
-            // =========================
             SizedBox(
               width: double.infinity,
               height: screenWidth * 0.78,
-              child: place.profilePicture.isNotEmpty
-                  ? Image.network(
-                      place.profilePicture,
-                      width: double.infinity,
-                      height: double.infinity,
-                      fit: BoxFit.contain,
-                      errorBuilder: (
-                        context,
-                        error,
-                        stackTrace,
-                      ) {
-                        return Container(
-                          color: Colors.grey.shade200,
-                          alignment: Alignment.center,
+              child:
+                  place.profilePicture.isNotEmpty
+                      ? Image.network(
+                          place.profilePicture,
+                          width: double.infinity,
+                          height: double.infinity,
+                          fit: BoxFit.contain,
+                          errorBuilder: (
+                            context,
+                            error,
+                            stackTrace,
+                          ) {
+                            return Container(
+                              color:
+                                  Colors.grey.shade200,
+                              alignment:
+                                  Alignment.center,
+                              child: const Icon(
+                                Icons
+                                    .image_not_supported_outlined,
+                                size: 70,
+                                color: Colors.grey,
+                              ),
+                            );
+                          },
+                        )
+                      : Container(
+                          color:
+                              Colors.grey.shade200,
+                          alignment:
+                              Alignment.center,
                           child: const Icon(
-                            Icons.image_not_supported_outlined,
+                            Icons.image_outlined,
                             size: 70,
                             color: Colors.grey,
                           ),
-                        );
-                      },
-                    )
-                  : Container(
-                      color: Colors.grey.shade200,
-                      alignment: Alignment.center,
-                      child: const Icon(
-                        Icons.image_outlined,
-                        size: 70,
-                        color: Colors.grey,
-                      ),
-                    ),
+                        ),
             ),
 
-            // =========================
-            // INFORMATIONS
-            // =========================
             Padding(
               padding: const EdgeInsets.all(16),
               child: Container(
@@ -85,7 +199,8 @@ class PlaceScreen extends StatelessWidget {
                 padding: const EdgeInsets.all(18),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius:
+                      BorderRadius.circular(14),
                   boxShadow: const [
                     BoxShadow(
                       color: Color.fromRGBO(
@@ -100,12 +215,12 @@ class PlaceScreen extends StatelessWidget {
                   ],
                 ),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment:
+                      CrossAxisAlignment.start,
                   children: [
-
-                    // TITRE + FAVORI
                     Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment:
+                          CrossAxisAlignment.start,
                       children: [
                         Expanded(
                           child: Text(
@@ -113,8 +228,10 @@ class PlaceScreen extends StatelessWidget {
                             style: const TextStyle(
                               fontFamily: 'Mplus1p',
                               fontSize: 24,
-                              fontWeight: FontWeight.w600,
-                              color: Color.fromRGBO(
+                              fontWeight:
+                                  FontWeight.w600,
+                              color:
+                                  Color.fromRGBO(
                                 16,
                                 20,
                                 94,
@@ -124,14 +241,18 @@ class PlaceScreen extends StatelessWidget {
                           ),
                         ),
 
-                        Consumer<FavoritePlacesViewModel>(
-                          builder: (
-                            context,
-                            favVM,
-                            _,
-                          ) {
+                        Consumer<
+                            FavoritePlacesViewModel>(
+                          builder:
+                              (
+                                context,
+                                favVM,
+                                _,
+                              ) {
                             final isFav =
-                                favVM.isFavorite(place.id);
+                                favVM.isFavorite(
+                              place.id,
+                            );
 
                             return IconButton(
                               onPressed: () {
@@ -143,16 +264,19 @@ class PlaceScreen extends StatelessWidget {
                               icon: Icon(
                                 isFav
                                     ? Icons.favorite
-                                    : Icons.favorite_border,
+                                    : Icons
+                                        .favorite_border,
                                 size: 30,
-                                color: isFav
-                                    ? Colors.red
-                                    : const Color.fromRGBO(
-                                        16,
-                                        20,
-                                        94,
-                                        1,
-                                      ),
+                                color:
+                                    isFav
+                                        ? Colors.red
+                                        : const Color
+                                            .fromRGBO(
+                                          16,
+                                          20,
+                                          94,
+                                          1,
+                                        ),
                               ),
                             );
                           },
@@ -162,9 +286,6 @@ class PlaceScreen extends StatelessWidget {
 
                     const SizedBox(height: 8),
 
-                    // =========================
-                    // PRIX UNIQUE
-                    // =========================
                     Row(
                       children: [
                         const Icon(
@@ -188,8 +309,10 @@ class PlaceScreen extends StatelessWidget {
                           style: const TextStyle(
                             fontFamily: 'Mplus1p',
                             fontSize: 21,
-                            fontWeight: FontWeight.w600,
-                            color: Color.fromRGBO(
+                            fontWeight:
+                                FontWeight.w600,
+                            color:
+                                Color.fromRGBO(
                               16,
                               20,
                               94,
@@ -200,9 +323,6 @@ class PlaceScreen extends StatelessWidget {
                       ],
                     ),
 
-                    // =========================
-                    // LOCALISATION
-                    // =========================
                     if (place.address.isNotEmpty) ...[
                       const SizedBox(height: 14),
 
@@ -211,9 +331,11 @@ class PlaceScreen extends StatelessWidget {
                             CrossAxisAlignment.start,
                         children: [
                           const Icon(
-                            Icons.location_on_outlined,
+                            Icons
+                                .location_on_outlined,
                             size: 23,
-                            color: Color.fromRGBO(
+                            color:
+                                Color.fromRGBO(
                               16,
                               20,
                               94,
@@ -226,10 +348,13 @@ class PlaceScreen extends StatelessWidget {
                           Expanded(
                             child: Text(
                               place.address,
-                              style: const TextStyle(
-                                fontFamily: 'Mplus1p',
+                              style:
+                                  const TextStyle(
+                                fontFamily:
+                                    'Mplus1p',
                                 fontSize: 16,
-                                color: Color.fromRGBO(
+                                color:
+                                    Color.fromRGBO(
                                   16,
                                   20,
                                   94,
@@ -242,14 +367,9 @@ class PlaceScreen extends StatelessWidget {
                       ),
                     ],
 
-                    // =========================
-                    // DESCRIPTION
-                    // =========================
                     if (place.desc.isNotEmpty) ...[
                       const SizedBox(height: 20),
-
                       const Divider(),
-
                       const SizedBox(height: 14),
 
                       const Text(
@@ -257,8 +377,10 @@ class PlaceScreen extends StatelessWidget {
                         style: TextStyle(
                           fontFamily: 'Mplus1p',
                           fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          color: Color.fromRGBO(
+                          fontWeight:
+                              FontWeight.w600,
+                          color:
+                              Color.fromRGBO(
                             16,
                             20,
                             94,
@@ -275,7 +397,8 @@ class PlaceScreen extends StatelessWidget {
                           fontFamily: 'Mplus1p',
                           fontSize: 16,
                           height: 1.5,
-                          color: Color.fromRGBO(
+                          color:
+                              Color.fromRGBO(
                             16,
                             20,
                             94,
@@ -284,6 +407,67 @@ class PlaceScreen extends StatelessWidget {
                         ),
                       ),
                     ],
+
+                    const SizedBox(height: 24),
+
+                    SizedBox(
+                      width: double.infinity,
+                      child: FilledButton.icon(
+                        onPressed:
+                            _isOpeningConversation
+                                ? null
+                                : _openConversation,
+                        style:
+                            FilledButton.styleFrom(
+                          backgroundColor:
+                              const Color.fromRGBO(
+                            16,
+                            20,
+                            94,
+                            1,
+                          ),
+                          foregroundColor:
+                              Colors.white,
+                          padding:
+                              const EdgeInsets.symmetric(
+                            vertical: 15,
+                          ),
+                          shape:
+                              RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.circular(
+                              12,
+                            ),
+                          ),
+                        ),
+                        icon:
+                            _isOpeningConversation
+                                ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child:
+                                        CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color:
+                                          Colors.white,
+                                    ),
+                                  )
+                                : const Icon(
+                                    Icons
+                                        .chat_bubble_outline_rounded,
+                                  ),
+                        label: Text(
+                          _isOpeningConversation
+                              ? 'Ouverture...'
+                              : 'Envoyer un message',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight:
+                                FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
