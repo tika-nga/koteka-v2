@@ -1475,3 +1475,39 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
 
                 const SizedBox(width: 4),
+
+                Icon(
+                  Icons.chevron_right,
+                  size: 22,
+                  color: Theme.of(context)
+                      .colorScheme
+                      .primary
+                      .withValues(
+                        alpha: 0.55,
+                      ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _imagePlaceholder() {
+    return Container(
+      width: 112,
+      height: 112,
+      color:
+          Colors.grey.shade200,
+      alignment:
+          Alignment.center,
+      child: Icon(
+        Icons.image_outlined,
+        size: 34,
+        color:
+            Colors.grey.shade500,
+      ),
+    );
+  }
+}
