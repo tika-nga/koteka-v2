@@ -171,9 +171,18 @@ class ChatsListViewModel extends ChangeNotifier {
   /// puisse encore appeler :
   ///
   /// markChatAsRead()
-  void markChatAsRead() {
-    notifyListeners();
-  }
+  void markChatAsRead({
+  required String chatId,
+  DateTime? timestamp,
+  String? lastMessageId,
+}) {
+  _chatIdlastReadAt[chatId] = (
+    timestamp ?? DateTime.now(),
+    lastMessageId,
+  );
+
+  notifyListeners();
+}
 
   /// Cette méthode servira ensuite à mettre à jour localement
   /// les informations précises de lecture.
