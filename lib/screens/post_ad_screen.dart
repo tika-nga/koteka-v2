@@ -843,93 +843,101 @@ class _ReviewAdScreenState
   bool _isPublishing = false;
 
   Future<void> _publishAd() async {
-    if (_isPublishing) return;
+  if (_isPublishing) return;
 
-    setState(() {
-      _isPublishing = true;
-    });
+  setState(() {
+    _isPublishing = true;
+  });
 
-    try {
-      final supabase =
-          Supabase.instance.client;
+  try {
+    final supabase = Supabase.instance.client;
 
-      final imageFile =
-          File(widget.imagePath);
+    // Utilisateur actuellement connecté
+    final user = supabase.auth.currentUser;
 
-      final fileName =
-          '${DateTime.now().millisecondsSinceEpoch}.jpg';
-
-      await supabase.storage
-          .from('annonces')
-          .upload(
-            fileName,
-            imageFile,
-          );
-
-      final imageUrl =
-          supabase.storage
-              .from('annonces')
-              .getPublicUrl(fileName);
-
-      await supabase
-          .from('annonces')
-          .insert({
-        'title': widget.title.trim(),
-        'price': widget.price.trim(),
-        'city': widget.city.trim(),
-        'district':
-            widget.district.trim(),
-        'description':
-            widget.description.trim(),
-
-        'family': widget.family,
-        'category': widget.category,
-
-        // Position de l'annonce
-        'latitude': widget.latitude,
-        'longitude': widget.longitude,
-
-        'imageUrl': imageUrl,
-        'created_at':
-            DateTime.now()
-                .toIso8601String(),
-      });
-
+    if (user == null) {
       if (!mounted) return;
 
-      ScaffoldMessenger.of(context)
-          .showSnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text(
-            'Annonce publiée avec succès',
+            'Vous devez être connecté pour publier une annonce.',
           ),
         ),
       );
 
-      Navigator.popUntil(
-        context,
-        (route) => route.isFirst,
-      );
-    } catch (e) {
-      if (!mounted) return;
+      return;
+    }
 
-      ScaffoldMessenger.of(context)
-          .showSnackBar(
-        SnackBar(
-          content: Text(
-            'Erreur lors de la publication : $e',
-          ),
+    final imageFile = File(widget.imagePath);
+
+    final fileName =
+        '${DateTime.now().millisecondsSinceEpoch}.jpg';
+
+    await supabase.storage
+        .from('annonces')
+        .upload(
+          fileName,
+          imageFile,
+        );
+
+    final imageUrl = supabase.storage
+        .from('annonces')
+        .getPublicUrl(fileName);
+
+    await supabase.from('annonces').insert({
+      'title': widget.title.trim(),
+      'price': widget.price.trim(),
+      'city': widget.city.trim(),
+      'district': widget.district.trim(),
+      'description': widget.description.trim(),
+
+      'family': widget.family,
+      'category': widget.category,
+
+      // Vendeur de l'annonce
+      'user_id': user.id,
+
+      // Position de l'annonce
+      'latitude': widget.latitude,
+      'longitude': widget.longitude,
+
+      'imageUrl': imageUrl,
+      'created_at': DateTime.now().toIso8601String(),
+    });
+
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          'Annonce publiée avec succès',
         ),
-      );
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isPublishing = false;
-        });
-      }
+      ),
+    );
+
+    Navigator.popUntil(
+      context,
+      (route) => route.isFirst,
+    );
+  } catch (e) {
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          'Erreur lors de la publication : $e',
+        ),
+      ),
+    );
+  } finally {
+    if (mounted) {
+      setState(() {
+        _isPublishing = false;
+      });
     }
   }
-
+}
   Widget _informationRow(
     String label,
     String value,
