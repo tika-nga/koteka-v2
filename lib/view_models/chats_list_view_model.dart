@@ -173,13 +173,16 @@ class ChatsListViewModel extends ChangeNotifier {
   /// markChatAsRead()
   void markChatAsRead({
   required String chatId,
-  DateTime? timestamp,
+  required DateTime lastReadAt,
   String? lastMessageId,
 }) {
   _chatIdlastReadAt[chatId] = (
-    timestamp ?? DateTime.now(),
+    lastReadAt,
     lastMessageId,
   );
+
+  notifyListeners();
+  }
 
   notifyListeners();
 }
