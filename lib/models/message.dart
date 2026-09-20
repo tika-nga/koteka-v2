@@ -1,6 +1,6 @@
 import 'package:flutter_marketplace_template/models/message_reply.dart';
 
-/// Model of a chat message.
+/// Message d'une conversation Koteka.
 class Message {
   final String id;
   final String chatId;
@@ -11,9 +11,7 @@ class Message {
   final String? replyTo;
   final DateTime createdAt;
   final DateTime? editedAt;
-  //final bool isDeleted;
-  //final bool isRead;
-
+  final DateTime? readAt;
   final MessageReply? reply;
 
   const Message({
@@ -27,40 +25,72 @@ class Message {
     this.reply,
     required this.createdAt,
     required this.editedAt,
-    //required this.isDeleted,
-    //required this.isRead,
+    this.readAt,
   });
 
-  factory Message.fromJson(Map<String, dynamic> json, {MessageReply? reply}) {
+  factory Message.fromJson(
+    Map<String, dynamic> json, {
+    MessageReply? reply,
+  }) {
     return Message(
-      id: json['id'] as String,
-      chatId: json['chat_id'] as String,
-      senderId: json['sender_id'] as String,
-      type: json['type'] as String,
-      text: json['content'] as String,
-      metadata: json['metadata'] as String,
-      createdAt: DateTime.parse(json['created_at'] as String),
-      editedAt: DateTime.tryParse(json['edited_at'] as String? ?? ''),
-      replyTo: json['reply_to'] as String?,
+      id: json['id'].toString(),
+
+      // Nouvelle structure Koteka
+      chatId:
+          (json['conversation_id'] ??
+                  json['chat_id'] ??
+                  '')
+              .toString(),
+
+      senderId:
+          (json['sender_id'] ?? '')
+              .toString(),
+
+      type:
+          (json['type'] ?? 'text')
+              .toString(),
+
+      text:
+          (json['text'] ??
+                  json['content'] ??
+                  '')
+              .toString(),
+
+      metadata:
+          (json['metadata'] ?? '{}')
+              .toString(),
+
+      replyTo:
+          json['reply_to']?.toString(),
+
+      createdAt:
+          DateTime.tryParse(
+            json['created_at']?.toString() ?? '',
+          ) ??
+          DateTime.now(),
+
+      editedAt:
+          DateTime.tryParse(
+            json['edited_at']?.toString() ?? '',
+          ),
+
+      readAt:
+          DateTime.tryParse(
+            json['read_at']?.toString() ?? '',
+          ),
+
       reply: reply,
-      //isDeleted: (json['is_deleted'] as bool),
-      //isRead: (json['is_read'] as bool),
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'chat_id': chatId,
+      'conversation_id': chatId,
       'sender_id': senderId,
-      'type': type,
-      'content': text,
-      'metadata': metadata,
-      'reply_to': replyTo,
-      //'is_deleted': isDeleted,
+      'text': text,
       'created_at': createdAt.toIso8601String(),
-      'edited_at': editedAt?.toIso8601String(),
-      //'is_read': isRead,
+      'read_at': readAt?.toIso8601String(),
     };
   }
 
@@ -69,13 +99,11 @@ class Message {
     String? senderId,
     String? text,
     String? chatId,
-    //String? replyTo,
-    //bool? isDeleted,
     DateTime? createdAt,
-    //bool? isRead,
     String? type,
     String? metadata,
     DateTime? editedAt,
+    DateTime? readAt,
   }) {
     return Message(
       id: id ?? this.id,
@@ -85,10 +113,10 @@ class Message {
       type: type ?? this.type,
       metadata: metadata ?? this.metadata,
       editedAt: editedAt ?? this.editedAt,
-      //replyTo: replyTo ?? this.replyTo,
-      //isDeleted: isDeleted ?? this.isDeleted,
       createdAt: createdAt ?? this.createdAt,
-      //isRead: isRead ?? this.isRead,
+      readAt: readAt ?? this.readAt,
+      replyTo: replyTo,
+      reply: reply,
     );
   }
 }
