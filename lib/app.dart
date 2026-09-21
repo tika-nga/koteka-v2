@@ -17,10 +17,8 @@ import 'package:flutter_marketplace_template/view_models/auth_view_model.dart';
 import 'package:flutter_marketplace_template/view_models/chat_view_model.dart';
 import 'package:flutter_marketplace_template/view_models/chats_list_view_model.dart';
 import 'package:flutter_marketplace_template/view_models/favorite_places_view_model.dart';
-import 'package:flutter_marketplace_template/view_models/language_view_model.dart';
 import 'package:flutter_marketplace_template/view_models/navigation_view_model.dart';
 import 'package:flutter_marketplace_template/view_models/profile_view_model.dart';
-import 'package:flutter_marketplace_template/view_models/theme_view_model.dart';
 
 final GlobalKey<NavigatorState> navigatorKey =
     GlobalKey<NavigatorState>();
@@ -117,35 +115,28 @@ class _MyAppState extends State<MyApp> {
               NavigationViewModel(),
         ),
       ],
-      child: Consumer2<
-          LanguageViewModel,
-          ThemeViewModel>(
-        builder: (
-          context,
-          languageViewModel,
-          themeViewModel,
-          _,
-        ) {
-          return MaterialApp(
-            navigatorKey: navigatorKey,
-            title: 'Koteka',
-            debugShowCheckedModeBanner:
-                false,
-            theme: lightTheme,
-            darkTheme: darkTheme,
-            themeMode:
-                themeViewModel.flutterMode,
-            home: const AuthGate(),
-            locale:
-                languageViewModel.locale,
-            localizationsDelegates:
-                AppLocalizations
-                    .localizationsDelegates,
-            supportedLocales:
-                AppLocalizations
-                    .supportedLocales,
-          );
-        },
+      child: MaterialApp(
+        navigatorKey: navigatorKey,
+        title: 'Koteka',
+        debugShowCheckedModeBanner: false,
+
+        // Koteka utilise maintenant uniquement
+        // le thème clair.
+        theme: lightTheme,
+        themeMode: ThemeMode.light,
+
+        home: const AuthGate(),
+
+        // Koteka utilise maintenant le français.
+        locale: const Locale('fr'),
+
+        localizationsDelegates:
+            AppLocalizations
+                .localizationsDelegates,
+
+        supportedLocales:
+            AppLocalizations
+                .supportedLocales,
       ),
     );
   }
