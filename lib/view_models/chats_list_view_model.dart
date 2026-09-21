@@ -3,11 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_marketplace_template/models/chat.dart';
 import 'package:flutter_marketplace_template/services/chat_service.dart';
 import 'package:flutter_marketplace_template/services/fetch_response.dart';
-import 'package:flutter_marketplace_template/services/places_service.dart';
 import 'package:flutter_marketplace_template/services/user_service.dart';
 
 class ChatsListViewModel extends ChangeNotifier {
-  final IPlacesService _placesService;
   final IChatService _chatService;
   final IUserService _userService;
 
@@ -20,7 +18,6 @@ class ChatsListViewModel extends ChangeNotifier {
   final Map<String, String> _chatIdChatParticipantName = {};
 
   ChatsListViewModel(
-    this._placesService,
     this._chatService,
     this._userService,
   );
@@ -82,6 +79,8 @@ class ChatsListViewModel extends ChangeNotifier {
 
       if (participants
           is FetchOneSuccess<Map<String, String>>) {
+        _chatIdChatParticipantName.clear();
+
         for (final entry in participants.item.entries) {
           _chatIdChatParticipantName[entry.key] = 'Utilisateur';
         }
@@ -107,6 +106,8 @@ class ChatsListViewModel extends ChangeNotifier {
 
     if (response
         is FetchOneSuccess<Map<String, String>>) {
+      _chatIdChatParticipantName.clear();
+
       for (final entry in response.item.entries) {
         _chatIdChatParticipantName[entry.key] = 'Utilisateur';
       }
