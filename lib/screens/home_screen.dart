@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import 'package:flutter_marketplace_template/models/place.dart';
+import 'package:flutter_marketplace_template/models/annonce.dart';
 import 'package:flutter_marketplace_template/screens/place_screen.dart';
 import 'package:flutter_marketplace_template/views/components/filter_buttons.dart';
 import 'package:flutter_marketplace_template/adapters/app_bar.dart';
