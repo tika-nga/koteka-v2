@@ -88,7 +88,13 @@ class _MyAppState extends State<MyApp> {
                 context.read<IFavoritePlacesService>(),
               ),
         ),
-        ChangeNotifierProvider(create: (_) => FilterViewModel()),
+        ChangeNotifierProvider(
+  create:
+      (context) => PlacesModel(
+        context.read<IPlacesService>(),
+        context.read<FilterViewModel>(),
+      ),
+),
         ChangeNotifierProvider(create: (context) => NavigationViewModel()),
         ChangeNotifierProvider(
           create:
