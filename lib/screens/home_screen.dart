@@ -1238,35 +1238,9 @@ class _HomeScreenState extends State<HomeScreen> {
               );
 
     final place =
-        PlaceExtension.placeholder();
-
-    place.id =
-        annonce['id']?.toString() ?? '';
-
-    place.name = title;
-
-    place.address =
-        district.isNotEmpty
-            ? '$city, $district'
-            : city;
-
-    place.profilePicture =
-        imageUrl;
-
-    place.desc =
-        annonce['description']
-                ?.toString() ??
-            '';
-
-    final parsedPrice =
-        _readPrice(
-      annonce,
-    );
-
-    place.pricepp = (
-      parsedPrice,
-      parsedPrice,
-    );
+    final annonceModel = Annonce.fromJson(
+  annonce,
+);
 
     return Padding(
       padding:
@@ -1292,9 +1266,9 @@ class _HomeScreenState extends State<HomeScreen> {
             Navigator.of(context).push(
               MaterialPageRoute(
                 builder: (context) =>
-                    PlaceScreen(
-                  place: place,
-                ),
+    PlaceScreen(
+  annonce: annonceModel,
+),
               ),
             );
           },
