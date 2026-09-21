@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_marketplace_template/screens/auth/sign_in_screen.dart';
 import 'package:flutter_marketplace_template/screens/auth/sign_up_screen.dart';
 import 'package:flutter_marketplace_template/l10n/app_localizations.dart';
-import 'package:flutter_marketplace_template/adapters/language_dialog.dart';
 
 /// Welcome screen shown on app launch if user is not authenticated,
 /// with options to go to sign in or sign up screen
@@ -204,26 +203,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                         ),
                         softWrap: false,
                         overflow: TextOverflow.visible,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              Positioned(
-                top: 574,
-                left: 75,
-                child: GestureDetector(
-                  onTap: () {
-                    showLanguageDialog(context, selectedLanguage);
-                  },
-                  child: Container(
-                    width: 50,
-                    height: 50,
-                    child: const Center(
-                      child: Icon(
-                        Icons.language,
-                        color: Colors.white,
-                        size: 40,
                       ),
                     ),
                   ),
