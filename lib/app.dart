@@ -6,7 +6,6 @@ import 'package:provider/provider.dart';
 import 'package:flutter_marketplace_template/services/auth_service.dart';
 import 'package:flutter_marketplace_template/services/chat_service.dart';
 import 'package:flutter_marketplace_template/services/favorite_places_service.dart';
-import 'package:flutter_marketplace_template/services/places_service.dart';
 import 'package:flutter_marketplace_template/services/user_service.dart';
 import 'package:flutter_marketplace_template/main.dart';
 import 'package:flutter_marketplace_template/screens/auth/reset_password_screen_2.dart';
@@ -14,7 +13,6 @@ import 'package:flutter_marketplace_template/view_models/auth_view_model.dart';
 import 'package:flutter_marketplace_template/screens/auth/auth_gate.dart';
 import 'package:flutter_marketplace_template/view_models/chat_view_model.dart';
 import 'package:flutter_marketplace_template/view_models/chats_list_view_model.dart';
-import '
 import 'package:flutter_marketplace_template/view_models/language_view_model.dart';
 import 'package:flutter_marketplace_template/view_models/navigation_view_model.dart';
 import 'package:flutter_marketplace_template/view_models/profile_view_model.dart';
@@ -74,10 +72,9 @@ class _MyAppState extends State<MyApp> {
         ChangeNotifierProvider(
           create:
               (context) => ChatsListViewModel(
-                context.read<IPlacesService>(),
-                context.read<IChatService>(),
-                context.read<IUserService>(),
-              ),
+  context.read<IChatService>(),
+  context.read<IUserService>(),
+),
         ),
         ChangeNotifierProvider(
           create: (context) => ProfileViewModel(context.read<IUserService>()),
