@@ -13,12 +13,8 @@ import 'package:flutter_marketplace_template/services/auth_service.dart';
 import 'package:flutter_marketplace_template/services/chat_service.dart';
 import 'package:flutter_marketplace_template/services/delete_user_use_case_service.dart';
 import 'package:flutter_marketplace_template/services/favorite_places_service.dart';
-import 'package:flutter_marketplace_template/services/language_service.dart';
 import 'package:flutter_marketplace_template/services/notifications_service.dart';
-import 'package:flutter_marketplace_template/services/theme_service.dart';
 import 'package:flutter_marketplace_template/services/user_service.dart';
-import 'package:flutter_marketplace_template/view_models/language_view_model.dart';
-import 'package:flutter_marketplace_template/view_models/theme_view_model.dart';
 
 final supabase = Supabase.instance.client;
 
@@ -85,30 +81,6 @@ Future<void> main() async {
           create: (_) =>
               FavoritePlacesServiceSupabase(),
         ),
-
-        Provider<ILanguageService>(
-          create: (_) =>
-              LanguageServiceHive(),
-        ),
-
-        Provider<IThemeService>(
-          create: (_) =>
-              ThemeServiceHive(),
-        ),
-
-        ChangeNotifierProvider(
-          create: (context) =>
-              LanguageViewModel(
-            context.read<ILanguageService>(),
-          ),
-        ),
-
-        ChangeNotifierProvider(
-          create: (context) =>
-              ThemeViewModel(
-            context.read<IThemeService>(),
-          ),
-        ),
       ],
       child: const MyApp(),
     ),
@@ -119,7 +91,7 @@ Future<void> main() async {
 Future<void> initNotifications() async {
   initializeTimeZones();
 
-  // Fuseau utilisé actuellement pour Koteka/Kinshasa.
+  // Fuseau utilisé par Koteka/Kinshasa.
   setLocalLocation(
     getLocation('Africa/Kinshasa'),
   );
