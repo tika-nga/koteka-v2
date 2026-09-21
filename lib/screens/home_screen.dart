@@ -385,27 +385,30 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   bool _matchesSearch(
-    Map<String, dynamic> annonce,
-  ) {
-    if (_searchQuery.isEmpty) {
-      return true;
-    }
+  Map<String, dynamic> annonce,
+) {
+  if (_searchQuery.isEmpty) {
+    return true;
+  }
 
-    final title = _normalize(
-      annonce['title']?.toString(),
-    );
+  final searchable = [
+    annonce['title'],
+    annonce['description'],
+    annonce['family'],
+    annonce['category'],
+    annonce['city'],
+    annonce['district'],
+  ]
+      .map(
+        (value) => _normalize(
+          value?.toString(),
+        ),
+      )
+      .join(' ');
 
-    final family = _normalize(
-      annonce['family']?.toString(),
-    );
-
-    final category = _normalize(
-      annonce['category']?.toString(),
-    );
-
-    return title.contains(_searchQuery) ||
-        family.contains(_searchQuery) ||
-        category.contains(_searchQuery);
+  return searchable.contains(
+    _searchQuery,
+  );
   }
 
   bool _matchesFamilyAndCategory(
@@ -1119,90 +1122,94 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildSectionTitle() {
-    return Row(
-      children: [
-        const Expanded(
-          child: Text(
-            'Annonces récentes',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight:
-                  FontWeight.w700,
-            ),
-          ),
-        ),
+  final hasActiveSearchOrFilter =
+      _searchQuery.isNotEmpty ||
+      _selectedFamily != null ||
+      _selectedCategory != null ||
+      _selectedMinPrice != null ||
+      _selectedMaxPrice != null ||
+      _selectedCity != null ||
+      _selectedCommune != null ||
+      _selectedDistanceKm != null;
 
-        PopupMenuButton<String>(
-          tooltip:
-              'Trier les annonces',
-          initialValue:
-              _selectedSort,
-          onSelected: (value) {
-            setState(() {
-              _selectedSort = value;
-            });
-          },
-          itemBuilder: (context) {
-            return const [
-              PopupMenuItem<String>(
-                value: 'recent',
-                child: Text(
-                  'Plus récentes',
-                ),
-              ),
-              PopupMenuItem<String>(
-                value: 'price_asc',
-                child: Text(
-                  'Prix croissant',
-                ),
-              ),
-              PopupMenuItem<String>(
-                value: 'price_desc',
-                child: Text(
-                  'Prix décroissant',
-                ),
-              ),
-            ];
-          },
-          child: Container(
-            padding:
-                const EdgeInsets.symmetric(
-              horizontal: 10,
-              vertical: 7,
-            ),
-            decoration: BoxDecoration(
-              borderRadius:
-                  BorderRadius.circular(
-                10,
-              ),
-              border: Border.all(
-                color: Theme.of(context)
-                    .colorScheme
-                    .primary
-                    .withValues(
-                      alpha: 0.25,
-                    ),
-              ),
-            ),
-            child: const Row(
-              mainAxisSize:
-                  MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.sort,
-                  size: 18,
-                ),
-                SizedBox(width: 5),
-                Text(
-                  'Trier',
-                ),
-              ],
-            ),
+  final title = hasActiveSearchOrFilter
+      ? 'Résultats'
+      : 'Annonces récentes';
+
+  return Row(
+    children: [
+      Expanded(
+        child: Text(
+          title,
+          style: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
           ),
         ),
-      ],
-    );
-  }
+      ),
+      PopupMenuButton<String>(
+        tooltip: 'Trier les annonces',
+        initialValue: _selectedSort,
+        onSelected: (value) {
+          setState(() {
+            _selectedSort = value;
+          });
+        },
+        itemBuilder: (context) {
+          return const [
+            PopupMenuItem<String>(
+              value: 'recent',
+              child: Text(
+                'Plus récentes',
+              ),
+            ),
+            PopupMenuItem<String>(
+              value: 'price_asc',
+              child: Text(
+                'Prix croissant',
+              ),
+            ),
+            PopupMenuItem<String>(
+              value: 'price_desc',
+              child: Text(
+                'Prix décroissant',
+              ),
+            ),
+          ];
+        },
+        child: Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: 10,
+            vertical: 7,
+          ),
+          decoration: BoxDecoration(
+            borderRadius:
+                BorderRadius.circular(10),
+            border: Border.all(
+              color: Theme.of(context)
+                  .colorScheme
+                  .primary
+                  .withValues(
+                    alpha: 0.25,
+                  ),
+            ),
+          ),
+          child: const Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.sort,
+                size: 18,
+              ),
+              SizedBox(width: 5),
+              Text('Trier'),
+            ],
+          ),
+        ),
+      ),
+    ],
+  );
+}
 
   Widget _buildAnnonceCard(
     BuildContext context,
