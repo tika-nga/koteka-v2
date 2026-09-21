@@ -3,7 +3,6 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter_marketplace_template/models/category_tags_enums.dart';
 import 'package:flutter_marketplace_template/models/date_prop.dart';
 import 'package:flutter_marketplace_template/models/menu_class.dart';
-import 'package:flutter_marketplace_template/screens/place_screen.dart';
 
 /// Class representing a place
 class Place {
