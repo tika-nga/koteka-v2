@@ -72,7 +72,7 @@ class Place {
       infoWindow: InfoWindow(
         title: name,
         snippet: address,
-        onTap: () {
+        onTap: () {},
           Navigator.of(context).push(
             MaterialPageRoute(builder: (context) => PlaceScreen(place: this)),
           );
