@@ -1,117 +1,151 @@
-import 'package:flutter_marketplace_template/functions.dart';
-import 'package:flutter_marketplace_template/main.dart';
-import 'package:flutter_marketplace_template/services/fetch_response.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
+import 'package:flutter_marketplace_template/main.dart';
+import 'package:flutter_marketplace_template/models/annonce.dart';
+import 'package:flutter_marketplace_template/services/fetch_response.dart';
 import 'package:flutter_marketplace_template/services/logger_service.dart';
-import 'package:flutter_marketplace_template/models/place.dart';
 
-/// Service for handling the favorite_places table via Supabase.
 abstract class IFavoritePlacesService {
-  Future<FetchResponse<Place>> fetchFavoritePlacesDetailedForCurrentUser({
-    required int pageSize,
-    required int pageNumber,
-  });
+  Future<FetchResponse<Annonce>>
+      fetchFavoritePlacesDetailedForCurrentUser();
 
-  Future<bool> addFavorite(String placeId);
-  Future<bool> removeFavorite(String placeId);
-  Future<bool> toggleFavorite(String placeId);
+  Future<bool> addFavorite(int annonceId);
+
+  Future<bool> removeFavorite(int annonceId);
+
+  Future<bool> toggleFavorite(int annonceId);
 }
 
-/// Service for handling the favorite_places table via Supabase.
-class FavoritePlacesServiceSupabase implements IFavoritePlacesService {
-  static const String table = 'favorite_places';
+class FavoritePlacesServiceSupabase
+    implements IFavoritePlacesService {
+  static const String table = 'favorite_annonces';
 
-  /// Returns the ID of the current user or throws an exception.
   static User _requireAuthUser() {
     final user = supabase.auth.currentUser;
-    if (user == null) throw Exception('No logged-in user found');
+
+    if (user == null) {
+      throw Exception('Utilisateur non connecté');
+    }
+
     return user;
   }
 
-  /// Fetches detailed information about the current user's favorite places along with tags and date_props.
   @override
-  Future<FetchResponse<Place>> fetchFavoritePlacesDetailedForCurrentUser({
-    required int pageSize,
-    required int pageNumber,
-  }) async {
-    final List<Place> result = [];
+  Future<FetchResponse<Annonce>>
+      fetchFavoritePlacesDetailedForCurrentUser() async {
     try {
       final uid = _requireAuthUser().id;
-      final rows = await retry(
-        () => supabase
-            .from('places_tags_agg')
-            .select(
-              '*, date_props(*, date_props_tags(tags(*))), favorite_places!inner(*)',
-            )
-            .filter('deleted_at', 'is', null)
-            .eq('favorite_places.user_id', uid)
-            .range((pageNumber - 1) * pageSize, pageNumber * pageSize - 1),
+
+      final rows = await supabase
+          .from(table)
+          .select('annonce_id, annonces(*)')
+          .eq('user_id', uid)
+          .order(
+            'created_at',
+            ascending: false,
+          );
+
+      final annonces = <Annonce>[];
+
+      for (final raw in rows) {
+        final annonceRaw = raw['annonces'];
+
+        if (annonceRaw is Map) {
+          annonces.add(
+            Annonce.fromJson(
+              Map<String, dynamic>.from(
+                annonceRaw,
+              ),
+            ),
+          );
+        }
+      }
+
+      return FetchListSuccess<Annonce>(
+        annonces,
+      );
+    } catch (e) {
+      Log.warning(
+        'Erreur chargement favoris Koteka : $e',
       );
 
-      result.addAll(
-        (rows).map((raw) => Place.fromJsonORM(raw)).whereType<Place>().toList(),
-      );
-      return FetchListSuccess(result);
-    } catch (e) {
-      Log.warning('Error fetching detailed favorite places: $e');
-      return FetchListFailure(
-        'Failed to fetch favorite places: ${e.toString()}',
+      return FetchListFailure<Annonce>(
+        'Impossible de charger les favoris : $e',
       );
     }
   }
 
-  /// Adds a place to the user's favorites (idempotent).
   @override
-  Future<bool> addFavorite(String placeId) async {
+  Future<bool> addFavorite(
+    int annonceId,
+  ) async {
     try {
       final uid = _requireAuthUser().id;
-      await supabase.from(table).upsert({'user_id': uid, 'place_id': placeId});
+
+      await supabase.from(table).upsert({
+        'user_id': uid,
+        'annonce_id': annonceId,
+      });
+
       return true;
     } catch (e) {
-      Log.warning('Error adding favorite place: $e');
+      Log.warning(
+        'Erreur ajout favori : $e',
+      );
+
       return false;
     }
   }
 
-  /// Removes a place from the user's favorites.
   @override
-  Future<bool> removeFavorite(String placeId) async {
+  Future<bool> removeFavorite(
+    int annonceId,
+  ) async {
     try {
       final uid = _requireAuthUser().id;
+
       await supabase
           .from(table)
           .delete()
           .eq('user_id', uid)
-          .eq('place_id', placeId);
+          .eq('annonce_id', annonceId);
+
       return true;
     } catch (e) {
-      Log.warning('Error removing favorite place: $e');
+      Log.warning(
+        'Erreur suppression favori : $e',
+      );
+
       return false;
     }
   }
 
-  /// Toggles the favorite status of a place – if it was favorite, removes it, if not – adds it.
-  /// Returns the new status: true if the place is favorite after the operation.
   @override
-  Future<bool> toggleFavorite(String placeId) async {
+  Future<bool> toggleFavorite(
+    int annonceId,
+  ) async {
     try {
       final uid = _requireAuthUser().id;
+
       final existing = await supabase
           .from(table)
-          .select('place_id')
+          .select('annonce_id')
           .eq('user_id', uid)
-          .eq('place_id', placeId)
+          .eq('annonce_id', annonceId)
           .limit(1);
-      final isFav = existing.isNotEmpty;
-      if (isFav) {
-        await removeFavorite(placeId);
+
+      if (existing.isNotEmpty) {
+        await removeFavorite(annonceId);
         return false;
-      } else {
-        await addFavorite(placeId);
-        return true;
       }
+
+      await addFavorite(annonceId);
+      return true;
     } catch (e) {
-      Log.warning('Error toggling favorite place: $e');
+      Log.warning(
+        'Erreur modification favori : $e',
+      );
+
       return false;
     }
   }
