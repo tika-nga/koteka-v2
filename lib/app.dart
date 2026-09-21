@@ -14,10 +14,9 @@ import 'package:flutter_marketplace_template/view_models/auth_view_model.dart';
 import 'package:flutter_marketplace_template/screens/auth/auth_gate.dart';
 import 'package:flutter_marketplace_template/view_models/chat_view_model.dart';
 import 'package:flutter_marketplace_template/view_models/chats_list_view_model.dart';
-import 'package:flutter_marketplace_template/view_models/filter_view_model.dart';
+import '
 import 'package:flutter_marketplace_template/view_models/language_view_model.dart';
 import 'package:flutter_marketplace_template/view_models/navigation_view_model.dart';
-import 'package:flutter_marketplace_template/view_models/places_model.dart';
 import 'package:flutter_marketplace_template/view_models/profile_view_model.dart';
 import 'package:flutter_marketplace_template/view_models/favorite_places_view_model.dart';
 import 'package:flutter_marketplace_template/l10n/app_localizations.dart';
