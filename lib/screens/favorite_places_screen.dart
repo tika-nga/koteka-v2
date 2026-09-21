@@ -1,168 +1,365 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_marketplace_template/view_models/favorite_places_view_model.dart';
-import 'package:flutter_marketplace_template/adapters/place_notice.dart';
-import 'package:flutter_marketplace_template/l10n/app_localizations.dart';
-import 'package:flutter_marketplace_template/models/place.dart';
-import 'package:flutter_marketplace_template/screens/place_screen.dart';
-import 'package:flutter_marketplace_template/adapters/app_bar.dart';
-import 'package:skeletonizer/skeletonizer.dart';
 
-/// Screen displaying the user's favorite places.
-/// The current implementation filters places already loaded in `PlacesModel`.
-/// NOTE: If some favorites are not in the currently downloaded list of places
-/// (e.g., due to filters or pagination), they will not appear here.
-/// Possible future improvement: separate query by ID to Supabase.
-/// But they all load sequentially from the moment the app is launched,
-/// so we get the same effect.
+import 'package:flutter_marketplace_template/adapters/app_bar.dart';
+import 'package:flutter_marketplace_template/models/annonce.dart';
+import 'package:flutter_marketplace_template/screens/place_screen.dart';
+import 'package:flutter_marketplace_template/view_models/favorite_places_view_model.dart';
 
 class FavoritePlacesScreen extends StatefulWidget {
-  const FavoritePlacesScreen({super.key});
+  const FavoritePlacesScreen({
+    super.key,
+  });
 
   @override
-  State<FavoritePlacesScreen> createState() => _FavoritePlacesScreenState();
+  State<FavoritePlacesScreen> createState() =>
+      _FavoritePlacesScreenState();
 }
 
-class _FavoritePlacesScreenState extends State<FavoritePlacesScreen> {
-  final TextEditingController _searchController = TextEditingController();
+class _FavoritePlacesScreenState
+    extends State<FavoritePlacesScreen> {
+  final TextEditingController _searchController =
+      TextEditingController();
+
   String _query = '';
 
   @override
   void initState() {
     super.initState();
-    _searchController.addListener(() {
-      setState(() {
-        _query = _searchController.text.trim().toLowerCase();
-      });
+
+    _searchController.addListener(
+      _onSearchChanged,
+    );
+  }
+
+  void _onSearchChanged() {
+    setState(() {
+      _query =
+          _searchController.text.trim().toLowerCase();
     });
   }
 
   @override
   void dispose() {
+    _searchController.removeListener(
+      _onSearchChanged,
+    );
+
     _searchController.dispose();
+
     super.dispose();
   }
 
-  List<Place> _filterFavorites(List<Place> allPlaces, Set<String> favoriteIds) {
-    final favPlaces = allPlaces.where((p) => favoriteIds.contains(p.id));
-    if (_query.isEmpty) return favPlaces.toList();
-    return favPlaces
-        .where((p) => p.name.toLowerCase().contains(_query))
-        .toList();
+  List<Annonce> _filtered(
+    List<Annonce> annonces,
+  ) {
+    if (_query.isEmpty) {
+      return annonces;
+    }
+
+    return annonces.where(
+      (annonce) {
+        return annonce.title
+                .toLowerCase()
+                .contains(_query) ||
+            annonce.category
+                .toLowerCase()
+                .contains(_query) ||
+            annonce.family
+                .toLowerCase()
+                .contains(_query) ||
+            annonce.city
+                .toLowerCase()
+                .contains(_query) ||
+            annonce.district
+                .toLowerCase()
+                .contains(_query);
+      },
+    ).toList();
   }
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final textScale = screenWidth / 400;
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
-      appBar: CustomAppBar(showTitle: false, showMenu: true),
+      backgroundColor:
+          Theme.of(context).colorScheme.surface,
+      appBar: const CustomAppBar(
+        showTitle: false,
+        showMenu: false,
+        showChat: false,
+      ),
       body: Consumer<FavoritePlacesViewModel>(
-        builder: (context, favVM, _) {
-          final favIds = favVM.favorites;
-          final isFetching = favVM.isLoading;
+        builder: (
+          context,
+          favVM,
+          _,
+        ) {
+          if (favVM.isLoading &&
+              favVM.favoriteAnnonces.isEmpty) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
 
-          // Lista placeholderów, gdy fetch trwa
-          final filtered =
-              isFetching
-                  ? List.generate(5, (_) => PlaceExtension.placeholder())
-                  : _filterFavorites(favVM.favoritePlaces, favIds);
+          final annonces =
+              _filtered(favVM.favoriteAnnonces);
 
-          return ListView(
-            padding: const EdgeInsets.all(16),
-            children: [
-              Container(
-                padding: const EdgeInsets.only(
-                  left: 14,
-                  right: 14,
-                  top: 16,
-                  bottom: 16,
-                ),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surface,
-                  borderRadius: BorderRadius.circular(8),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Color.fromRGBO(16, 20, 94, 0.1),
-                      blurRadius: 3,
-                      spreadRadius: 2,
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      AppLocalizations.of(context)!.favourite_places,
-                      style: TextStyle(
-                        fontFamily: 'Mplus1p',
-                        fontSize: 24 * textScale,
-                        letterSpacing: -1,
-                        fontWeight: FontWeight.w500,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Divider(
-                      height: 5,
-                      thickness: 0.5,
-                      color: const Color.fromRGBO(195, 196, 215, 1),
-                    ),
-                    const SizedBox(height: 12),
-                    // Search field
-                    TextField(
-                      controller: _searchController,
-                      decoration: InputDecoration(
-                        isDense: true,
-                        prefixIcon: const Icon(Icons.search),
-                        hintText: AppLocalizations.of(context)!.search_by_name,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(6),
-                          borderSide: BorderSide(
-                            color: Theme.of(context).colorScheme.primary,
-                            width: 2,
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(6),
-                          borderSide: BorderSide(
-                            color: Theme.of(context).colorScheme.primary,
-                            width: 3,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Skeletonizer(
-                      enabled: isFetching,
-                      child: Column(
-                        children:
-                            filtered
-                                .map(
-                                  (p) => GestureDetector(
-                                    onTap: () {
-                                      Navigator.of(context).push(
-                                        MaterialPageRoute(
-                                          builder: (_) => PlaceScreen(place: p),
-                                        ),
-                                      );
-                                    },
-                                    child: PlaceNotice(
-                                      place: p,
-                                      screenWidth: screenWidth,
-                                    ),
-                                  ),
-                                )
-                                .toList(),
-                      ),
-                    ),
-                  ],
-                ),
+          return RefreshIndicator(
+            onRefresh: favVM.loadFavorites,
+            child: ListView(
+              physics:
+                  const AlwaysScrollableScrollPhysics(),
+              padding:
+                  const EdgeInsets.fromLTRB(
+                16,
+                18,
+                16,
+                30,
               ),
-            ],
+              children: [
+                const Text(
+                  'Favoris',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w700,
+                    color: Color.fromRGBO(
+                      16,
+                      20,
+                      94,
+                      1,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  '${favVM.favoritesCount} annonce${favVM.favoritesCount > 1 ? 's' : ''} favorite${favVM.favoritesCount > 1 ? 's' : ''}',
+                  style: TextStyle(
+                    color: Colors.grey.shade700,
+                  ),
+                ),
+                const SizedBox(height: 18),
+                TextField(
+                  controller: _searchController,
+                  decoration: InputDecoration(
+                    hintText:
+                        'Rechercher dans les favoris',
+                    prefixIcon:
+                        const Icon(Icons.search),
+                    suffixIcon:
+                        _searchController.text.isEmpty
+                            ? null
+                            : IconButton(
+                                onPressed: () {
+                                  _searchController
+                                      .clear();
+                                },
+                                icon: const Icon(
+                                  Icons.close,
+                                ),
+                              ),
+                    border: OutlineInputBorder(
+                      borderRadius:
+                          BorderRadius.circular(14),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                if (favVM.errorMessage != null)
+                  Padding(
+                    padding:
+                        const EdgeInsets.only(
+                      bottom: 16,
+                    ),
+                    child: Text(
+                      favVM.errorMessage!,
+                      style: const TextStyle(
+                        color: Colors.red,
+                      ),
+                    ),
+                  ),
+                if (annonces.isEmpty)
+                  const Padding(
+                    padding:
+                        EdgeInsets.symmetric(
+                      vertical: 50,
+                    ),
+                    child: Center(
+                      child: Text(
+                        'Aucune annonce favorite.',
+                      ),
+                    ),
+                  )
+                else
+                  ...annonces.map(
+                    (annonce) =>
+                        _buildAnnonceCard(
+                      context,
+                      annonce,
+                      favVM,
+                    ),
+                  ),
+              ],
+            ),
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildAnnonceCard(
+    BuildContext context,
+    Annonce annonce,
+    FavoritePlacesViewModel favVM,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.only(
+        bottom: 12,
+      ),
+      child: Material(
+        color:
+            Theme.of(context).colorScheme.surface,
+        elevation: 1.5,
+        borderRadius:
+            BorderRadius.circular(14),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => PlaceScreen(
+                  annonce: annonce,
+                ),
+              ),
+            );
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(10),
+            child: Row(
+              crossAxisAlignment:
+                  CrossAxisAlignment.start,
+              children: [
+                ClipRRect(
+                  borderRadius:
+                      BorderRadius.circular(10),
+                  child: annonce.imageUrl.isNotEmpty
+                      ? Image.network(
+                          annonce.imageUrl,
+                          width: 105,
+                          height: 105,
+                          fit: BoxFit.cover,
+                          errorBuilder: (
+                            context,
+                            error,
+                            stackTrace,
+                          ) =>
+                              _imagePlaceholder(),
+                        )
+                      : _imagePlaceholder(),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment:
+                        CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        annonce.title,
+                        maxLines: 2,
+                        overflow:
+                            TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight:
+                              FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        '${annonce.price} FC',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight:
+                              FontWeight.w700,
+                          color: Theme.of(context)
+                              .colorScheme
+                              .primary,
+                        ),
+                      ),
+                      if (annonce.category
+                          .isNotEmpty) ...[
+                        const SizedBox(height: 5),
+                        Text(
+                          annonce.category,
+                          maxLines: 1,
+                          overflow:
+                              TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                      if (annonce.location
+                          .isNotEmpty) ...[
+                        const SizedBox(height: 5),
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons
+                                  .location_on_outlined,
+                              size: 15,
+                            ),
+                            const SizedBox(width: 3),
+                            Expanded(
+                              child: Text(
+                                annonce.location,
+                                maxLines: 1,
+                                overflow:
+                                    TextOverflow
+                                        .ellipsis,
+                                style:
+                                    const TextStyle(
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                IconButton(
+                  tooltip:
+                      'Retirer des favoris',
+                  onPressed: () {
+                    favVM.toggleFavorite(
+                      annonce.id,
+                      annonce: annonce,
+                    );
+                  },
+                  icon: const Icon(
+                    Icons.favorite,
+                    color: Colors.red,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _imagePlaceholder() {
+    return Container(
+      width: 105,
+      height: 105,
+      color: Colors.grey.shade200,
+      alignment: Alignment.center,
+      child: Icon(
+        Icons.image_outlined,
+        size: 32,
+        color: Colors.grey.shade500,
       ),
     );
   }
