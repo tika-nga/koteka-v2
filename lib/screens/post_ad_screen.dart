@@ -74,8 +74,12 @@ class _PostAdScreenState extends State<PostAdScreen> {
     ],
 
     'Maison / Ndaku': [
-      'Meubles',
-    ],
+  'Table',
+  'Armoire',
+  'Chaise',
+  'Lit',
+  'Matelas',
+],
 
     'Matériel chantier': [
       'Machines',
