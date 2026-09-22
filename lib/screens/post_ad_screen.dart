@@ -1,9 +1,9 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
 import 'package:flutter_marketplace_template/models/annonce.dart';
 import 'package:flutter_marketplace_template/screens/place_screen.dart';
 
@@ -23,8 +23,6 @@ class _PostAdScreenState extends State<PostAdScreen> {
   String? _selectedCategory;
   String? _selectedCity;
   String? _selectedCommune;
-
-  bool _isGettingLocation = false;
 
   final Map<String, List<String>> _categoriesParFamille = {
     'Véhicules': [
@@ -111,124 +109,6 @@ class _PostAdScreenState extends State<PostAdScreen> {
     );
   }
 
-  Future<Position?> _getCurrentPosition() async {
-    final serviceEnabled =
-        await Geolocator.isLocationServiceEnabled();
-
-    if (!serviceEnabled) {
-      if (!mounted) return null;
-
-      final openSettings = await showDialog<bool>(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: const Text(
-              'Localisation désactivée',
-            ),
-            content: const Text(
-              'Activez la localisation du téléphone '
-              'pour enregistrer la position de votre annonce.',
-            ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context, false);
-                },
-                child: const Text('Annuler'),
-              ),
-              FilledButton(
-                onPressed: () {
-                  Navigator.pop(context, true);
-                },
-                child: const Text(
-                  'Ouvrir les paramètres',
-                ),
-              ),
-            ],
-          );
-        },
-      );
-
-      if (openSettings == true) {
-        await Geolocator.openLocationSettings();
-      }
-
-      return null;
-    }
-
-    LocationPermission permission =
-        await Geolocator.checkPermission();
-
-    if (permission == LocationPermission.denied) {
-      permission =
-          await Geolocator.requestPermission();
-    }
-
-    if (permission == LocationPermission.denied) {
-      _showMessage(
-        'La localisation doit être autorisée '
-        'pour publier l’annonce.',
-      );
-      return null;
-    }
-
-    if (permission ==
-        LocationPermission.deniedForever) {
-      if (!mounted) return null;
-
-      final openSettings = await showDialog<bool>(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: const Text(
-              'Autorisation de localisation',
-            ),
-            content: const Text(
-              'L’accès à la localisation a été refusé '
-              'de façon permanente. Vous pouvez '
-              'l’autoriser dans les paramètres de Koteka.',
-            ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context, false);
-                },
-                child: const Text('Annuler'),
-              ),
-              FilledButton(
-                onPressed: () {
-                  Navigator.pop(context, true);
-                },
-                child: const Text(
-                  'Ouvrir les paramètres',
-                ),
-              ),
-            ],
-          );
-        },
-      );
-
-      if (openSettings == true) {
-        await Geolocator.openAppSettings();
-      }
-
-      return null;
-    }
-
-    try {
-      return await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(
-          accuracy: LocationAccuracy.high,
-        ),
-      );
-    } catch (e) {
-      _showMessage(
-        'Impossible de récupérer votre position.',
-      );
-      return null;
-    }
-  }
-
   Future<void> _continueToPhotos() async {
     final title = _titleController.text.trim();
     final price = _priceController.text.trim();
@@ -285,45 +165,20 @@ class _PostAdScreenState extends State<PostAdScreen> {
       return;
     }
 
-    if (_isGettingLocation) return;
-
-    setState(() {
-      _isGettingLocation = true;
-    });
-
-    try {
-      final position =
-          await _getCurrentPosition();
-
-      if (!mounted) return;
-
-      if (position == null) {
-        return;
-      }
-
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => AddPhotoScreen(
-            title: title,
-            price: price,
-            city: _selectedCity!,
-            district: _selectedCommune!,
-            description: description,
-            family: _selectedFamily!,
-            category: _selectedCategory!,
-            latitude: position.latitude,
-            longitude: position.longitude,
-          ),
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AddPhotoScreen(
+          title: title,
+          price: price,
+          city: _selectedCity!,
+          district: _selectedCommune!,
+          description: description,
+          family: _selectedFamily!,
+          category: _selectedCategory!,
         ),
-      );
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isGettingLocation = false;
-        });
-      }
-    }
+      ),
+    );
   }
 
   @override
@@ -512,8 +367,7 @@ class _PostAdScreenState extends State<PostAdScreen> {
             maxLines: 5,
             decoration: _decoration(
               label: 'Description',
-              hint:
-                  'Décrivez votre article',
+              hint: 'Décrivez votre article',
             ),
           ),
 
@@ -538,10 +392,10 @@ class _PostAdScreenState extends State<PostAdScreen> {
                 SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    'Votre position sera utilisée '
-                    'pour permettre aux acheteurs '
-                    'de rechercher les annonces '
-                    'situées à proximité.',
+                    'La localisation de l’annonce '
+                    'sera enregistrée à partir de '
+                    'la ville et de la commune '
+                    'sélectionnées.',
                   ),
                 ),
               ],
@@ -553,26 +407,13 @@ class _PostAdScreenState extends State<PostAdScreen> {
           SizedBox(
             height: 55,
             child: FilledButton.icon(
-              onPressed: _isGettingLocation
-                  ? null
-                  : _continueToPhotos,
-              icon: _isGettingLocation
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child:
-                          CircularProgressIndicator(
-                        strokeWidth: 2,
-                      ),
-                    )
-                  : const Icon(
-                      Icons.arrow_forward,
-                    ),
-              label: Text(
-                _isGettingLocation
-                    ? 'Localisation...'
-                    : 'Continuer',
-                style: const TextStyle(
+              onPressed: _continueToPhotos,
+              icon: const Icon(
+                Icons.arrow_forward,
+              ),
+              label: const Text(
+                'Continuer',
+                style: TextStyle(
                   fontSize: 17,
                 ),
               ),
@@ -597,9 +438,6 @@ class AddPhotoScreen extends StatefulWidget {
   final String family;
   final String category;
 
-  final double latitude;
-  final double longitude;
-
   const AddPhotoScreen({
     super.key,
     required this.title,
@@ -609,8 +447,6 @@ class AddPhotoScreen extends StatefulWidget {
     required this.description,
     required this.family,
     required this.category,
-    required this.latitude,
-    required this.longitude,
   });
 
   @override
@@ -687,7 +523,9 @@ class _AddPhotoScreenState
   }
 
   void _continueToReview() {
-    if (_image == null) return;
+    if (_image == null) {
+      return;
+    }
 
     Navigator.push(
       context,
@@ -703,8 +541,6 @@ class _AddPhotoScreenState
           imagePath: _image!.path,
           family: widget.family,
           category: widget.category,
-          latitude: widget.latitude,
-          longitude: widget.longitude,
         ),
       ),
     );
@@ -736,38 +572,46 @@ class _AddPhotoScreenState
 
             const SizedBox(height: 24),
 
-if (_image != null)
-  Container(
-    height: 300,
-    width: double.infinity,
-    decoration: BoxDecoration(
-      color: Colors.black,
-      borderRadius: BorderRadius.circular(12),
-    ),
-    child: ClipRRect(
-      borderRadius: BorderRadius.circular(12),
-      child: Image.file(
-        File(_image!.path),
-        fit: BoxFit.contain,
-      ),
-    ),
-  )
-else
-  Container(
-    height: 220,
-    decoration: BoxDecoration(
-      borderRadius: BorderRadius.circular(12),
-      color: Colors.grey.shade200,
-    ),
-    child: const Center(
-      child: Icon(
-        Icons.add_photo_alternate_outlined,
-        size: 60,
-      ),
-    ),
-  ),
+            if (_image != null)
+              Container(
+                height: 300,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: Colors.black,
+                  borderRadius:
+                      BorderRadius.circular(
+                          12),
+                ),
+                child: ClipRRect(
+                  borderRadius:
+                      BorderRadius.circular(
+                          12),
+                  child: Image.file(
+                    File(_image!.path),
+                    fit: BoxFit.contain,
+                  ),
+                ),
+              )
+            else
+              Container(
+                height: 220,
+                decoration: BoxDecoration(
+                  borderRadius:
+                      BorderRadius.circular(
+                          12),
+                  color:
+                      Colors.grey.shade200,
+                ),
+                child: const Center(
+                  child: Icon(
+                    Icons
+                        .add_photo_alternate_outlined,
+                    size: 60,
+                  ),
+                ),
+              ),
 
-const SizedBox(height: 20),
+            const SizedBox(height: 20),
 
             OutlinedButton.icon(
               onPressed: _chooseImage,
@@ -819,9 +663,6 @@ class ReviewAdScreen
   final String family;
   final String category;
 
-  final double latitude;
-  final double longitude;
-
   const ReviewAdScreen({
     super.key,
     required this.title,
@@ -832,8 +673,6 @@ class ReviewAdScreen
     required this.imagePath,
     required this.family,
     required this.category,
-    required this.latitude,
-    required this.longitude,
   });
 
   @override
@@ -846,22 +685,95 @@ class _ReviewAdScreenState
   bool _isPublishing = false;
 
   Future<void> _publishAd() async {
-  if (_isPublishing) {
-    return;
-  }
+    if (_isPublishing) {
+      return;
+    }
 
-  setState(() {
-    _isPublishing = true;
-  });
+    setState(() {
+      _isPublishing = true;
+    });
 
-  try {
-    final supabase =
-        Supabase.instance.client;
+    try {
+      final supabase =
+          Supabase.instance.client;
 
-    final user =
-        supabase.auth.currentUser;
+      final user =
+          supabase.auth.currentUser;
 
-    if (user == null) {
+      if (user == null) {
+        if (!mounted) {
+          return;
+        }
+
+        ScaffoldMessenger.of(context)
+            .showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Vous devez être connecté pour publier une annonce.',
+            ),
+          ),
+        );
+
+        return;
+      }
+
+      final imageFile =
+          File(widget.imagePath);
+
+      final fileName =
+          '${user.id}/${DateTime.now().millisecondsSinceEpoch}.jpg';
+
+      await supabase.storage
+          .from('annonces')
+          .upload(
+            fileName,
+            imageFile,
+          );
+
+      final imageUrl =
+          supabase.storage
+              .from('annonces')
+              .getPublicUrl(
+                fileName,
+              );
+
+      final insertedData =
+          await supabase
+              .from('annonces')
+              .insert({
+                'title':
+                    widget.title.trim(),
+                'price':
+                    widget.price.trim(),
+                'city':
+                    widget.city.trim(),
+                'district':
+                    widget.district.trim(),
+                'description':
+                    widget.description
+                        .trim(),
+                'family':
+                    widget.family,
+                'category':
+                    widget.category,
+                'user_id':
+                    user.id,
+                'imageUrl':
+                    imageUrl,
+                'created_at':
+                    DateTime.now()
+                        .toIso8601String(),
+              })
+              .select()
+              .single();
+
+      final annonce =
+          Annonce.fromJson(
+        Map<String, dynamic>.from(
+          insertedData,
+        ),
+      );
+
       if (!mounted) {
         return;
       }
@@ -870,117 +782,42 @@ class _ReviewAdScreenState
           .showSnackBar(
         const SnackBar(
           content: Text(
-            'Vous devez être connecté pour publier une annonce.',
+            'Annonce publiée avec succès',
           ),
         ),
       );
 
-      return;
-    }
-
-    final imageFile =
-        File(widget.imagePath);
-
-    final fileName =
-        '${user.id}/${DateTime.now().millisecondsSinceEpoch}.jpg';
-
-    await supabase.storage
-        .from('annonces')
-        .upload(
-          fileName,
-          imageFile,
-        );
-
-    final imageUrl =
-        supabase.storage
-            .from('annonces')
-            .getPublicUrl(
-              fileName,
-            );
-
-    final insertedData =
-        await supabase
-            .from('annonces')
-            .insert({
-              'title':
-                  widget.title.trim(),
-              'price':
-                  widget.price.trim(),
-              'city':
-                  widget.city.trim(),
-              'district':
-                  widget.district.trim(),
-              'description':
-                  widget.description
-                      .trim(),
-              'family':
-                  widget.family,
-              'category':
-                  widget.category,
-              'user_id':
-                  user.id,
-              'latitude':
-                  widget.latitude,
-              'longitude':
-                  widget.longitude,
-              'imageUrl':
-                  imageUrl,
-              'created_at':
-                  DateTime.now()
-                      .toIso8601String(),
-            })
-            .select()
-            .single();
-
-    final annonce =
-        Annonce.fromJson(
-      Map<String, dynamic>.from(
-        insertedData,
-      ),
-    );
-
-    if (!mounted) {
-      return;
-    }
-
-    ScaffoldMessenger.of(context)
-        .showSnackBar(
-      const SnackBar(
-        content: Text(
-          'Annonce publiée avec succès',
+      Navigator.of(context)
+          .pushAndRemoveUntil(
+        MaterialPageRoute(
+          builder: (_) => PlaceScreen(
+            annonce: annonce,
+          ),
         ),
-      ),
-    );
+        (route) => route.isFirst,
+      );
+    } catch (e) {
+      if (!mounted) {
+        return;
+      }
 
-    Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(
-        builder: (_) => PlaceScreen(
-          annonce: annonce,
+      ScaffoldMessenger.of(context)
+          .showSnackBar(
+        SnackBar(
+          content: Text(
+            'Erreur lors de la publication : $e',
+          ),
         ),
-      ),
-      (route) => route.isFirst,
-    );
-  } catch (e) {
-    if (!mounted) {
-      return;
-    }
-
-    ScaffoldMessenger.of(context)
-        .showSnackBar(
-      SnackBar(
-        content: Text(
-          'Erreur lors de la publication : $e',
-        ),
-      ),
-    );
-  } finally {
-    if (mounted) {
-      setState(() {
-        _isPublishing = false;
-      });
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isPublishing = false;
+        });
+      }
     }
   }
-}
+
   Widget _informationRow(
     String label,
     String value,
@@ -1009,20 +846,24 @@ class _ReviewAdScreenState
               CrossAxisAlignment.stretch,
           children: [
             Container(
-  height: 300,
-  width: double.infinity,
-  decoration: BoxDecoration(
-    color: Colors.black,
-    borderRadius: BorderRadius.circular(12),
-  ),
-  child: ClipRRect(
-    borderRadius: BorderRadius.circular(12),
-    child: Image.file(
-      File(widget.imagePath),
-      fit: BoxFit.contain,
-    ),
-  ),
-),
+              height: 300,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: Colors.black,
+                borderRadius:
+                    BorderRadius.circular(
+                        12),
+              ),
+              child: ClipRRect(
+                borderRadius:
+                    BorderRadius.circular(
+                        12),
+                child: Image.file(
+                  File(widget.imagePath),
+                  fit: BoxFit.contain,
+                ),
+              ),
+            ),
 
             const SizedBox(height: 24),
 
