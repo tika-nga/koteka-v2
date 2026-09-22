@@ -1,34 +1,53 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-import 'package:flutter_marketplace_template/screens/home_screen.dart';
-import 'package:flutter_marketplace_template/screens/post_ad_screen.dart';
-import 'package:flutter_marketplace_template/screens/chats_list_screen.dart';
-import 'package:flutter_marketplace_template/screens/profile_screen.dart';
+import 'package:flutter_marketplace_template/view_models/navigation_view_model.dart';
 
-class NavigationViewModel extends ChangeNotifier {
-  NavigationViewModel({
-    this.selectedIndex = 0,
-  });
+class NavigationScreen extends StatefulWidget {
+  const NavigationScreen({super.key});
 
-  int selectedIndex;
+  @override
+  State<NavigationScreen> createState() => _NavigationScreenState();
+}
 
-  Widget currentScreen = const HomeScreen();
+class _NavigationScreenState extends State<NavigationScreen> {
+  @override
+  Widget build(BuildContext context) {
+    final navigation = context.watch<NavigationViewModel>();
 
-  final List<Widget> screens = const [
-    HomeScreen(),       // 0 Accueil
-    HomeScreen(),       // 1 Rechercher (temporairement accueil)
-    PostAdScreen(),     // 2 Déposer une annonce
-    ChatsListScreen(),  // 3 Messages
-    ProfileScreen(),    // 4 Profil
-  ];
-
-  void onDestinationSelected(int index) {
-    if (index < 0 || index >= screens.length) {
-      return;
-    }
-
-    selectedIndex = index;
-    currentScreen = screens[index];
-    notifyListeners();
+    return Scaffold(
+      body: navigation.currentScreen,
+      bottomNavigationBar: NavigationBar(
+        height: 70,
+        selectedIndex: navigation.selectedIndex,
+        onDestinationSelected: (index) {
+          context
+              .read<NavigationViewModel>()
+              .onDestinationSelected(index);
+        },
+        destinations: const [
+          NavigationDestination(
+            icon: Icon(Icons.home_outlined),
+            selectedIcon: Icon(Icons.home),
+            label: 'Accueil',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.add_circle_outline),
+            selectedIcon: Icon(Icons.add_circle),
+            label: 'Déposer',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.chat_bubble_outline),
+            selectedIcon: Icon(Icons.chat_bubble),
+            label: 'Messages',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.person_outline),
+            selectedIcon: Icon(Icons.person),
+            label: 'Profil',
+          ),
+        ],
+      ),
+    );
   }
 }
