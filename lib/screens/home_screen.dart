@@ -30,7 +30,6 @@ class _HomeScreenState extends State<HomeScreen> {
   int? _selectedDistanceKm;
 
   Position? _userPosition;
-
   bool _isGettingPosition = false;
 
   String _searchQuery = '';
@@ -40,7 +39,7 @@ class _HomeScreenState extends State<HomeScreen> {
     'Véhicules': [
       'Voitures',
       'Camions',
-      'Motos',
+      'Motos / Quads',
       'Vélos',
       'Pièces automobiles',
       'Pièces moto/quad',
@@ -54,7 +53,27 @@ class _HomeScreenState extends State<HomeScreen> {
       'Électroménager',
     ],
     'Maison / Ndaku': [
-      'Ameublement',
+      'Meubles',
+    ],
+    'Matériel chantier': [
+      'Machines',
+      'Outillage',
+    ],
+    'Prestations de services': [
+      'Bâtiment / Construction',
+      'Mécanique automobile / moto',
+      'Électricité',
+      'Plomberie',
+      'Menuiserie',
+      'Peinture',
+      'Informatique / Téléphonie',
+      'Transport / Livraison',
+      'Nettoyage',
+      'Couture',
+      'Coiffure / Beauté',
+      'Événementiel',
+      'Formation / Cours',
+      'Autres services',
     ],
     'Autres': [
       'Autres',
@@ -66,6 +85,8 @@ class _HomeScreenState extends State<HomeScreen> {
     'Électronique': Icons.devices_outlined,
     'Électroménager': Icons.kitchen_outlined,
     'Maison / Ndaku': Icons.chair_outlined,
+    'Matériel chantier': Icons.construction_outlined,
+    'Prestations de services': Icons.handyman_outlined,
     'Autres': Icons.category_outlined,
   };
 
@@ -138,8 +159,7 @@ class _HomeScreenState extends State<HomeScreen> {
         return null;
       }
 
-      final openSettings =
-          await showDialog<bool>(
+      final openSettings = await showDialog<bool>(
         context: context,
         builder: (context) {
           return AlertDialog(
@@ -202,14 +222,12 @@ class _HomeScreenState extends State<HomeScreen> {
       return null;
     }
 
-    if (permission ==
-        LocationPermission.deniedForever) {
+    if (permission == LocationPermission.deniedForever) {
       if (!mounted) {
         return null;
       }
 
-      final openSettings =
-          await showDialog<bool>(
+      final openSettings = await showDialog<bool>(
         context: context,
         builder: (context) {
           return AlertDialog(
@@ -258,8 +276,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     try {
       return await Geolocator.getCurrentPosition(
-        locationSettings:
-            const LocationSettings(
+        locationSettings: const LocationSettings(
           accuracy: LocationAccuracy.high,
         ),
       );
@@ -309,23 +326,12 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     setState(() {
-      _selectedMinPrice =
-          result.minPrice;
-
-      _selectedMaxPrice =
-          result.maxPrice;
-
-      _selectedCity =
-          result.city;
-
-      _selectedCommune =
-          result.commune;
-
-      _selectedDistanceKm =
-          result.distanceKm;
-
-      _userPosition =
-          newPosition;
+      _selectedMinPrice = result.minPrice;
+      _selectedMaxPrice = result.maxPrice;
+      _selectedCity = result.city;
+      _selectedCommune = result.commune;
+      _selectedDistanceKm = result.distanceKm;
+      _userPosition = newPosition;
     });
   }
 
@@ -364,6 +370,19 @@ class _HomeScreenState extends State<HomeScreen> {
     return int.tryParse(cleaned) ?? 0;
   }
 
+  bool _isQuote(
+    Map<String, dynamic> annonce,
+  ) {
+    final family =
+        annonce['family']?.toString().trim() ?? '';
+
+    final pricingType =
+        annonce['pricing_type']?.toString().trim() ?? '';
+
+    return family == 'Prestations de services' &&
+        pricingType == 'Sur devis';
+  }
+
   double? _readDouble(dynamic value) {
     if (value == null) {
       return null;
@@ -385,30 +404,43 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   bool _matchesSearch(
-  Map<String, dynamic> annonce,
-) {
-  if (_searchQuery.isEmpty) {
-    return true;
-  }
+    Map<String, dynamic> annonce,
+  ) {
+    if (_searchQuery.isEmpty) {
+      return true;
+    }
 
-  final searchable = [
-    annonce['title'],
-    annonce['description'],
-    annonce['family'],
-    annonce['category'],
-    annonce['city'],
-    annonce['district'],
-  ]
-      .map(
-        (value) => _normalize(
-          value?.toString(),
-        ),
-      )
-      .join(' ');
+    final searchable = [
+      annonce['title'],
+      annonce['description'],
+      annonce['family'],
+      annonce['category'],
+      annonce['city'],
+      annonce['district'],
 
-  return searchable.contains(
-    _searchQuery,
-  );
+      // Nouvelles caractéristiques.
+      annonce['brand'],
+      annonce['model'],
+      annonce['manufacture_year'],
+      annonce['horsepower'],
+      annonce['fuel_type'],
+      annonce['mileage'],
+      annonce['item_condition'],
+      annonce['item_type'],
+      annonce['compatible_console'],
+      annonce['usage_hours'],
+      annonce['pricing_type'],
+    ]
+        .map(
+          (value) => _normalize(
+            value?.toString(),
+          ),
+        )
+        .join(' ');
+
+    return searchable.contains(
+      _searchQuery,
+    );
   }
 
   bool _matchesFamilyAndCategory(
@@ -478,6 +510,18 @@ class _HomeScreenState extends State<HomeScreen> {
     final commune =
         annonce['district']?.toString().trim() ?? '';
 
+    final quote =
+        _isQuote(annonce);
+
+    // Une prestation "Sur devis" n'a pas de prix
+    // comparable. Si un filtre de prix est actif,
+    // elle n'est donc pas incluse.
+    if ((_selectedMinPrice != null ||
+            _selectedMaxPrice != null) &&
+        quote) {
+      return false;
+    }
+
     if (_selectedMinPrice != null &&
         price < _selectedMinPrice!) {
       return false;
@@ -531,19 +575,51 @@ class _HomeScreenState extends State<HomeScreen> {
 
     switch (_selectedSort) {
       case 'price_asc':
-        result.sort(
-          (a, b) => _readPrice(a).compareTo(
+        result.sort((a, b) {
+          final aQuote = _isQuote(a);
+          final bQuote = _isQuote(b);
+
+          // Les prestations "Sur devis" restent
+          // après les annonces ayant un vrai prix.
+          if (aQuote && !bQuote) {
+            return 1;
+          }
+
+          if (!aQuote && bQuote) {
+            return -1;
+          }
+
+          if (aQuote && bQuote) {
+            return 0;
+          }
+
+          return _readPrice(a).compareTo(
             _readPrice(b),
-          ),
-        );
+          );
+        });
         break;
 
       case 'price_desc':
-        result.sort(
-          (a, b) => _readPrice(b).compareTo(
+        result.sort((a, b) {
+          final aQuote = _isQuote(a);
+          final bQuote = _isQuote(b);
+
+          if (aQuote && !bQuote) {
+            return 1;
+          }
+
+          if (!aQuote && bQuote) {
+            return -1;
+          }
+
+          if (aQuote && bQuote) {
+            return 0;
+          }
+
+          return _readPrice(b).compareTo(
             _readPrice(a),
-          ),
-        );
+          );
+        });
         break;
 
       case 'recent':
@@ -1122,120 +1198,125 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildSectionTitle() {
-  final hasActiveSearchOrFilter =
-      _searchQuery.isNotEmpty ||
-      _selectedFamily != null ||
-      _selectedCategory != null ||
-      _selectedMinPrice != null ||
-      _selectedMaxPrice != null ||
-      _selectedCity != null ||
-      _selectedCommune != null ||
-      _selectedDistanceKm != null;
+    final hasActiveSearchOrFilter =
+        _searchQuery.isNotEmpty ||
+        _selectedFamily != null ||
+        _selectedCategory != null ||
+        _selectedMinPrice != null ||
+        _selectedMaxPrice != null ||
+        _selectedCity != null ||
+        _selectedCommune != null ||
+        _selectedDistanceKm != null;
 
-  final title = hasActiveSearchOrFilter
-      ? 'Résultats'
-      : 'Annonces récentes';
+    final title = hasActiveSearchOrFilter
+        ? 'Résultats'
+        : 'Annonces récentes';
 
-  return Row(
-    children: [
-      Expanded(
-        child: Text(
-          title,
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
+    return Row(
+      children: [
+        Expanded(
+          child: Text(
+            title,
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
+            ),
           ),
         ),
-      ),
-      PopupMenuButton<String>(
-        tooltip: 'Trier les annonces',
-        initialValue: _selectedSort,
-        onSelected: (value) {
-          setState(() {
-            _selectedSort = value;
-          });
-        },
-        itemBuilder: (context) {
-          return const [
-            PopupMenuItem<String>(
-              value: 'recent',
-              child: Text(
-                'Plus récentes',
+        PopupMenuButton<String>(
+          tooltip: 'Trier les annonces',
+          initialValue: _selectedSort,
+          onSelected: (value) {
+            setState(() {
+              _selectedSort = value;
+            });
+          },
+          itemBuilder: (context) {
+            return const [
+              PopupMenuItem<String>(
+                value: 'recent',
+                child: Text(
+                  'Plus récentes',
+                ),
+              ),
+              PopupMenuItem<String>(
+                value: 'price_asc',
+                child: Text(
+                  'Prix croissant',
+                ),
+              ),
+              PopupMenuItem<String>(
+                value: 'price_desc',
+                child: Text(
+                  'Prix décroissant',
+                ),
+              ),
+            ];
+          },
+          child: Container(
+            padding:
+                const EdgeInsets.symmetric(
+              horizontal: 10,
+              vertical: 7,
+            ),
+            decoration: BoxDecoration(
+              borderRadius:
+                  BorderRadius.circular(10),
+              border: Border.all(
+                color: Theme.of(context)
+                    .colorScheme
+                    .primary
+                    .withValues(
+                      alpha: 0.25,
+                    ),
               ),
             ),
-            PopupMenuItem<String>(
-              value: 'price_asc',
-              child: Text(
-                'Prix croissant',
-              ),
+            child: const Row(
+              mainAxisSize:
+                  MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.sort,
+                  size: 18,
+                ),
+                SizedBox(width: 5),
+                Text('Trier'),
+              ],
             ),
-            PopupMenuItem<String>(
-              value: 'price_desc',
-              child: Text(
-                'Prix décroissant',
-              ),
-            ),
-          ];
-        },
-        child: Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 10,
-            vertical: 7,
-          ),
-          decoration: BoxDecoration(
-            borderRadius:
-                BorderRadius.circular(10),
-            border: Border.all(
-              color: Theme.of(context)
-                  .colorScheme
-                  .primary
-                  .withValues(
-                    alpha: 0.25,
-                  ),
-            ),
-          ),
-          child: const Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                Icons.sort,
-                size: 18,
-              ),
-              SizedBox(width: 5),
-              Text('Trier'),
-            ],
           ),
         ),
-      ),
-    ],
-  );
-}
+      ],
+    );
+  }
 
   Widget _buildAnnonceCard(
     BuildContext context,
     Map<String, dynamic> annonce,
   ) {
-    final title =
-        annonce['title']?.toString() ??
-            'Sans titre';
+    final annonceModel =
+        Annonce.fromJson(
+      annonce,
+    );
 
-    final price =
-        annonce['price']?.toString() ?? '';
+    final title =
+        annonceModel.title.isEmpty
+            ? 'Sans titre'
+            : annonceModel.title;
 
     final city =
-        annonce['city']?.toString() ?? '';
+        annonceModel.city;
 
     final district =
-        annonce['district']?.toString() ?? '';
+        annonceModel.district;
 
     final family =
-        annonce['family']?.toString() ?? '';
+        annonceModel.family;
 
     final category =
-        annonce['category']?.toString() ?? '';
+        annonceModel.category;
 
     final imageUrl =
-        annonce['imageUrl']?.toString() ?? '';
+        annonceModel.imageUrl;
 
     final distance =
         _selectedDistanceKm == null
@@ -1243,10 +1324,6 @@ class _HomeScreenState extends State<HomeScreen> {
             : _distanceKm(
                 annonce,
               );
-
-    final annonceModel = Annonce.fromJson(
-  annonce,
-);
 
     return Padding(
       padding:
@@ -1272,9 +1349,10 @@ class _HomeScreenState extends State<HomeScreen> {
             Navigator.of(context).push(
               MaterialPageRoute(
                 builder: (context) =>
-    PlaceScreen(
-  annonce: annonceModel,
-),
+                    PlaceScreen(
+                  annonce:
+                      annonceModel,
+                ),
               ),
             );
           },
@@ -1344,7 +1422,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
 
                         Text(
-                          '$price FC',
+                          annonceModel
+                              .priceLabel,
                           maxLines: 1,
                           overflow:
                               TextOverflow
