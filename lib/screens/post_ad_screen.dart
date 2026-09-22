@@ -395,15 +395,27 @@ class _PostAdScreenState extends State<PostAdScreen> {
             label: 'Type de meuble',
           ),
           items: const [
-            DropdownMenuItem(
-              value: 'Table',
-              child: Text('Table'),
-            ),
-            DropdownMenuItem(
-              value: 'Armoire',
-              child: Text('Armoire'),
-            ),
-          ],
+  DropdownMenuItem(
+    value: 'Table',
+    child: Text('Table'),
+  ),
+  DropdownMenuItem(
+    value: 'Armoire',
+    child: Text('Armoire'),
+  ),
+  DropdownMenuItem(
+    value: 'Chaise',
+    child: Text('Chaise'),
+  ),
+  DropdownMenuItem(
+    value: 'Lit',
+    child: Text('Lit'),
+  ),
+  DropdownMenuItem(
+    value: 'Matelas',
+    child: Text('Matelas'),
+  ),
+],
           onChanged: (value) {
             setState(() {
               _selectedItemType = value;
