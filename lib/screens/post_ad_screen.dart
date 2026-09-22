@@ -51,35 +51,56 @@ class _PostAdScreenState
   String? _selectedItemType;
   String? _selectedConsole;
 
-  final Map<String, List<String>>
-      _categoriesParFamille = {
-    'Véhicules': [
-      'Voitures',
-      'Camions',
-      'Motos / Quads',
-      'Vélos',
-      'Pièces automobiles',
-      'Pièces moto/quad',
-    ],
-    'Électronique': [
-      'Ordinateurs',
-      'Photo / Audio / Caméra',
-      'Consoles et jeux vidéo',
-    ],
-    'Électroménager': [
-      'Électroménager',
-    ],
-    'Maison / Ndaku': [
-      'Meubles',
-    ],
-    'Matériel chantier': [
-      'Machines',
-      'Outillage',
-    ],
-    'Autres': [
-      'Autres',
-    ],
-  };
+  final Map<String, List<String>> _categoriesParFamille = {
+  'Véhicules': [
+    'Voitures',
+    'Camions',
+    'Motos / Quads',
+    'Vélos',
+    'Pièces automobiles',
+    'Pièces moto/quad',
+  ],
+
+  'Électronique': [
+    'Ordinateurs',
+    'Photo / Audio / Caméra',
+    'Consoles et jeux vidéo',
+  ],
+
+  'Électroménager': [
+    'Électroménager',
+  ],
+
+  'Maison / Ndaku': [
+    'Meubles',
+  ],
+
+  'Matériel chantier': [
+    'Machines',
+    'Outillage',
+  ],
+
+  'Prestations de services': [
+    'Bâtiment / Construction',
+    'Mécanique automobile / moto',
+    'Électricité',
+    'Plomberie',
+    'Menuiserie',
+    'Peinture',
+    'Informatique / Téléphonie',
+    'Transport / Livraison',
+    'Nettoyage',
+    'Couture',
+    'Coiffure / Beauté',
+    'Événementiel',
+    'Formation / Cours',
+    'Autres services',
+  ],
+
+  'Autres': [
+    'Autres',
+  ],
+};
 
   final Map<String, List<String>>
       _communesParVille = {
