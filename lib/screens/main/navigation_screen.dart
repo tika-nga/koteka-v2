@@ -32,11 +32,6 @@ class _NavigationScreenState extends State<NavigationScreen> {
             label: 'Accueil',
           ),
           NavigationDestination(
-            icon: Icon(Icons.search),
-            selectedIcon: Icon(Icons.search),
-            label: 'Rechercher',
-          ),
-          NavigationDestination(
             icon: Icon(Icons.add_circle_outline),
             selectedIcon: Icon(Icons.add_circle),
             label: 'Déposer',
