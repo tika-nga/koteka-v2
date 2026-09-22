@@ -103,15 +103,16 @@ class _HomeScreenState extends State<HomeScreen> {
   ],
 };
 
-  final Map<String, IconData> _familyIcons = {
-    'Véhicules': Icons.directions_car_outlined,
-    'Électronique': Icons.devices_outlined,
-    'Électroménager': Icons.kitchen_outlined,
-    'Maison / Ndaku': Icons.chair_outlined,
-    'Matériel chantier': Icons.construction_outlined,
-    'Prestations de services': Icons.handyman_outlined,
-    'Autres': Icons.category_outlined,
-  };
+   final Map<String, IconData> _familyIcons = {
+  'Véhicules': Icons.directions_car_outlined,
+  'Électronique': Icons.devices_outlined,
+  'Électroménager': Icons.kitchen_outlined,
+  'Maison / Ndaku': Icons.chair_outlined,
+  'Instruments': Icons.music_note_outlined,
+  'Matériel chantier': Icons.construction_outlined,
+  'Prestations de services': Icons.handyman_outlined,
+  'Autres': Icons.category_outlined,
+};
 
   @override
   void initState() {
