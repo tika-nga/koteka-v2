@@ -1008,15 +1008,21 @@ class _ReviewAdScreenState
           crossAxisAlignment:
               CrossAxisAlignment.stretch,
           children: [
-            ClipRRect(
-              borderRadius:
-                  BorderRadius.circular(12),
-              child: Image.file(
-                File(widget.imagePath),
-                height: 220,
-                fit: BoxFit.cover,
-              ),
-            ),
+            Container(
+  height: 300,
+  width: double.infinity,
+  decoration: BoxDecoration(
+    color: Colors.black,
+    borderRadius: BorderRadius.circular(12),
+  ),
+  child: ClipRRect(
+    borderRadius: BorderRadius.circular(12),
+    child: Image.file(
+      File(widget.imagePath),
+      fit: BoxFit.contain,
+    ),
+  ),
+),
 
             const SizedBox(height: 24),
 
