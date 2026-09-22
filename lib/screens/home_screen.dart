@@ -36,49 +36,72 @@ class _HomeScreenState extends State<HomeScreen> {
   String _selectedSort = 'recent';
 
   final Map<String, List<String>> _categoriesParFamille = {
-    'Véhicules': [
-      'Voitures',
-      'Camions',
-      'Motos / Quads',
-      'Vélos',
-      'Pièces automobiles',
-      'Pièces moto/quad',
-    ],
-    'Électronique': [
-      'Ordinateurs',
-      'Photo / Audio / Caméra',
-      'Consoles et jeux vidéo',
-    ],
-    'Électroménager': [
-      'Électroménager',
-    ],
-    'Maison / Ndaku': [
-      'Meubles',
-    ],
-    'Matériel chantier': [
-      'Machines',
-      'Outillage',
-    ],
-    'Prestations de services': [
-      'Bâtiment / Construction',
-      'Mécanique automobile / moto',
-      'Électricité',
-      'Plomberie',
-      'Menuiserie',
-      'Peinture',
-      'Informatique / Téléphonie',
-      'Transport / Livraison',
-      'Nettoyage',
-      'Couture',
-      'Coiffure / Beauté',
-      'Événementiel',
-      'Formation / Cours',
-      'Autres services',
-    ],
-    'Autres': [
-      'Autres',
-    ],
-  };
+  'Véhicules': [
+    'Voitures',
+    'Camions',
+    'Motos / Quads',
+    'Vélos',
+    'Pièces automobiles',
+    'Pièces moto/quad',
+  ],
+
+  'Électronique': [
+    'Ordinateurs',
+    'Téléphone',
+    'Accessoires téléphone',
+    'Appareil photo / Caméra',
+    'Hi-Fi',
+    'Tablettes',
+    'Consoles et jeux vidéo',
+  ],
+
+  'Électroménager': [
+    'Électroménager',
+  ],
+
+  'Maison / Ndaku': [
+    'Table',
+    'Armoire',
+    'Chaise',
+    'Lit',
+    'Matelas',
+  ],
+
+  'Instruments': [
+    'Guitares',
+    'Pianos / Claviers',
+    'Batteries / Percussions',
+    'Instruments à vent',
+    'Autres instruments',
+    'Accessoires instruments',
+  ],
+
+  'Matériel chantier': [
+    'Machines',
+    'Outillage',
+  ],
+
+  'Prestations de services': [
+    'Bâtiment / Construction',
+    'Mécanique automobile / moto',
+    'Électricité',
+    'Plomberie',
+    'Menuiserie',
+    'Peinture',
+    'Informatique / Téléphonie',
+    'Transport / Livraison',
+    'Nettoyage',
+    'Couture',
+    'Coiffure / Beauté',
+    'Événementiel',
+    'Formation / Cours',
+    'Autres services',
+  ],
+
+  'Autres': [
+    'Autres',
+  ],
+};
 
   final Map<String, IconData> _familyIcons = {
     'Véhicules': Icons.directions_car_outlined,
