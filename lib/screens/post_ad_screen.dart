@@ -49,21 +49,39 @@ class _PostAdScreenState extends State<PostAdScreen> {
       'Pièces automobiles',
       'Pièces moto/quad',
     ],
+
     'Électronique': [
       'Ordinateurs',
-      'Photo / Audio / Caméra',
+      'Téléphone',
+      'Accessoires téléphone',
+      'Appareil photo / Caméra',
+      'Hi-Fi',
+      'Tablettes',
       'Consoles et jeux vidéo',
     ],
+
+    'Instruments': [
+      'Guitares',
+      'Pianos / Claviers',
+      'Batteries / Percussions',
+      'Instruments à vent',
+      'Autres instruments',
+      'Accessoires instruments',
+    ],
+
     'Électroménager': [
       'Électroménager',
     ],
+
     'Maison / Ndaku': [
       'Meubles',
     ],
+
     'Matériel chantier': [
       'Machines',
       'Outillage',
     ],
+
     'Prestations de services': [
       'Bâtiment / Construction',
       'Mécanique automobile / moto',
@@ -80,6 +98,7 @@ class _PostAdScreenState extends State<PostAdScreen> {
       'Formation / Cours',
       'Autres services',
     ],
+
     'Autres': [
       'Autres',
     ],
@@ -116,8 +135,9 @@ class _PostAdScreenState extends State<PostAdScreen> {
 
   final List<String> _conditions = [
     'Neuf',
+    'Comme neuf',
     'Bon état',
-    'Moyen',
+    'État correct',
     'Pour pièces',
   ];
 
@@ -157,6 +177,17 @@ class _PostAdScreenState extends State<PostAdScreen> {
 
   bool get _isTool =>
       _selectedCategory == 'Outillage';
+
+  bool get _isElectronicWithCondition {
+    return _selectedCategory == 'Téléphone' ||
+        _selectedCategory == 'Accessoires téléphone' ||
+        _selectedCategory == 'Appareil photo / Caméra' ||
+        _selectedCategory == 'Hi-Fi' ||
+        _selectedCategory == 'Tablettes';
+  }
+
+  bool get _isInstrument =>
+      _selectedFamily == 'Instruments';
 
   @override
   void dispose() {
@@ -458,6 +489,18 @@ class _PostAdScreenState extends State<PostAdScreen> {
       ];
     }
 
+    if (_isElectronicWithCondition) {
+      return [
+        _conditionField(),
+      ];
+    }
+
+    if (_isInstrument) {
+      return [
+        _conditionField(),
+      ];
+    }
+
     if (_isMachine) {
       return [
         _textField(
@@ -534,7 +577,9 @@ class _PostAdScreenState extends State<PostAdScreen> {
       }
 
       if (int.tryParse(_yearController.text.trim()) == null) {
-        _showMessage('Veuillez saisir une année valide.');
+        _showMessage(
+          'Veuillez saisir une année valide.',
+        );
         return false;
       }
 
@@ -542,12 +587,16 @@ class _PostAdScreenState extends State<PostAdScreen> {
             _horsepowerController.text.trim(),
           ) ==
           null) {
-        _showMessage('Veuillez saisir le nombre de CV.');
+        _showMessage(
+          'Veuillez saisir le nombre de CV.',
+        );
         return false;
       }
 
       if (_selectedFuel == null) {
-        _showMessage('Veuillez choisir le carburant.');
+        _showMessage(
+          'Veuillez choisir le carburant.',
+        );
         return false;
       }
 
@@ -555,12 +604,16 @@ class _PostAdScreenState extends State<PostAdScreen> {
             _mileageController.text.trim(),
           ) ==
           null) {
-        _showMessage('Veuillez saisir le kilométrage.');
+        _showMessage(
+          'Veuillez saisir le kilométrage.',
+        );
         return false;
       }
 
       if (_selectedCondition == null) {
-        _showMessage('Veuillez choisir l’état du bien.');
+        _showMessage(
+          'Veuillez choisir l’état du bien.',
+        );
         return false;
       }
     }
@@ -576,7 +629,9 @@ class _PostAdScreenState extends State<PostAdScreen> {
 
     if (_isConsoleGames) {
       if (_selectedItemType == null) {
-        _showMessage('Choisissez Console ou Jeu vidéo.');
+        _showMessage(
+          'Choisissez Console ou Jeu vidéo.',
+        );
         return false;
       }
 
@@ -599,6 +654,22 @@ class _PostAdScreenState extends State<PostAdScreen> {
         );
         return false;
       }
+    }
+
+    if (_isElectronicWithCondition &&
+        _selectedCondition == null) {
+      _showMessage(
+        'Veuillez choisir l’état du bien.',
+      );
+      return false;
+    }
+
+    if (_isInstrument &&
+        _selectedCondition == null) {
+      _showMessage(
+        'Veuillez choisir l’état de l’instrument.',
+      );
+      return false;
     }
 
     if (_isMachine) {
@@ -633,10 +704,13 @@ class _PostAdScreenState extends State<PostAdScreen> {
 
   void _continueToPhotos() {
     final title = _titleController.text.trim();
-    final description = _descriptionController.text.trim();
+    final description =
+        _descriptionController.text.trim();
 
     if (title.isEmpty) {
-      _showMessage('Veuillez saisir le titre de l’annonce.');
+      _showMessage(
+        'Veuillez saisir le titre de l’annonce.',
+      );
       return;
     }
 
@@ -650,15 +724,23 @@ class _PostAdScreenState extends State<PostAdScreen> {
 
     if (_isService) {
       if (_pricingType == 'Prix fixe' &&
-          int.tryParse(_priceController.text.trim()) == null) {
+          int.tryParse(
+                _priceController.text.trim(),
+              ) ==
+              null) {
         _showMessage(
           'Veuillez saisir le prix de la prestation.',
         );
         return;
       }
     } else {
-      if (int.tryParse(_priceController.text.trim()) == null) {
-        _showMessage('Veuillez saisir un prix valide.');
+      if (int.tryParse(
+            _priceController.text.trim(),
+          ) ==
+          null) {
+        _showMessage(
+          'Veuillez saisir un prix valide.',
+        );
         return;
       }
     }
@@ -676,13 +758,16 @@ class _PostAdScreenState extends State<PostAdScreen> {
     }
 
     if (description.isEmpty) {
-      _showMessage('Veuillez ajouter une description.');
+      _showMessage(
+        'Veuillez ajouter une description.',
+      );
       return;
     }
 
-    final price = _isService && _pricingType == 'Sur devis'
-        ? '0'
-        : _priceController.text.trim();
+    final price =
+        _isService && _pricingType == 'Sur devis'
+            ? '0'
+            : _priceController.text.trim();
 
     Navigator.push(
       context,
@@ -700,19 +785,29 @@ class _PostAdScreenState extends State<PostAdScreen> {
           manufactureYear:
               int.tryParse(_yearController.text.trim()),
           horsepower:
-              int.tryParse(_horsepowerController.text.trim()),
+              int.tryParse(
+            _horsepowerController.text.trim(),
+          ),
           fuelType: _selectedFuel ?? '',
           mileage:
               int.tryParse(_mileageController.text.trim()),
-          itemCondition: _selectedCondition ?? '',
+          itemCondition:
+              _selectedCondition ?? '',
           itemType: _selectedItemType ?? '',
-          compatibleConsole: _selectedConsole ?? '',
+          compatibleConsole:
+              _selectedConsole ?? '',
           usageHours:
-              int.tryParse(_usageHoursController.text.trim()),
-          consoleName: _consoleNameController.text.trim(),
-          gameName: _gameNameController.text.trim(),
+              int.tryParse(
+            _usageHoursController.text.trim(),
+          ),
+          consoleName:
+              _consoleNameController.text.trim(),
+          gameName:
+              _gameNameController.text.trim(),
           pricingType:
-              _isService ? _pricingType : 'Prix fixe',
+              _isService
+                  ? _pricingType
+                  : 'Prix fixe',
         ),
       ),
     );
@@ -720,13 +815,18 @@ class _PostAdScreenState extends State<PostAdScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final categories = _selectedFamily == null
-        ? <String>[]
-        : _categoriesParFamille[_selectedFamily] ?? [];
+    final categories =
+        _selectedFamily == null
+            ? <String>[]
+            : _categoriesParFamille[
+                    _selectedFamily] ??
+                [];
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Déposer une annonce'),
+        title: const Text(
+          'Déposer une annonce',
+        ),
         centerTitle: true,
       ),
       body: ListView(
@@ -769,7 +869,8 @@ class _PostAdScreenState extends State<PostAdScreen> {
             ),
             items: _categoriesParFamille.keys
                 .map(
-                  (family) => DropdownMenuItem(
+                  (family) =>
+                      DropdownMenuItem(
                     value: family,
                     child: Text(family),
                   ),
@@ -796,20 +897,23 @@ class _PostAdScreenState extends State<PostAdScreen> {
             ),
             items: categories
                 .map(
-                  (category) => DropdownMenuItem(
+                  (category) =>
+                      DropdownMenuItem(
                     value: category,
                     child: Text(category),
                   ),
                 )
                 .toList(),
-            onChanged: _selectedFamily == null
-                ? null
-                : (value) {
-                    setState(() {
-                      _selectedCategory = value;
-                      _resetSpecificFields();
-                    });
-                  },
+            onChanged:
+                _selectedFamily == null
+                    ? null
+                    : (value) {
+                        setState(() {
+                          _selectedCategory =
+                              value;
+                          _resetSpecificFields();
+                        });
+                      },
           ),
 
           if (_isService) ...[
@@ -831,7 +935,8 @@ class _PostAdScreenState extends State<PostAdScreen> {
             ),
             items: _communesParVille.keys
                 .map(
-                  (city) => DropdownMenuItem(
+                  (city) =>
+                      DropdownMenuItem(
                     value: city,
                     child: Text(city),
                   ),
@@ -854,21 +959,26 @@ class _PostAdScreenState extends State<PostAdScreen> {
             ),
             items: _selectedCity == null
                 ? []
-                : (_communesParVille[_selectedCity] ?? [])
+                : (_communesParVille[
+                            _selectedCity] ??
+                        [])
                     .map(
-                      (commune) => DropdownMenuItem(
+                      (commune) =>
+                          DropdownMenuItem(
                         value: commune,
                         child: Text(commune),
                       ),
                     )
                     .toList(),
-            onChanged: _selectedCity == null
-                ? null
-                : (value) {
-                    setState(() {
-                      _selectedCommune = value;
-                    });
-                  },
+            onChanged:
+                _selectedCity == null
+                    ? null
+                    : (value) {
+                        setState(() {
+                          _selectedCommune =
+                              value;
+                        });
+                      },
           ),
 
           _space(),
@@ -889,10 +999,14 @@ class _PostAdScreenState extends State<PostAdScreen> {
             height: 55,
             child: FilledButton.icon(
               onPressed: _continueToPhotos,
-              icon: const Icon(Icons.arrow_forward),
+              icon: const Icon(
+                Icons.arrow_forward,
+              ),
               label: const Text(
                 'Continuer',
-                style: TextStyle(fontSize: 17),
+                style: TextStyle(
+                  fontSize: 17,
+                ),
               ),
             ),
           ),
@@ -958,13 +1072,15 @@ class AddPhotoScreen extends StatefulWidget {
       _AddPhotoScreenState();
 }
 
-class _AddPhotoScreenState extends State<AddPhotoScreen> {
+class _AddPhotoScreenState
+    extends State<AddPhotoScreen> {
   final ImagePicker _picker = ImagePicker();
 
   XFile? _image;
 
   Future<void> _chooseImage() async {
-    final source = await showModalBottomSheet<ImageSource>(
+    final source =
+        await showModalBottomSheet<ImageSource>(
       context: context,
       builder: (context) {
         return SafeArea(
@@ -972,19 +1088,24 @@ class _AddPhotoScreenState extends State<AddPhotoScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
-                leading:
-                    const Icon(Icons.photo_library_outlined),
-                title:
-                    const Text('Choisir dans la galerie'),
+                leading: const Icon(
+                  Icons.photo_library_outlined,
+                ),
+                title: const Text(
+                  'Choisir dans la galerie',
+                ),
                 onTap: () => Navigator.pop(
                   context,
                   ImageSource.gallery,
                 ),
               ),
               ListTile(
-                leading:
-                    const Icon(Icons.camera_alt_outlined),
-                title: const Text('Prendre une photo'),
+                leading: const Icon(
+                  Icons.camera_alt_outlined,
+                ),
+                title: const Text(
+                  'Prendre une photo',
+                ),
                 onTap: () => Navigator.pop(
                   context,
                   ImageSource.camera,
@@ -1027,13 +1148,16 @@ class _AddPhotoScreenState extends State<AddPhotoScreen> {
           category: widget.category,
           brand: widget.brand,
           model: widget.model,
-          manufactureYear: widget.manufactureYear,
+          manufactureYear:
+              widget.manufactureYear,
           horsepower: widget.horsepower,
           fuelType: widget.fuelType,
           mileage: widget.mileage,
-          itemCondition: widget.itemCondition,
+          itemCondition:
+              widget.itemCondition,
           itemType: widget.itemType,
-          compatibleConsole: widget.compatibleConsole,
+          compatibleConsole:
+              widget.compatibleConsole,
           usageHours: widget.usageHours,
           consoleName: widget.consoleName,
           gameName: widget.gameName,
@@ -1047,22 +1171,27 @@ class _AddPhotoScreenState extends State<AddPhotoScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Ajouter une photo'),
+        title: const Text(
+          'Ajouter une photo',
+        ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+          crossAxisAlignment:
+              CrossAxisAlignment.stretch,
           children: [
             if (_image != null)
               Container(
                 height: 300,
                 decoration: BoxDecoration(
                   color: Colors.black,
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius:
+                      BorderRadius.circular(12),
                 ),
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius:
+                      BorderRadius.circular(12),
                   child: Image.file(
                     File(_image!.path),
                     fit: BoxFit.contain,
@@ -1073,11 +1202,14 @@ class _AddPhotoScreenState extends State<AddPhotoScreen> {
               Container(
                 height: 220,
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade200,
-                  borderRadius: BorderRadius.circular(12),
+                  color:
+                      Colors.grey.shade200,
+                  borderRadius:
+                      BorderRadius.circular(12),
                 ),
                 child: const Icon(
-                  Icons.add_photo_alternate_outlined,
+                  Icons
+                      .add_photo_alternate_outlined,
                   size: 60,
                 ),
               ),
@@ -1087,7 +1219,8 @@ class _AddPhotoScreenState extends State<AddPhotoScreen> {
             OutlinedButton.icon(
               onPressed: _chooseImage,
               icon: const Icon(
-                Icons.add_photo_alternate_outlined,
+                Icons
+                    .add_photo_alternate_outlined,
               ),
               label: Text(
                 _image == null
@@ -1099,9 +1232,12 @@ class _AddPhotoScreenState extends State<AddPhotoScreen> {
             const SizedBox(height: 24),
 
             FilledButton(
-              onPressed:
-                  _image == null ? null : _continueToReview,
-              child: const Text('Continuer'),
+              onPressed: _image == null
+                  ? null
+                  : _continueToReview,
+              child: const Text(
+                'Continuer',
+              ),
             ),
           ],
         ),
@@ -1168,11 +1304,13 @@ class ReviewAdScreen extends StatefulWidget {
       _ReviewAdScreenState();
 }
 
-class _ReviewAdScreenState extends State<ReviewAdScreen> {
+class _ReviewAdScreenState
+    extends State<ReviewAdScreen> {
   bool _isPublishing = false;
 
   String get _displayPrice {
-    if (widget.family == 'Prestations de services' &&
+    if (widget.family ==
+            'Prestations de services' &&
         widget.pricingType == 'Sur devis') {
       return 'Sur devis';
     }
@@ -1188,8 +1326,10 @@ class _ReviewAdScreenState extends State<ReviewAdScreen> {
     });
 
     try {
-      final supabase = Supabase.instance.client;
-      final user = supabase.auth.currentUser;
+      final supabase =
+          Supabase.instance.client;
+      final user =
+          supabase.auth.currentUser;
 
       if (user == null) {
         throw Exception(
@@ -1197,7 +1337,8 @@ class _ReviewAdScreenState extends State<ReviewAdScreen> {
         );
       }
 
-      final imageFile = File(widget.imagePath);
+      final imageFile =
+          File(widget.imagePath);
 
       final fileName =
           '${user.id}/${DateTime.now().millisecondsSinceEpoch}.jpg';
@@ -1218,57 +1359,73 @@ class _ReviewAdScreenState extends State<ReviewAdScreen> {
         'price': widget.price.trim(),
         'city': widget.city.trim(),
         'district': widget.district.trim(),
-        'description': widget.description.trim(),
+        'description':
+            widget.description.trim(),
         'family': widget.family,
         'category': widget.category,
         'user_id': user.id,
         'imageUrl': imageUrl,
-        'created_at': DateTime.now().toIso8601String(),
-        'brand':
-            widget.brand.isEmpty ? null : widget.brand,
-        'model':
-            widget.model.isEmpty ? null : widget.model,
-        'manufacture_year': widget.manufactureYear,
+        'created_at':
+            DateTime.now().toIso8601String(),
+        'brand': widget.brand.isEmpty
+            ? null
+            : widget.brand,
+        'model': widget.model.isEmpty
+            ? null
+            : widget.model,
+        'manufacture_year':
+            widget.manufactureYear,
         'horsepower': widget.horsepower,
-        'fuel_type': widget.fuelType.isEmpty
-            ? null
-            : widget.fuelType,
+        'fuel_type':
+            widget.fuelType.isEmpty
+                ? null
+                : widget.fuelType,
         'mileage': widget.mileage,
-        'item_condition': widget.itemCondition.isEmpty
-            ? null
-            : widget.itemCondition,
-        'item_type': widget.itemType.isEmpty
-            ? null
-            : widget.itemType,
+        'item_condition':
+            widget.itemCondition.isEmpty
+                ? null
+                : widget.itemCondition,
+        'item_type':
+            widget.itemType.isEmpty
+                ? null
+                : widget.itemType,
         'compatible_console':
             widget.compatibleConsole.isEmpty
                 ? null
                 : widget.compatibleConsole,
-        'usage_hours': widget.usageHours,
-        'pricing_type': widget.pricingType,
+        'usage_hours':
+            widget.usageHours,
+        'pricing_type':
+            widget.pricingType,
       };
 
       if (widget.itemType == 'Console') {
-        data['brand'] = widget.consoleName;
+        data['brand'] =
+            widget.consoleName;
       }
 
       if (widget.itemType == 'Jeu') {
-        data['model'] = widget.gameName;
+        data['model'] =
+            widget.gameName;
       }
 
-      final insertedData = await supabase
-          .from('annonces')
-          .insert(data)
-          .select()
-          .single();
+      final insertedData =
+          await supabase
+              .from('annonces')
+              .insert(data)
+              .select()
+              .single();
 
       final annonce = Annonce.fromJson(
-        Map<String, dynamic>.from(insertedData),
+        Map<String, dynamic>.from(
+          insertedData,
+        ),
       );
 
       if (!mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
+      ScaffoldMessenger.of(context)
+          .showSnackBar(
         const SnackBar(
           content: Text(
             'Annonce publiée avec succès',
@@ -1276,7 +1433,8 @@ class _ReviewAdScreenState extends State<ReviewAdScreen> {
         ),
       );
 
-      Navigator.of(context).pushAndRemoveUntil(
+      Navigator.of(context)
+          .pushAndRemoveUntil(
         MaterialPageRoute(
           builder: (_) => PlaceScreen(
             annonce: annonce,
@@ -1287,7 +1445,8 @@ class _ReviewAdScreenState extends State<ReviewAdScreen> {
     } catch (e) {
       if (!mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
+      ScaffoldMessenger.of(context)
+          .showSnackBar(
         SnackBar(
           content: Text(
             'Erreur lors de la publication : $e',
@@ -1303,16 +1462,24 @@ class _ReviewAdScreenState extends State<ReviewAdScreen> {
     }
   }
 
-  Widget _row(String label, String value) {
+  Widget _row(
+    String label,
+    String value,
+  ) {
     if (value.trim().isEmpty) {
       return const SizedBox.shrink();
     }
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
+      padding:
+          const EdgeInsets.only(
+        bottom: 8,
+      ),
       child: Text(
         '$label : $value',
-        style: const TextStyle(fontSize: 16),
+        style: const TextStyle(
+          fontSize: 16,
+        ),
       ),
     );
   }
@@ -1321,21 +1488,26 @@ class _ReviewAdScreenState extends State<ReviewAdScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Vérifier l’annonce'),
+        title: const Text(
+          'Vérifier l’annonce',
+        ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+          crossAxisAlignment:
+              CrossAxisAlignment.stretch,
           children: [
             Container(
               height: 300,
               decoration: BoxDecoration(
                 color: Colors.black,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius:
+                    BorderRadius.circular(12),
               ),
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius:
+                    BorderRadius.circular(12),
                 child: Image.file(
                   File(widget.imagePath),
                   fit: BoxFit.contain,
@@ -1349,7 +1521,8 @@ class _ReviewAdScreenState extends State<ReviewAdScreen> {
               widget.title,
               style: const TextStyle(
                 fontSize: 24,
-                fontWeight: FontWeight.bold,
+                fontWeight:
+                    FontWeight.bold,
               ),
             ),
 
@@ -1359,31 +1532,47 @@ class _ReviewAdScreenState extends State<ReviewAdScreen> {
               _displayPrice,
               style: const TextStyle(
                 fontSize: 22,
-                fontWeight: FontWeight.bold,
+                fontWeight:
+                    FontWeight.bold,
               ),
             ),
 
             const SizedBox(height: 20),
 
-            _row('Famille', widget.family),
-            _row('Catégorie', widget.category),
+            _row(
+              'Famille',
+              widget.family,
+            ),
+            _row(
+              'Catégorie',
+              widget.category,
+            ),
 
             if (widget.brand.isNotEmpty)
-              _row('Marque', widget.brand),
+              _row(
+                'Marque',
+                widget.brand,
+              ),
 
             if (widget.model.isNotEmpty)
-              _row('Modèle', widget.model),
+              _row(
+                'Modèle',
+                widget.model,
+              ),
 
-            if (widget.manufactureYear != null)
+            if (widget.manufactureYear !=
+                null)
               _row(
                 'Année',
-                widget.manufactureYear.toString(),
+                widget.manufactureYear
+                    .toString(),
               ),
 
             if (widget.horsepower != null)
               _row(
                 'CV',
-                widget.horsepower.toString(),
+                widget.horsepower
+                    .toString(),
               ),
 
             if (widget.fuelType.isNotEmpty)
@@ -1404,7 +1593,9 @@ class _ReviewAdScreenState extends State<ReviewAdScreen> {
                 widget.itemType,
               ),
 
-            if (widget.compatibleConsole.isNotEmpty)
+            if (widget
+                .compatibleConsole
+                .isNotEmpty)
               _row(
                 'Console compatible',
                 widget.compatibleConsole,
@@ -1416,20 +1607,29 @@ class _ReviewAdScreenState extends State<ReviewAdScreen> {
                 '${widget.usageHours} h',
               ),
 
-            if (widget.itemCondition.isNotEmpty)
+            if (widget
+                .itemCondition
+                .isNotEmpty)
               _row(
                 'État',
                 widget.itemCondition,
               ),
 
-            if (widget.family == 'Prestations de services')
+            if (widget.family ==
+                'Prestations de services')
               _row(
                 'Tarification',
                 widget.pricingType,
               ),
 
-            _row('Ville', widget.city),
-            _row('Commune', widget.district),
+            _row(
+              'Ville',
+              widget.city,
+            ),
+            _row(
+              'Commune',
+              widget.district,
+            ),
 
             const SizedBox(height: 12),
 
@@ -1437,7 +1637,8 @@ class _ReviewAdScreenState extends State<ReviewAdScreen> {
               'Description',
               style: TextStyle(
                 fontSize: 18,
-                fontWeight: FontWeight.bold,
+                fontWeight:
+                    FontWeight.bold,
               ),
             ),
 
@@ -1450,13 +1651,15 @@ class _ReviewAdScreenState extends State<ReviewAdScreen> {
             SizedBox(
               height: 52,
               child: FilledButton(
-                onPressed:
-                    _isPublishing ? null : _publishAd,
+                onPressed: _isPublishing
+                    ? null
+                    : _publishAd,
                 child: _isPublishing
                     ? const SizedBox(
                         width: 22,
                         height: 22,
-                        child: CircularProgressIndicator(
+                        child:
+                            CircularProgressIndicator(
                           strokeWidth: 2,
                         ),
                       )
