@@ -22,6 +22,13 @@ class PlaceScreen extends StatefulWidget {
 class _PlaceScreenState extends State<PlaceScreen> {
   bool _isOpeningConversation = false;
 
+  static const Color _primaryColor = Color.fromRGBO(
+    16,
+    20,
+    94,
+    1,
+  );
+
   Future<void> _openConversation() async {
     if (_isOpeningConversation) {
       return;
@@ -96,36 +103,249 @@ class _PlaceScreenState extends State<PlaceScreen> {
     }
   }
 
+  bool get _hasCharacteristics {
+    final annonce = widget.annonce;
+
+    return annonce.brand.isNotEmpty ||
+        annonce.model.isNotEmpty ||
+        annonce.manufactureYear != null ||
+        annonce.horsepower != null ||
+        annonce.fuelType.isNotEmpty ||
+        annonce.mileage != null ||
+        annonce.itemCondition.isNotEmpty ||
+        annonce.itemType.isNotEmpty ||
+        annonce.compatibleConsole.isNotEmpty ||
+        annonce.usageHours != null;
+  }
+
+  Widget _informationRow({
+    required IconData icon,
+    required String label,
+    required String value,
+  }) {
+    if (value.trim().isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(
+        bottom: 14,
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(
+            icon,
+            size: 22,
+            color: _primaryColor,
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: RichText(
+              text: TextSpan(
+                style: const TextStyle(
+                  fontFamily: 'Mplus1p',
+                  fontSize: 16,
+                  color: _primaryColor,
+                  height: 1.35,
+                ),
+                children: [
+                  TextSpan(
+                    text: '$label : ',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  TextSpan(
+                    text: value,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCharacteristics() {
+    final annonce = widget.annonce;
+
+    if (!_hasCharacteristics) {
+      return const SizedBox.shrink();
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 20),
+        const Divider(),
+        const SizedBox(height: 14),
+
+        const Text(
+          'Caractéristiques',
+          style: TextStyle(
+            fontFamily: 'Mplus1p',
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: _primaryColor,
+          ),
+        ),
+
+        const SizedBox(height: 16),
+
+        if (annonce.itemType.isNotEmpty)
+          _informationRow(
+            icon: Icons.sell_outlined,
+            label: 'Type',
+            value: annonce.itemType,
+          ),
+
+        if (annonce.brand.isNotEmpty)
+          _informationRow(
+            icon: Icons.business_outlined,
+            label: annonce.itemType == 'Console'
+                ? 'Nom / marque'
+                : 'Marque',
+            value: annonce.brand,
+          ),
+
+        if (annonce.model.isNotEmpty)
+          _informationRow(
+            icon: Icons.info_outline,
+            label: annonce.itemType == 'Jeu'
+                ? 'Nom du jeu'
+                : 'Modèle',
+            value: annonce.model,
+          ),
+
+        if (annonce.manufactureYear != null)
+          _informationRow(
+            icon: Icons.calendar_month_outlined,
+            label: 'Année',
+            value: annonce.manufactureYear.toString(),
+          ),
+
+        if (annonce.horsepower != null)
+          _informationRow(
+            icon: Icons.speed_outlined,
+            label: 'Puissance',
+            value: '${annonce.horsepower} CV',
+          ),
+
+        if (annonce.fuelType.isNotEmpty)
+          _informationRow(
+            icon: Icons.local_gas_station_outlined,
+            label: 'Carburant',
+            value: annonce.fuelType,
+          ),
+
+        if (annonce.mileage != null)
+          _informationRow(
+            icon: Icons.route_outlined,
+            label: 'Kilométrage',
+            value: '${annonce.mileage} km',
+          ),
+
+        if (annonce.usageHours != null)
+          _informationRow(
+            icon: Icons.schedule_outlined,
+            label: 'Heures d’utilisation',
+            value: '${annonce.usageHours} h',
+          ),
+
+        if (annonce.compatibleConsole.isNotEmpty)
+          _informationRow(
+            icon: Icons.sports_esports_outlined,
+            label: 'Console compatible',
+            value: annonce.compatibleConsole,
+          ),
+
+        if (annonce.itemCondition.isNotEmpty)
+          _informationRow(
+            icon: Icons.verified_outlined,
+            label: 'État',
+            value: annonce.itemCondition,
+          ),
+      ],
+    );
+  }
+
+  Widget _buildServiceInformation() {
+    final annonce = widget.annonce;
+
+    if (!annonce.isService) {
+      return const SizedBox.shrink();
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 20),
+        const Divider(),
+        const SizedBox(height: 14),
+
+        const Text(
+          'Prestation',
+          style: TextStyle(
+            fontFamily: 'Mplus1p',
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: _primaryColor,
+          ),
+        ),
+
+        const SizedBox(height: 16),
+
+        _informationRow(
+          icon: Icons.handyman_outlined,
+          label: 'Service',
+          value: annonce.category,
+        ),
+
+        _informationRow(
+          icon: annonce.isQuote
+              ? Icons.request_quote_outlined
+              : Icons.payments_outlined,
+          label: 'Tarification',
+          value: annonce.isQuote
+              ? 'Sur devis'
+              : 'Prix fixe',
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final annonce = widget.annonce;
-    final screenWidth = MediaQuery.of(context).size.width;
+    final screenWidth =
+        MediaQuery.of(context).size.width;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F7),
       appBar: AppBar(
         backgroundColor: Colors.white,
-        foregroundColor: const Color.fromRGBO(
-          16,
-          20,
-          94,
-          1,
-        ),
+        foregroundColor: _primaryColor,
         elevation: 0,
-        title: const Text(
-          'Détail de l’annonce',
-          style: TextStyle(
+        title: Text(
+          annonce.isService
+              ? 'Détail de la prestation'
+              : 'Détail de l’annonce',
+          style: const TextStyle(
             fontWeight: FontWeight.w600,
           ),
         ),
       ),
       body: SingleChildScrollView(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment:
+              CrossAxisAlignment.start,
           children: [
-            SizedBox(
+            Container(
               width: double.infinity,
               height: screenWidth * 0.78,
+              color: Colors.black,
               child: annonce.imageUrl.isNotEmpty
                   ? Image.network(
                       annonce.imageUrl,
@@ -142,6 +362,7 @@ class _PlaceScreenState extends State<PlaceScreen> {
                     )
                   : _imagePlaceholder(),
             ),
+
             Padding(
               padding: const EdgeInsets.all(16),
               child: Container(
@@ -149,7 +370,8 @@ class _PlaceScreenState extends State<PlaceScreen> {
                 padding: const EdgeInsets.all(18),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius:
+                      BorderRadius.circular(14),
                   boxShadow: const [
                     BoxShadow(
                       color: Color.fromRGBO(
@@ -164,7 +386,8 @@ class _PlaceScreenState extends State<PlaceScreen> {
                   ],
                 ),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment:
+                      CrossAxisAlignment.start,
                   children: [
                     Row(
                       crossAxisAlignment:
@@ -178,17 +401,15 @@ class _PlaceScreenState extends State<PlaceScreen> {
                             style: const TextStyle(
                               fontFamily: 'Mplus1p',
                               fontSize: 24,
-                              fontWeight: FontWeight.w600,
-                              color: Color.fromRGBO(
-                                16,
-                                20,
-                                94,
-                                1,
-                              ),
+                              fontWeight:
+                                  FontWeight.w600,
+                              color: _primaryColor,
                             ),
                           ),
                         ),
-                        Consumer<FavoritePlacesViewModel>(
+
+                        Consumer<
+                            FavoritePlacesViewModel>(
                           builder: (
                             context,
                             favVM,
@@ -209,66 +430,61 @@ class _PlaceScreenState extends State<PlaceScreen> {
                               icon: Icon(
                                 isFav
                                     ? Icons.favorite
-                                    : Icons.favorite_border,
+                                    : Icons
+                                        .favorite_border,
                                 size: 30,
                                 color: isFav
                                     ? Colors.red
-                                    : const Color.fromRGBO(
-                                        16,
-                                        20,
-                                        94,
-                                        1,
-                                      ),
+                                    : _primaryColor,
                               ),
                             );
                           },
                         ),
                       ],
                     ),
+
                     const SizedBox(height: 8),
+
                     Row(
+                      crossAxisAlignment:
+                          CrossAxisAlignment.center,
                       children: [
-                        const Icon(
-                          Icons.account_balance_wallet_outlined,
+                        Icon(
+                          annonce.isQuote
+                              ? Icons
+                                  .request_quote_outlined
+                              : Icons
+                                  .account_balance_wallet_outlined,
                           size: 25,
-                          color: Color.fromRGBO(
-                            16,
-                            20,
-                            94,
-                            1,
-                          ),
+                          color: _primaryColor,
                         ),
                         const SizedBox(width: 8),
-                        Text(
-                          '${annonce.price} FC',
-                          style: const TextStyle(
-                            fontFamily: 'Mplus1p',
-                            fontSize: 21,
-                            fontWeight: FontWeight.w600,
-                            color: Color.fromRGBO(
-                              16,
-                              20,
-                              94,
-                              1,
+                        Expanded(
+                          child: Text(
+                            annonce.priceLabel,
+                            style: const TextStyle(
+                              fontFamily: 'Mplus1p',
+                              fontSize: 21,
+                              fontWeight:
+                                  FontWeight.w600,
+                              color: _primaryColor,
                             ),
                           ),
                         ),
                       ],
                     ),
+
                     if (annonce.category.isNotEmpty ||
                         annonce.family.isNotEmpty) ...[
                       const SizedBox(height: 14),
                       Row(
+                        crossAxisAlignment:
+                            CrossAxisAlignment.start,
                         children: [
                           const Icon(
                             Icons.category_outlined,
                             size: 22,
-                            color: Color.fromRGBO(
-                              16,
-                              20,
-                              94,
-                              1,
-                            ),
+                            color: _primaryColor,
                           ),
                           const SizedBox(width: 8),
                           Expanded(
@@ -277,152 +493,4 @@ class _PlaceScreenState extends State<PlaceScreen> {
                                   ? annonce.category
                                   : annonce.family,
                               style: const TextStyle(
-                                fontSize: 16,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                    if (annonce.location.isNotEmpty) ...[
-                      const SizedBox(height: 14),
-                      Row(
-                        crossAxisAlignment:
-                            CrossAxisAlignment.start,
-                        children: [
-                          const Icon(
-                            Icons.location_on_outlined,
-                            size: 23,
-                            color: Color.fromRGBO(
-                              16,
-                              20,
-                              94,
-                              1,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              annonce.location,
-                              style: const TextStyle(
-                                fontFamily: 'Mplus1p',
-                                fontSize: 16,
-                                color: Color.fromRGBO(
-                                  16,
-                                  20,
-                                  94,
-                                  1,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                    if (annonce.description.isNotEmpty) ...[
-                      const SizedBox(height: 20),
-                      const Divider(),
-                      const SizedBox(height: 14),
-                      const Text(
-                        'Description',
-                        style: TextStyle(
-                          fontFamily: 'Mplus1p',
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          color: Color.fromRGBO(
-                            16,
-                            20,
-                            94,
-                            1,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        annonce.description,
-                        style: const TextStyle(
-                          fontFamily: 'Mplus1p',
-                          fontSize: 16,
-                          height: 1.5,
-                          color: Color.fromRGBO(
-                            16,
-                            20,
-                            94,
-                            1,
-                          ),
-                        ),
-                      ),
-                    ],
-                    const SizedBox(height: 24),
-                    SizedBox(
-                      width: double.infinity,
-                      child: FilledButton.icon(
-                        onPressed: _isOpeningConversation
-                            ? null
-                            : _openConversation,
-                        style: FilledButton.styleFrom(
-                          backgroundColor:
-                              const Color.fromRGBO(
-                            16,
-                            20,
-                            94,
-                            1,
-                          ),
-                          foregroundColor: Colors.white,
-                          padding:
-                              const EdgeInsets.symmetric(
-                            vertical: 15,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.circular(12),
-                          ),
-                        ),
-                        icon: _isOpeningConversation
-                            ? const SizedBox(
-                                width: 20,
-                                height: 20,
-                                child:
-                                    CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: Colors.white,
-                                ),
-                              )
-                            : const Icon(
-                                Icons
-                                    .chat_bubble_outline_rounded,
-                              ),
-                        label: Text(
-                          _isOpeningConversation
-                              ? 'Ouverture...'
-                              : 'Envoyer un message',
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 30),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _imagePlaceholder() {
-    return Container(
-      color: Colors.grey.shade200,
-      alignment: Alignment.center,
-      child: const Icon(
-        Icons.image_outlined,
-        size: 70,
-        color: Colors.grey,
-      ),
-    );
-  }
-}
+                                fontFamily: 'Mplus1
