@@ -12,6 +12,7 @@ import 'package:flutter_marketplace_template/services/user_service.dart';
 import 'package:flutter_marketplace_template/view_models/profile_view_model.dart';
 import 'package:flutter_marketplace_template/view_models/favorite_places_view_model.dart';
 import 'package:flutter_marketplace_template/screens/favorite_places_screen.dart';
+import 'package:flutter_marketplace_template/screens/my_ads_screen.dart';
 import 'package:flutter_marketplace_template/views/components/profile_avatar_widget.dart';
 import 'package:flutter_marketplace_template/adapters/app_bar.dart';
 import 'package:image_picker/image_picker.dart';
@@ -35,17 +36,19 @@ class ProfileScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor:
           Theme.of(context).colorScheme.surface,
-
       appBar: const CustomAppBar(
         showTitle: true,
         showMenu: false,
         showChat: false,
       ),
-
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
           _buildProfileCard(context),
+
+          const SizedBox(height: 20),
+
+          _buildMyAdsCard(context),
 
           const SizedBox(height: 20),
 
@@ -146,6 +149,89 @@ class ProfileScreen extends StatelessWidget {
             ],
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildMyAdsCard(
+    BuildContext context,
+  ) {
+    return _CardContainer(
+      child: Column(
+        crossAxisAlignment:
+            CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.inventory_2_outlined,
+                color:
+                    Theme.of(context)
+                        .colorScheme
+                        .primary,
+                size: 24,
+              ),
+
+              const SizedBox(width: 8),
+
+              Expanded(
+                child: Text(
+                  'Mes annonces',
+                  style: TextStyle(
+                    fontFamily: 'Mplus1p',
+                    fontSize: 22,
+                    fontWeight:
+                        FontWeight.w500,
+                    color:
+                        Theme.of(context)
+                            .colorScheme
+                            .primary,
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 10),
+
+          Text(
+            'Gérez les annonces que vous avez publiées.',
+            style: TextStyle(
+              fontFamily: 'Mplus1p',
+              fontSize: 14,
+              color:
+                  Theme.of(context)
+                      .colorScheme
+                      .primary
+                      .withValues(
+                        alpha: 0.70,
+                      ),
+            ),
+          ),
+
+          const SizedBox(height: 12),
+
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton.icon(
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) =>
+                        const MyAdsScreen(),
+                  ),
+                );
+              },
+              icon: const Icon(
+                Icons.list_alt_outlined,
+                size: 19,
+              ),
+              label: const Text(
+                'Voir mes annonces',
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -1027,9 +1113,6 @@ class _ProfileEditDialogState
   Widget build(BuildContext context) {
     final screenWidth =
         MediaQuery.of(context).size.width;
-
-    final textScale =
-        screenWidth / 390;
 
     return Dialog(
       backgroundColor:
