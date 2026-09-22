@@ -736,37 +736,38 @@ class _AddPhotoScreenState
 
             const SizedBox(height: 24),
 
-            if (_image != null)
-              ClipRRect(
-                borderRadius:
-                    BorderRadius.circular(
-                        12),
-                child: Image.file(
-                  File(_image!.path),
-                  height: 220,
-                  fit: BoxFit.cover,
-                ),
-              )
-            else
-              Container(
-                height: 220,
-                decoration: BoxDecoration(
-                  borderRadius:
-                      BorderRadius.circular(
-                          12),
-                  color:
-                      Colors.grey.shade200,
-                ),
-                child: const Center(
-                  child: Icon(
-                    Icons
-                        .add_photo_alternate_outlined,
-                    size: 60,
-                  ),
-                ),
-              ),
+if (_image != null)
+  Container(
+    height: 300,
+    width: double.infinity,
+    decoration: BoxDecoration(
+      color: Colors.black,
+      borderRadius: BorderRadius.circular(12),
+    ),
+    child: ClipRRect(
+      borderRadius: BorderRadius.circular(12),
+      child: Image.file(
+        File(_image!.path),
+        fit: BoxFit.contain,
+      ),
+    ),
+  )
+else
+  Container(
+    height: 220,
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(12),
+      color: Colors.grey.shade200,
+    ),
+    child: const Center(
+      child: Icon(
+        Icons.add_photo_alternate_outlined,
+        size: 60,
+      ),
+    ),
+  ),
 
-            const SizedBox(height: 20),
+const SizedBox(height: 20),
 
             OutlinedButton.icon(
               onPressed: _chooseImage,
