@@ -106,15 +106,15 @@ class _PlaceScreenState extends State<PlaceScreen> {
   bool get _hasCharacteristics {
     final annonce = widget.annonce;
 
-    return annonce.brand.isNotEmpty ||
-        annonce.model.isNotEmpty ||
+    return annonce.brand?.isNotEmpty == true ||
+        annonce.model?.isNotEmpty == true ||
         annonce.manufactureYear != null ||
         annonce.horsepower != null ||
-        annonce.fuelType.isNotEmpty ||
+        annonce.fuelType?.isNotEmpty == true ||
         annonce.mileage != null ||
-        annonce.itemCondition.isNotEmpty ||
-        annonce.itemType.isNotEmpty ||
-        annonce.compatibleConsole.isNotEmpty ||
+        annonce.itemCondition?.isNotEmpty == true ||
+        annonce.itemType?.isNotEmpty == true ||
+        annonce.compatibleConsole?.isNotEmpty == true ||
         annonce.usageHours != null;
   }
 
@@ -194,29 +194,29 @@ class _PlaceScreenState extends State<PlaceScreen> {
 
         const SizedBox(height: 16),
 
-        if (annonce.itemType.isNotEmpty)
+        if (annonce.itemType?.isNotEmpty == true)
           _informationRow(
             icon: Icons.sell_outlined,
             label: 'Type',
-            value: annonce.itemType,
+            value: annonce.itemType ?? '',
           ),
 
-        if (annonce.brand.isNotEmpty)
+        if (annonce.brand?.isNotEmpty == true)
           _informationRow(
             icon: Icons.business_outlined,
             label: annonce.itemType == 'Console'
                 ? 'Nom / marque'
                 : 'Marque',
-            value: annonce.brand,
+            value: annonce.brand ?? '',
           ),
 
-        if (annonce.model.isNotEmpty)
+        if (annonce.model?.isNotEmpty == true)
           _informationRow(
             icon: Icons.info_outline,
             label: annonce.itemType == 'Jeu'
                 ? 'Nom du jeu'
                 : 'Modèle',
-            value: annonce.model,
+            value: annonce.model ?? '',
           ),
 
         if (annonce.manufactureYear != null)
@@ -233,11 +233,11 @@ class _PlaceScreenState extends State<PlaceScreen> {
             value: '${annonce.horsepower} CV',
           ),
 
-        if (annonce.fuelType.isNotEmpty)
+        if (annonce.fuelType?.isNotEmpty == true)
           _informationRow(
             icon: Icons.local_gas_station_outlined,
             label: 'Carburant',
-            value: annonce.fuelType,
+            value: annonce.fuelType ?? '',
           ),
 
         if (annonce.mileage != null)
@@ -254,18 +254,18 @@ class _PlaceScreenState extends State<PlaceScreen> {
             value: '${annonce.usageHours} h',
           ),
 
-        if (annonce.compatibleConsole.isNotEmpty)
+        if (annonce.compatibleConsole?.isNotEmpty == true)
           _informationRow(
             icon: Icons.sports_esports_outlined,
             label: 'Console compatible',
-            value: annonce.compatibleConsole,
+            value: annonce.compatibleConsole ?? '',
           ),
 
-        if (annonce.itemCondition.isNotEmpty)
+        if (annonce.itemCondition?.isNotEmpty == true)
           _informationRow(
             icon: Icons.verified_outlined,
             label: 'État',
-            value: annonce.itemCondition,
+            value: annonce.itemCondition ?? '',
           ),
       ],
     );
