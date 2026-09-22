@@ -493,4 +493,155 @@ class _PlaceScreenState extends State<PlaceScreen> {
                                   ? annonce.category
                                   : annonce.family,
                               style: const TextStyle(
-                                fontFamily: 'Mplus1
+                                fontFamily: 'Mplus1p',
+                                fontSize: 16,
+                                color: _primaryColor,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+
+                    if (annonce.location.isNotEmpty) ...[
+                      const SizedBox(height: 14),
+                      Row(
+                        crossAxisAlignment:
+                            CrossAxisAlignment.start,
+                        children: [
+                          const Icon(
+                            Icons.location_on_outlined,
+                            size: 23,
+                            color: _primaryColor,
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              annonce.location,
+                              style: const TextStyle(
+                                fontFamily: 'Mplus1p',
+                                fontSize: 16,
+                                color: _primaryColor,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+
+                    if (!annonce.isService)
+                      _buildCharacteristics(),
+
+                    if (annonce.isService)
+                      _buildServiceInformation(),
+
+                    if (annonce.description.isNotEmpty) ...[
+                      const SizedBox(height: 20),
+                      const Divider(),
+                      const SizedBox(height: 14),
+
+                      Text(
+                        annonce.isService
+                            ? 'Description de la prestation'
+                            : 'Description',
+                        style: const TextStyle(
+                          fontFamily: 'Mplus1p',
+                          fontSize: 18,
+                          fontWeight:
+                              FontWeight.w600,
+                          color: _primaryColor,
+                        ),
+                      ),
+
+                      const SizedBox(height: 8),
+
+                      Text(
+                        annonce.description,
+                        style: const TextStyle(
+                          fontFamily: 'Mplus1p',
+                          fontSize: 16,
+                          height: 1.5,
+                          color: _primaryColor,
+                        ),
+                      ),
+                    ],
+
+                    const SizedBox(height: 24),
+
+                    SizedBox(
+                      width: double.infinity,
+                      child: FilledButton.icon(
+                        onPressed:
+                            _isOpeningConversation
+                                ? null
+                                : _openConversation,
+                        style: FilledButton.styleFrom(
+                          backgroundColor:
+                              _primaryColor,
+                          foregroundColor:
+                              Colors.white,
+                          padding:
+                              const EdgeInsets
+                                  .symmetric(
+                            vertical: 15,
+                          ),
+                          shape:
+                              RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.circular(
+                              12,
+                            ),
+                          ),
+                        ),
+                        icon: _isOpeningConversation
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child:
+                                    CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : const Icon(
+                                Icons
+                                    .chat_bubble_outline_rounded,
+                              ),
+                        label: Text(
+                          _isOpeningConversation
+                              ? 'Ouverture...'
+                              : annonce.isService
+                                  ? 'Contacter le prestataire'
+                                  : 'Envoyer un message',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight:
+                                FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 30),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _imagePlaceholder() {
+    return Container(
+      color: Colors.grey.shade200,
+      alignment: Alignment.center,
+      child: const Icon(
+        Icons.image_outlined,
+        size: 70,
+        color: Colors.grey,
+      ),
+    );
+  }
+}
