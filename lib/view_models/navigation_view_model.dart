@@ -1,53 +1,33 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
-import 'package:flutter_marketplace_template/view_models/navigation_view_model.dart';
+import 'package:flutter_marketplace_template/screens/home_screen.dart';
+import 'package:flutter_marketplace_template/screens/post_ad_screen.dart';
+import 'package:flutter_marketplace_template/screens/chats_list_screen.dart';
+import 'package:flutter_marketplace_template/screens/profile_screen.dart';
 
-class NavigationScreen extends StatefulWidget {
-  const NavigationScreen({super.key});
+class NavigationViewModel extends ChangeNotifier {
+  NavigationViewModel({
+    this.selectedIndex = 0,
+  });
 
-  @override
-  State<NavigationScreen> createState() => _NavigationScreenState();
-}
+  int selectedIndex;
 
-class _NavigationScreenState extends State<NavigationScreen> {
-  @override
-  Widget build(BuildContext context) {
-    final navigation = context.watch<NavigationViewModel>();
+  Widget currentScreen = const HomeScreen();
 
-    return Scaffold(
-      body: navigation.currentScreen,
-      bottomNavigationBar: NavigationBar(
-        height: 70,
-        selectedIndex: navigation.selectedIndex,
-        onDestinationSelected: (index) {
-          context
-              .read<NavigationViewModel>()
-              .onDestinationSelected(index);
-        },
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home),
-            label: 'Accueil',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.add_circle_outline),
-            selectedIcon: Icon(Icons.add_circle),
-            label: 'Déposer',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.chat_bubble_outline),
-            selectedIcon: Icon(Icons.chat_bubble),
-            label: 'Messages',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.person_outline),
-            selectedIcon: Icon(Icons.person),
-            label: 'Profil',
-          ),
-        ],
-      ),
-    );
+  final List<Widget> screens = const [
+    HomeScreen(),       // 0 Accueil
+    PostAdScreen(),     // 1 Déposer
+    ChatsListScreen(),  // 2 Messages
+    ProfileScreen(),    // 3 Profil
+  ];
+
+  void onDestinationSelected(int index) {
+    if (index < 0 || index >= screens.length) {
+      return;
+    }
+
+    selectedIndex = index;
+    currentScreen = screens[index];
+    notifyListeners();
   }
 }
