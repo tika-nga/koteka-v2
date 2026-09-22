@@ -16,9 +16,10 @@ class NavigationViewModel extends ChangeNotifier {
 
   final List<Widget> screens = const [
     HomeScreen(),       // 0 Accueil
-    PostAdScreen(),     // 1 Déposer
-    ChatsListScreen(),  // 2 Messages
-    ProfileScreen(),    // 3 Profil
+    HomeScreen(),       // 1 Rechercher (temporairement accueil)
+    PostAdScreen(),     // 2 Déposer une annonce
+    ChatsListScreen(),  // 3 Messages
+    ProfileScreen(),    // 4 Profil
   ];
 
   void onDestinationSelected(int index) {
