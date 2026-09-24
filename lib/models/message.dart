@@ -1,3 +1,5 @@
+import 'package:flutter_marketplace_template/models/message_reply.dart';
+
 /// Conversation Koteka entre un acheteur et un vendeur.
 class Chat {
   final String id;
