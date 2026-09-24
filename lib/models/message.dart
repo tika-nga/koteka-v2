@@ -1,67 +1,69 @@
-import 'package:flutter_marketplace_template/models/message_reply.dart';
-
-/// Message d'une conversation Koteka.
-class Message {
+/// Conversation Koteka entre un acheteur et un vendeur.
+class Chat {
   final String id;
-  final String chatId;
-  final String senderId;
-  final String type;
-  final String text;
-  final String metadata;
-  final String? replyTo;
-  final DateTime createdAt;
-  final DateTime? editedAt;
-  final DateTime? readAt;
-  final MessageReply? reply;
 
-  const Message({
+  final String type;
+  final String? title;
+
+  final int? annonceId;
+  final String? buyerId;
+  final String? sellerId;
+
+  final DateTime createdAt;
+  DateTime? lastMessageAt;
+
+  // Informations de l'annonce associée.
+  String? annonceTitle;
+  String? annonceImageUrl;
+
+  // Informations du dernier message.
+  String? lastMessageText;
+  String? lastMessageSenderId;
+  String? lastMessageId;
+  DateTime? lastMessageCreatedAt;
+  DateTime? lastMessageReadAt;
+
+  // Conservé temporairement pour compatibilité
+  // avec l'ancien écran ChatScreen.
+  DateTime? deletedAt;
+
+  Chat({
     required this.id,
-    required this.chatId,
-    required this.senderId,
-    required this.type,
-    required this.text,
-    required this.metadata,
-    this.replyTo,
-    this.reply,
+    this.type = 'private',
+    this.title,
+    this.annonceId,
+    this.buyerId,
+    this.sellerId,
     required this.createdAt,
-    required this.editedAt,
-    this.readAt,
+    this.lastMessageAt,
+    this.annonceTitle,
+    this.annonceImageUrl,
+    this.lastMessageText,
+    this.lastMessageSenderId,
+    this.lastMessageId,
+    this.lastMessageCreatedAt,
+    this.lastMessageReadAt,
+    this.deletedAt,
   });
 
-  factory Message.fromJson(
-    Map<String, dynamic> json, {
-    MessageReply? reply,
-  }) {
-    return Message(
+  factory Chat.fromJson(Map<String, dynamic> json) {
+    return Chat(
       id: json['id'].toString(),
 
-      // Nouvelle structure Koteka
-      chatId:
-          (json['conversation_id'] ??
-                  json['chat_id'] ??
-                  '')
-              .toString(),
+      type: (json['type'] ?? 'private').toString(),
 
-      senderId:
-          (json['sender_id'] ?? '')
-              .toString(),
+      title: json['title']?.toString(),
 
-      type:
-          (json['type'] ?? 'text')
-              .toString(),
+      annonceId:
+          json['annonce_id'] is int
+              ? json['annonce_id'] as int
+              : int.tryParse(
+                json['annonce_id']?.toString() ?? '',
+              ),
 
-      text:
-          (json['text'] ??
-                  json['content'] ??
-                  '')
-              .toString(),
+      buyerId: json['buyer_id']?.toString(),
 
-      metadata:
-          (json['metadata'] ?? '{}')
-              .toString(),
-
-      replyTo:
-          json['reply_to']?.toString(),
+      sellerId: json['seller_id']?.toString(),
 
       createdAt:
           DateTime.tryParse(
@@ -69,54 +71,35 @@ class Message {
           ) ??
           DateTime.now(),
 
-      editedAt:
-          DateTime.tryParse(
-            json['edited_at']?.toString() ?? '',
-          ),
+      // Dans Koteka, updated_at représente
+      // l'activité la plus récente de la conversation.
+      lastMessageAt: DateTime.tryParse(
+        json['updated_at']?.toString() ??
+            json['last_message_at']?.toString() ??
+            '',
+      ),
 
-      readAt:
-          DateTime.tryParse(
-            json['read_at']?.toString() ?? '',
-          ),
-
-      reply: reply,
+      deletedAt: DateTime.tryParse(
+        json['deleted_at']?.toString() ?? '',
+      ),
     );
   }
 
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'conversation_id': chatId,
-      'sender_id': senderId,
-      'text': text,
-      'created_at': createdAt.toIso8601String(),
-      'read_at': readAt?.toIso8601String(),
-    };
-  }
+  /// Retourne true uniquement si le dernier message
+  /// vient de l'autre utilisateur et n'a pas encore été lu.
+  bool isUnreadFor(String currentUserId) {
+    if (lastMessageId == null) {
+      return false;
+    }
 
-  Message copyWith({
-    String? id,
-    String? senderId,
-    String? text,
-    String? chatId,
-    DateTime? createdAt,
-    String? type,
-    String? metadata,
-    DateTime? editedAt,
-    DateTime? readAt,
-  }) {
-    return Message(
-      id: id ?? this.id,
-      senderId: senderId ?? this.senderId,
-      chatId: chatId ?? this.chatId,
-      text: text ?? this.text,
-      type: type ?? this.type,
-      metadata: metadata ?? this.metadata,
-      editedAt: editedAt ?? this.editedAt,
-      createdAt: createdAt ?? this.createdAt,
-      readAt: readAt ?? this.readAt,
-      replyTo: replyTo,
-      reply: reply,
-    );
+    if (lastMessageSenderId == null) {
+      return false;
+    }
+
+    if (lastMessageSenderId == currentUserId) {
+      return false;
+    }
+
+    return lastMessageReadAt == null;
   }
 }
