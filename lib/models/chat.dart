@@ -1,6 +1,7 @@
 /// Conversation Koteka entre un acheteur et un vendeur.
 class Chat {
   final String id;
+
   final String type;
   final String? title;
 
@@ -11,10 +12,6 @@ class Chat {
   final DateTime createdAt;
   DateTime? lastMessageAt;
 
-  // Informations de l'annonce associée.
-  String? annonceTitle;
-  String? annonceImageUrl;
-
   // Informations du dernier message.
   String? lastMessageText;
   String? lastMessageSenderId;
@@ -22,7 +19,8 @@ class Chat {
   DateTime? lastMessageCreatedAt;
   DateTime? lastMessageReadAt;
 
-  // Compatibilité avec l'ancien ChatScreen.
+  // Conservé temporairement pour compatibilité
+  // avec l'ancien écran ChatScreen.
   DateTime? deletedAt;
 
   Chat({
@@ -34,8 +32,6 @@ class Chat {
     this.sellerId,
     required this.createdAt,
     this.lastMessageAt,
-    this.annonceTitle,
-    this.annonceImageUrl,
     this.lastMessageText,
     this.lastMessageSenderId,
     this.lastMessageId,
@@ -44,41 +40,72 @@ class Chat {
     this.deletedAt,
   });
 
-  factory Chat.fromJson(Map<String, dynamic> json) {
-    final rawAnnonceId = json['annonce_id'];
-
+  factory Chat.fromJson(
+    Map<String, dynamic> json,
+  ) {
     return Chat(
       id: json['id'].toString(),
-      type: (json['type'] ?? 'private').toString(),
-      title: json['title']?.toString(),
-      annonceId: rawAnnonceId is int
-          ? rawAnnonceId
-          : int.tryParse(rawAnnonceId?.toString() ?? ''),
-      buyerId: json['buyer_id']?.toString(),
-      sellerId: json['seller_id']?.toString(),
+
+      type:
+          (json['type'] ?? 'private')
+              .toString(),
+
+      title:
+          json['title']?.toString(),
+
+      annonceId:
+          json['annonce_id'] is int
+              ? json['annonce_id'] as int
+              : int.tryParse(
+                  json['annonce_id']
+                          ?.toString() ??
+                      '',
+                ),
+
+      buyerId:
+          json['buyer_id']?.toString(),
+
+      sellerId:
+          json['seller_id']?.toString(),
+
       createdAt:
-          DateTime.tryParse(json['created_at']?.toString() ?? '') ??
-              DateTime.now(),
-      lastMessageAt: DateTime.tryParse(
+          DateTime.tryParse(
+            json['created_at']
+                    ?.toString() ??
+                '',
+          ) ??
+          DateTime.now(),
+
+      lastMessageAt:
+          DateTime.tryParse(
         json['updated_at']?.toString() ??
-            json['last_message_at']?.toString() ??
+            json['last_message_at']
+                ?.toString() ??
             '',
       ),
+
       deletedAt:
-          DateTime.tryParse(json['deleted_at']?.toString() ?? ''),
+          DateTime.tryParse(
+        json['deleted_at']?.toString() ??
+            '',
+      ),
     );
   }
 
-  bool isUnreadFor(String currentUserId) {
-    if (lastMessageId == null) {
+  /// Indique si le dernier message reçu
+  /// n'a pas encore été lu.
+  bool isUnreadFor(
+    String currentUserId,
+  ) {
+    if (lastMessageId == null ||
+        lastMessageSenderId == null) {
       return false;
     }
 
-    if (lastMessageSenderId == null) {
-      return false;
-    }
-
-    if (lastMessageSenderId == currentUserId) {
+    // Son propre message n'est jamais
+    // considéré comme non lu.
+    if (lastMessageSenderId ==
+        currentUserId) {
       return false;
     }
 
