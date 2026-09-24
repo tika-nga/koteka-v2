@@ -12,6 +12,17 @@ class Chat {
   final DateTime createdAt;
   DateTime? lastMessageAt;
 
+  // Informations de l'annonce associée.
+  String? annonceTitle;
+  String? annonceImageUrl;
+
+  // Informations du dernier message.
+  String? lastMessageText;
+  String? lastMessageSenderId;
+  String? lastMessageId;
+  DateTime? lastMessageCreatedAt;
+  DateTime? lastMessageReadAt;
+
   // Conservé temporairement pour compatibilité
   // avec l'ancien écran ChatScreen.
   DateTime? deletedAt;
@@ -25,6 +36,13 @@ class Chat {
     this.sellerId,
     required this.createdAt,
     this.lastMessageAt,
+    this.annonceTitle,
+    this.annonceImageUrl,
+    this.lastMessageText,
+    this.lastMessageSenderId,
+    this.lastMessageId,
+    this.lastMessageCreatedAt,
+    this.lastMessageReadAt,
     this.deletedAt,
   });
 
@@ -37,40 +55,4 @@ class Chat {
               .toString(),
 
       title:
-          json['title']?.toString(),
-
-      annonceId:
-          json['annonce_id'] is int
-              ? json['annonce_id'] as int
-              : int.tryParse(
-                json['annonce_id']?.toString() ?? '',
-              ),
-
-      buyerId:
-          json['buyer_id']?.toString(),
-
-      sellerId:
-          json['seller_id']?.toString(),
-
-      createdAt:
-          DateTime.tryParse(
-            json['created_at']?.toString() ?? '',
-          ) ??
-          DateTime.now(),
-
-      // Dans Koteka, updated_at représente
-      // l'activité la plus récente de la conversation.
-      lastMessageAt:
-          DateTime.tryParse(
-            json['updated_at']?.toString() ??
-                json['last_message_at']?.toString() ??
-                '',
-          ),
-
-      deletedAt:
-          DateTime.tryParse(
-            json['deleted_at']?.toString() ?? '',
-          ),
-    );
-  }
-}
+          json['title']?.to
