@@ -1,71 +1,66 @@
 import 'package:flutter_marketplace_template/models/message_reply.dart';
 
-/// Conversation Koteka entre un acheteur et un vendeur.
-class Chat {
+/// Message d'une conversation Koteka.
+class Message {
   final String id;
-
+  final String chatId;
+  final String senderId;
   final String type;
-  final String? title;
-
-  final int? annonceId;
-  final String? buyerId;
-  final String? sellerId;
-
+  final String text;
+  final String metadata;
+  final String? replyTo;
   final DateTime createdAt;
-  DateTime? lastMessageAt;
+  final DateTime? editedAt;
+  final DateTime? readAt;
+  final MessageReply? reply;
 
-  // Informations de l'annonce associée.
-  String? annonceTitle;
-  String? annonceImageUrl;
-
-  // Informations du dernier message.
-  String? lastMessageText;
-  String? lastMessageSenderId;
-  String? lastMessageId;
-  DateTime? lastMessageCreatedAt;
-  DateTime? lastMessageReadAt;
-
-  // Conservé temporairement pour compatibilité
-  // avec l'ancien écran ChatScreen.
-  DateTime? deletedAt;
-
-  Chat({
+  const Message({
     required this.id,
-    this.type = 'private',
-    this.title,
-    this.annonceId,
-    this.buyerId,
-    this.sellerId,
+    required this.chatId,
+    required this.senderId,
+    required this.type,
+    required this.text,
+    required this.metadata,
+    this.replyTo,
+    this.reply,
     required this.createdAt,
-    this.lastMessageAt,
-    this.annonceTitle,
-    this.annonceImageUrl,
-    this.lastMessageText,
-    this.lastMessageSenderId,
-    this.lastMessageId,
-    this.lastMessageCreatedAt,
-    this.lastMessageReadAt,
-    this.deletedAt,
+    required this.editedAt,
+    this.readAt,
   });
 
-  factory Chat.fromJson(Map<String, dynamic> json) {
-    return Chat(
+  factory Message.fromJson(
+    Map<String, dynamic> json, {
+    MessageReply? reply,
+  }) {
+    return Message(
       id: json['id'].toString(),
 
-      type: (json['type'] ?? 'private').toString(),
+      chatId:
+          (json['conversation_id'] ??
+                  json['chat_id'] ??
+                  '')
+              .toString(),
 
-      title: json['title']?.toString(),
+      senderId:
+          (json['sender_id'] ?? '')
+              .toString(),
 
-      annonceId:
-          json['annonce_id'] is int
-              ? json['annonce_id'] as int
-              : int.tryParse(
-                json['annonce_id']?.toString() ?? '',
-              ),
+      type:
+          (json['type'] ?? 'text')
+              .toString(),
 
-      buyerId: json['buyer_id']?.toString(),
+      text:
+          (json['text'] ??
+                  json['content'] ??
+                  '')
+              .toString(),
 
-      sellerId: json['seller_id']?.toString(),
+      metadata:
+          (json['metadata'] ?? '{}')
+              .toString(),
+
+      replyTo:
+          json['reply_to']?.toString(),
 
       createdAt:
           DateTime.tryParse(
@@ -73,35 +68,54 @@ class Chat {
           ) ??
           DateTime.now(),
 
-      // Dans Koteka, updated_at représente
-      // l'activité la plus récente de la conversation.
-      lastMessageAt: DateTime.tryParse(
-        json['updated_at']?.toString() ??
-            json['last_message_at']?.toString() ??
-            '',
-      ),
+      editedAt:
+          DateTime.tryParse(
+            json['edited_at']?.toString() ?? '',
+          ),
 
-      deletedAt: DateTime.tryParse(
-        json['deleted_at']?.toString() ?? '',
-      ),
+      readAt:
+          DateTime.tryParse(
+            json['read_at']?.toString() ?? '',
+          ),
+
+      reply: reply,
     );
   }
 
-  /// Retourne true uniquement si le dernier message
-  /// vient de l'autre utilisateur et n'a pas encore été lu.
-  bool isUnreadFor(String currentUserId) {
-    if (lastMessageId == null) {
-      return false;
-    }
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'conversation_id': chatId,
+      'sender_id': senderId,
+      'text': text,
+      'created_at': createdAt.toIso8601String(),
+      'read_at': readAt?.toIso8601String(),
+    };
+  }
 
-    if (lastMessageSenderId == null) {
-      return false;
-    }
-
-    if (lastMessageSenderId == currentUserId) {
-      return false;
-    }
-
-    return lastMessageReadAt == null;
+  Message copyWith({
+    String? id,
+    String? senderId,
+    String? text,
+    String? chatId,
+    DateTime? createdAt,
+    String? type,
+    String? metadata,
+    DateTime? editedAt,
+    DateTime? readAt,
+  }) {
+    return Message(
+      id: id ?? this.id,
+      senderId: senderId ?? this.senderId,
+      chatId: chatId ?? this.chatId,
+      text: text ?? this.text,
+      type: type ?? this.type,
+      metadata: metadata ?? this.metadata,
+      editedAt: editedAt ?? this.editedAt,
+      createdAt: createdAt ?? this.createdAt,
+      readAt: readAt ?? this.readAt,
+      replyTo: replyTo,
+      reply: reply,
+    );
   }
 }
