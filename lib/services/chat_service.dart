@@ -507,46 +507,96 @@ class ChatServiceSupabase implements IChatService {
   // =========================================================
 
   @override
-  Stream<List<Chat>> subscribeToChatsUpdates(
-    List<String> chatIds,
-  ) {
-    final userId = _currentUserId();
+Stream<List<Chat>> subscribeToChatsUpdates(
+  List<String> chatIds,
+) {
+  final userId = _currentUserId();
 
-    if (userId == null || userId.isEmpty) {
-      return Stream.value([]);
-    }
-
-    return supabase
-        .from(conversations)
-        .stream(primaryKey: ['id'])
-        .map((rows) {
-          final visibleRows = rows.where(
-            (row) =>
-                row['buyer_id'] == userId ||
-                row['seller_id'] == userId,
-          );
-
-          final chats = visibleRows
-              .map(
-                (row) => Chat.fromJson(row),
-              )
-              .toList();
-
-          chats.sort((a, b) {
-            final aDate =
-                a.lastMessageAt ??
-                    a.createdAt;
-
-            final bDate =
-                b.lastMessageAt ??
-                    b.createdAt;
-
-            return bDate.compareTo(aDate);
-          });
-
-          return chats;
-        });
+  if (userId == null || userId.isEmpty) {
+    return Stream.value([]);
   }
+
+  return supabase
+      .from(conversations)
+      .stream(primaryKey: ['id'])
+      .map((rows) {
+        final visibleRows = rows.where(
+          (row) =>
+              row['buyer_id'] == userId ||
+              row['seller_id'] == userId,
+        );
+
+        final chats = visibleRows
+            .map(
+              (row) => Chat.fromJson(row),
+            )
+            .toList();
+
+        chats.sort((a, b) {
+          final aDate =
+              a.lastMessageAt ??
+              a.createdAt;
+
+          final bDate =
+              b.lastMessageAt ??
+              b.createdAt;
+
+          return bDate.compareTo(aDate);
+        });
+
+        return chats;
+      })
+      .asyncMap((chats) async {
+        for (final chat in chats) {
+          final lastMessage =
+              await supabase
+                  .from(messages)
+                  .select(
+                    'id, sender_id, text, created_at, read_at',
+                  )
+                  .eq(
+                    'conversation_id',
+                    chat.id,
+                  )
+                  .order(
+                    'created_at',
+                    ascending: false,
+                  )
+                  .limit(1)
+                  .maybeSingle();
+
+          if (lastMessage != null) {
+            chat.lastMessageId =
+                lastMessage['id']
+                    ?.toString();
+
+            chat.lastMessageSenderId =
+                lastMessage['sender_id']
+                    ?.toString();
+
+            chat.lastMessageText =
+                lastMessage['text']
+                    ?.toString();
+
+            chat.lastMessageCreatedAt =
+                DateTime.tryParse(
+              lastMessage['created_at']
+                      ?.toString() ??
+                  '',
+            );
+
+            chat.lastMessageReadAt =
+                DateTime.tryParse(
+              lastMessage['read_at']
+                      ?.toString() ??
+                  '',
+            );
+          }
+        }
+
+        return chats;
+      });
+}
 
   // =========================================================
   // SUPPRESSION DU COMPTE
