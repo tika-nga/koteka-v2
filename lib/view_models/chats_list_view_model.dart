@@ -25,6 +25,8 @@ class ChatsListViewModel extends ChangeNotifier {
   bool get isLoading => _isLoading;
 
   String? get error => _error;
+  
+  String? get userId => _userId;
 
   Map<String, (DateTime?, String?)> get chatIdlastReadAt =>
       _chatIdlastReadAt;
