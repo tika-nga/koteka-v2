@@ -3,8 +3,7 @@ class Chat {
   final String id;
 
   final String type;
-  String? annonceTitle;
-  String? annonceImageUrl;
+  final String? title;
 
   final int? annonceId;
   final String? buyerId;
@@ -13,6 +12,10 @@ class Chat {
   final DateTime createdAt;
   DateTime? lastMessageAt;
 
+  // Informations de l'annonce associée.
+  String? annonceTitle;
+  String? annonceImageUrl;
+
   // Informations du dernier message.
   String? lastMessageText;
   String? lastMessageSenderId;
@@ -20,27 +23,7 @@ class Chat {
   DateTime? lastMessageCreatedAt;
   DateTime? lastMessageReadAt;
 
-  // Conservé temporairement pour compatibilité
-  // avec l'ancien écran ChatScreen.
   DateTime? deletedAt;
-
-  Chat({
-    required this.id,
-    this.type = 'private',
-    this.title,
-    this.annonceId,
-    this.annonceTitle,
-    this.annonceImageUrl,
-    this.buyerId,
-    this.sellerId,
-    required this.createdAt,
-    this.lastMessageAt,
-    this.lastMessageText,
-    this.lastMessageSenderId,
-    this.lastMessageId,
-    this.lastMessageCreatedAt,
-    this.lastMessageReadAt,
-    this.deletedAt,
   });
 
   factory Chat.fromJson(
