@@ -13,9 +13,13 @@ class ChatsListViewModel extends ChangeNotifier {
   bool _isLoading = false;
   String? _error;
 
-  final Map<String, (DateTime?, String?)> _chatIdlastReadAt = {};
+  int _unreadMessagesCount = 0;
 
-  final Map<String, String> _chatIdChatParticipantName = {};
+  final Map<String, (DateTime?, String?)>
+      _chatIdlastReadAt = {};
+
+  final Map<String, String>
+      _chatIdChatParticipantName = {};
 
   ChatsListViewModel(
     this._chatService,
@@ -25,31 +29,75 @@ class ChatsListViewModel extends ChangeNotifier {
   bool get isLoading => _isLoading;
 
   String? get error => _error;
-  
+
   String? get userId => _userId;
 
-  Map<String, (DateTime?, String?)> get chatIdlastReadAt =>
-      _chatIdlastReadAt;
+  int get unreadMessagesCount =>
+      _unreadMessagesCount;
 
-  Map<String, String> get chatIdChatParticipantName =>
-      _chatIdChatParticipantName;
+  Map<String, (DateTime?, String?)>
+      get chatIdlastReadAt =>
+          _chatIdlastReadAt;
+
+  Map<String, String>
+      get chatIdChatParticipantName =>
+          _chatIdChatParticipantName;
 
   void _loadUser() {
-    _userId = _userService.getCurrentUserId();
+    _userId =
+        _userService.getCurrentUserId();
   }
 
   Future<bool> _checkUserId() async {
-    if (_userId == null || _userId!.isEmpty) {
+    if (_userId == null ||
+        _userId!.isEmpty) {
       _loadUser();
     }
 
-    if (_userId == null || _userId!.isEmpty) {
-      _error = 'Utilisateur non connecté';
+    if (_userId == null ||
+        _userId!.isEmpty) {
+      _error =
+          'Utilisateur non connecté';
+
+      _unreadMessagesCount = 0;
+
       return false;
     }
 
     return true;
   }
+
+  // =========================================================
+  // CHARGER LE NOMBRE TOTAL DE MESSAGES NON LUS
+  // =========================================================
+
+  Future<void>
+      refreshUnreadMessagesCount() async {
+    if (!await _checkUserId()) {
+      notifyListeners();
+      return;
+    }
+
+    try {
+      final count =
+          await _chatService
+              .fetchUnreadMessagesCount(
+        userId: _userId!,
+      );
+
+      if (_unreadMessagesCount != count) {
+        _unreadMessagesCount = count;
+        notifyListeners();
+      }
+    } catch (_) {
+      // On conserve le compteur actuel
+      // si une erreur réseau temporaire survient.
+    }
+  }
+
+  // =========================================================
+  // ENTRER DANS LA LISTE DES CONVERSATIONS
+  // =========================================================
 
   Future<void> enterChatsList() async {
     if (!await _checkUserId()) {
@@ -63,30 +111,45 @@ class ChatsListViewModel extends ChangeNotifier {
 
     try {
       final response =
-          await _chatService.fetchLastReadTimestampsForUser(
+          await _chatService
+              .fetchLastReadTimestampsForUser(
         userId: _userId!,
       );
 
       if (response
-          is FetchOneSuccess<Map<String, (DateTime?, String?)>>) {
+          is FetchOneSuccess<
+              Map<
+                  String,
+                  (DateTime?, String?)>>) {
         _chatIdlastReadAt
           ..clear()
           ..addAll(response.item);
       }
 
       final participants =
-          await _chatService.fetchChatParticipantsIdForUser(
+          await _chatService
+              .fetchChatParticipantsIdForUser(
         userId: _userId!,
       );
 
       if (participants
-          is FetchOneSuccess<Map<String, String>>) {
-        _chatIdChatParticipantName.clear();
+          is FetchOneSuccess<
+              Map<String, String>>) {
+        _chatIdChatParticipantName
+            .clear();
 
-        for (final entry in participants.item.entries) {
-          _chatIdChatParticipantName[entry.key] = 'Utilisateur';
+        for (final entry
+            in participants.item.entries) {
+          _chatIdChatParticipantName[
+              entry.key] = 'Utilisateur';
         }
       }
+
+      _unreadMessagesCount =
+          await _chatService
+              .fetchUnreadMessagesCount(
+        userId: _userId!,
+      );
     } catch (e) {
       _error =
           'Impossible de charger les conversations : $e';
@@ -96,22 +159,31 @@ class ChatsListViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> fetchChatsParticipantNames() async {
+  // =========================================================
+  // NOMS DES PARTICIPANTS
+  // =========================================================
+
+  Future<void>
+      fetchChatsParticipantNames() async {
     if (!await _checkUserId()) {
       return;
     }
 
     final response =
-        await _chatService.fetchChatParticipantsIdForUser(
+        await _chatService
+            .fetchChatParticipantsIdForUser(
       userId: _userId!,
     );
 
     if (response
-        is FetchOneSuccess<Map<String, String>>) {
+        is FetchOneSuccess<
+            Map<String, String>>) {
       _chatIdChatParticipantName.clear();
 
-      for (final entry in response.item.entries) {
-        _chatIdChatParticipantName[entry.key] = 'Utilisateur';
+      for (final entry
+          in response.item.entries) {
+        _chatIdChatParticipantName[
+            entry.key] = 'Utilisateur';
       }
 
       notifyListeners();
@@ -121,7 +193,8 @@ class ChatsListViewModel extends ChangeNotifier {
   Future<void> checkChatName({
     required String chatId,
   }) async {
-    if (_chatIdChatParticipantName.containsKey(chatId)) {
+    if (_chatIdChatParticipantName
+        .containsKey(chatId)) {
       return;
     }
 
@@ -130,30 +203,46 @@ class ChatsListViewModel extends ChangeNotifier {
     }
 
     final response =
-        await _chatService.fetchChatParticipantId(
+        await _chatService
+            .fetchChatParticipantId(
       chatId: chatId,
       userId: _userId!,
     );
 
-    if (response is FetchOneSuccess<String>) {
-      _chatIdChatParticipantName[chatId] = 'Utilisateur';
+    if (response
+        is FetchOneSuccess<String>) {
+      _chatIdChatParticipantName[
+          chatId] = 'Utilisateur';
+
       notifyListeners();
     }
   }
 
-  Stream<List<Chat>> subscribeChatsUpdates() {
-    if (_userId == null || _userId!.isEmpty) {
+  // =========================================================
+  // TEMPS RÉEL DES CONVERSATIONS
+  // =========================================================
+
+  Stream<List<Chat>>
+      subscribeChatsUpdates() {
+    if (_userId == null ||
+        _userId!.isEmpty) {
       _loadUser();
     }
 
-    if (_userId == null || _userId!.isEmpty) {
+    if (_userId == null ||
+        _userId!.isEmpty) {
       return Stream.value([]);
     }
 
-    return _chatService.subscribeToChatsUpdates(
+    return _chatService
+        .subscribeToChatsUpdates(
       const [],
     );
   }
+
+  // =========================================================
+  // MARQUER UNE CONVERSATION COMME LUE
+  // =========================================================
 
   void markChatAsRead({
     required String chatId,
@@ -166,6 +255,8 @@ class ChatsListViewModel extends ChangeNotifier {
     );
 
     notifyListeners();
+
+    refreshUnreadMessagesCount();
   }
 
   void updateChatReadState({
@@ -179,5 +270,7 @@ class ChatsListViewModel extends ChangeNotifier {
     );
 
     notifyListeners();
+
+    refreshUnreadMessagesCount();
   }
 }
