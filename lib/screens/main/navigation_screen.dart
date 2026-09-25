@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:flutter_marketplace_template/view_models/navigation_view_model.dart';
+import 'package:flutter_marketplace_template/view_models/chats_list_view_model.dart';
 
 class NavigationScreen extends StatefulWidget {
   const NavigationScreen({super.key});
