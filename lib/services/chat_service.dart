@@ -548,6 +548,26 @@ Stream<List<Chat>> subscribeToChatsUpdates(
       })
       .asyncMap((chats) async {
         for (final chat in chats) {
+         if (chat.annonceId != null) {
+  final annonce = await supabase
+      .from(annonces)
+      .select('title, imageUrl')
+      .eq(
+        'id',
+        chat.annonceId!,
+      )
+      .maybeSingle();
+
+  if (annonce != null) {
+    chat.annonceTitle =
+        annonce['title']
+            ?.toString();
+
+    chat.annonceImageUrl =
+        annonce['imageUrl']
+            ?.toString();
+  }
+         }
           final lastMessage =
               await supabase
                   .from(messages)
