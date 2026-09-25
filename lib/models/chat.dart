@@ -3,7 +3,8 @@ class Chat {
   final String id;
 
   final String type;
-  final String? title;
+  String? annonceTitle;
+  String? annonceImageUrl;
 
   final int? annonceId;
   final String? buyerId;
@@ -28,6 +29,8 @@ class Chat {
     this.type = 'private',
     this.title,
     this.annonceId,
+    this.annonceTitle,
+    this.annonceImageUrl,
     this.buyerId,
     this.sellerId,
     required this.createdAt,
