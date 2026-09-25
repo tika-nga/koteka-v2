@@ -19,7 +19,10 @@ abstract class IChatService {
   Future<FetchResponse<String>> getOrCreateConversation({
     required int annonceId,
   });
-
+Future<int> fetchUnreadMessagesCount({
+  required String userId,
+});
+  
   Future<FetchResponse<DateTime?>> getChatDeletedAt({
     required String chatId,
   });
@@ -66,7 +69,68 @@ abstract class IChatService {
   Stream<List<Chat>> subscribeToChatsUpdates(
     List<String> chatIds,
   );
+@override
+Future<int> fetchUnreadMessagesCount({
+  required String userId,
+}) async {
+  try {
+    final conversationRows =
+        await supabase
+            .from(conversations)
+            .select('id, buyer_id, seller_id');
 
+    final conversationIds =
+        (conversationRows as List)
+            .where(
+              (row) =>
+                  row['buyer_id']
+                          ?.toString() ==
+                      userId ||
+                  row['seller_id']
+                          ?.toString() ==
+                      userId,
+            )
+            .map(
+              (row) =>
+                  row['id'].toString(),
+            )
+            .toList();
+
+    if (conversationIds.isEmpty) {
+      return 0;
+    }
+
+    int unreadCount = 0;
+
+    for (final chatId
+        in conversationIds) {
+      final rows =
+          await supabase
+              .from(messages)
+              .select('id')
+              .eq(
+                'conversation_id',
+                chatId,
+              )
+              .neq(
+                'sender_id',
+                userId,
+              )
+              .isFilter(
+                'read_at',
+                null,
+              );
+
+      unreadCount +=
+          (rows as List).length;
+    }
+
+    return unreadCount;
+  } catch (_) {
+    return 0;
+  }
+}
+  
   Future<void> deleteUserChats(String userId);
 }
 
