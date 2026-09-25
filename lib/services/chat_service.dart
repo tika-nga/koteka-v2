@@ -326,45 +326,48 @@ class ChatServiceSupabase implements IChatService {
   // MARQUER UN MESSAGE COMME LU
   // =========================================================
 
-  @override
-  Future<void> setLastReadMessageAt({
-    required String chatId,
-    required String userId,
-    required String lastMessageId,
-    required DateTime timestamp,
-  }) async {
-    try {
-      final currentUserId = _currentUserId();
+@override
+Future<void> setLastReadMessageAt({
+  required String chatId,
+  required String userId,
+  required String lastMessageId,
+  required DateTime timestamp,
+}) async {
+  try {
+    final currentUserId = _currentUserId();
 
-      if (currentUserId == null ||
-          currentUserId != userId) {
-        return;
-      }
-
-      await supabase
-          .from(messages)
-          .update({
-            'read_at':
-                timestamp.toIso8601String(),
-          })
-          .eq(
-            'id',
-            lastMessageId,
-          )
-          .eq(
-            'conversation_id',
-            chatId,
-          )
-          .neq(
-            'sender_id',
-            userId,
-          );
-    } catch (e) {
-      Log.warning(
-        'Erreur lors du marquage du message comme lu : $e',
-      );
+    if (currentUserId == null ||
+        currentUserId != userId) {
+      return;
     }
+
+    // Quand l'utilisateur ouvre la conversation,
+    // tous les messages reçus encore non lus
+    // dans cette conversation deviennent lus.
+    await supabase
+        .from(messages)
+        .update({
+          'read_at':
+              timestamp.toIso8601String(),
+        })
+        .eq(
+          'conversation_id',
+          chatId,
+        )
+        .neq(
+          'sender_id',
+          userId,
+        )
+        .isFilter(
+          'read_at',
+          null,
+        );
+  } catch (e) {
+    Log.warning(
+      'Erreur lors du marquage des messages comme lus : $e',
+    );
   }
+}
 
   // =========================================================
   // INFORMATIONS DE LECTURE
