@@ -19,10 +19,11 @@ abstract class IChatService {
   Future<FetchResponse<String>> getOrCreateConversation({
     required int annonceId,
   });
-Future<int> fetchUnreadMessagesCount({
-  required String userId,
-});
-  
+
+  Future<int> fetchUnreadMessagesCount({
+    required String userId,
+  });
+
   Future<FetchResponse<DateTime?>> getChatDeletedAt({
     required String chatId,
   });
@@ -69,68 +70,7 @@ Future<int> fetchUnreadMessagesCount({
   Stream<List<Chat>> subscribeToChatsUpdates(
     List<String> chatIds,
   );
-@override
-Future<int> fetchUnreadMessagesCount({
-  required String userId,
-}) async {
-  try {
-    final conversationRows =
-        await supabase
-            .from(conversations)
-            .select('id, buyer_id, seller_id');
 
-    final conversationIds =
-        (conversationRows as List)
-            .where(
-              (row) =>
-                  row['buyer_id']
-                          ?.toString() ==
-                      userId ||
-                  row['seller_id']
-                          ?.toString() ==
-                      userId,
-            )
-            .map(
-              (row) =>
-                  row['id'].toString(),
-            )
-            .toList();
-
-    if (conversationIds.isEmpty) {
-      return 0;
-    }
-
-    int unreadCount = 0;
-
-    for (final chatId
-        in conversationIds) {
-      final rows =
-          await supabase
-              .from(messages)
-              .select('id')
-              .eq(
-                'conversation_id',
-                chatId,
-              )
-              .neq(
-                'sender_id',
-                userId,
-              )
-              .isFilter(
-                'read_at',
-                null,
-              );
-
-      unreadCount +=
-          (rows as List).length;
-    }
-
-    return unreadCount;
-  } catch (_) {
-    return 0;
-  }
-}
-  
   Future<void> deleteUserChats(String userId);
 }
 
@@ -230,17 +170,22 @@ class ChatServiceSupabase implements IChatService {
           created['id'].toString(),
         );
       } catch (_) {
-        // Protection contre deux créations simultanées.
-        // La contrainte UNIQUE côté Supabase garantit
-        // qu'une seule conversation existe.
-
         final existingAfterConflict =
             await supabase
                 .from(conversations)
                 .select('id')
-                .eq('annonce_id', annonceId)
-                .eq('buyer_id', buyerId)
-                .eq('seller_id', sellerId)
+                .eq(
+                  'annonce_id',
+                  annonceId,
+                )
+                .eq(
+                  'buyer_id',
+                  buyerId,
+                )
+                .eq(
+                  'seller_id',
+                  sellerId,
+                )
                 .maybeSingle();
 
         if (existingAfterConflict != null) {
@@ -290,8 +235,8 @@ class ChatServiceSupabase implements IChatService {
     required String chatId,
     required DateTime timestamp,
   }) async {
-    // updated_at est maintenant mis à jour automatiquement
-    // par le trigger Supabase créé précédemment.
+    // updated_at est mis à jour automatiquement
+    // par le trigger Supabase.
   }
 
   // =========================================================
@@ -362,7 +307,10 @@ class ChatServiceSupabase implements IChatService {
     return supabase
         .from(messages)
         .stream(primaryKey: ['id'])
-        .eq('conversation_id', chatId)
+        .eq(
+          'conversation_id',
+          chatId,
+        )
         .order('created_at')
         .map(
           (rows) => rows
@@ -399,9 +347,18 @@ class ChatServiceSupabase implements IChatService {
             'read_at':
                 timestamp.toIso8601String(),
           })
-          .eq('id', lastMessageId)
-          .eq('conversation_id', chatId)
-          .neq('sender_id', userId);
+          .eq(
+            'id',
+            lastMessageId,
+          )
+          .eq(
+            'conversation_id',
+            chatId,
+          )
+          .neq(
+            'sender_id',
+            userId,
+          );
     } catch (e) {
       Log.warning(
         'Erreur lors du marquage du message comme lu : $e',
@@ -447,8 +404,15 @@ class ChatServiceSupabase implements IChatService {
               'conversation_id',
               conversationId,
             )
-            .neq('sender_id', userId)
-            .not('read_at', 'is', null)
+            .neq(
+              'sender_id',
+              userId,
+            )
+            .not(
+              'read_at',
+              'is',
+              null,
+            )
             .order(
               'created_at',
               ascending: false,
@@ -492,8 +456,13 @@ class ChatServiceSupabase implements IChatService {
     try {
       final response = await supabase
           .from(conversations)
-          .select('buyer_id, seller_id')
-          .eq('id', chatId)
+          .select(
+            'buyer_id, seller_id',
+          )
+          .eq(
+            'id',
+            chatId,
+          )
           .maybeSingle();
 
       if (response == null) {
@@ -509,11 +478,15 @@ class ChatServiceSupabase implements IChatService {
           response['seller_id'].toString();
 
       if (buyerId == userId) {
-        return FetchOneSuccess(sellerId);
+        return FetchOneSuccess(
+          sellerId,
+        );
       }
 
       if (sellerId == userId) {
-        return FetchOneSuccess(buyerId);
+        return FetchOneSuccess(
+          buyerId,
+        );
       }
 
       return FetchOneFailure(
@@ -544,7 +517,8 @@ class ChatServiceSupabase implements IChatService {
       final Map<String, String> result = {};
 
       for (final row in response) {
-        final id = row['id'].toString();
+        final id =
+            row['id'].toString();
 
         final buyerId =
             row['buyer_id'].toString();
@@ -571,116 +545,205 @@ class ChatServiceSupabase implements IChatService {
   // =========================================================
 
   @override
-Stream<List<Chat>> subscribeToChatsUpdates(
-  List<String> chatIds,
-) {
-  final userId = _currentUserId();
+  Stream<List<Chat>> subscribeToChatsUpdates(
+    List<String> chatIds,
+  ) {
+    final userId = _currentUserId();
 
-  if (userId == null || userId.isEmpty) {
-    return Stream.value([]);
-  }
+    if (userId == null ||
+        userId.isEmpty) {
+      return Stream.value([]);
+    }
 
-  return supabase
-      .from(conversations)
-      .stream(primaryKey: ['id'])
-      .map((rows) {
-        final visibleRows = rows.where(
-          (row) =>
-              row['buyer_id'] == userId ||
-              row['seller_id'] == userId,
-        );
+    return supabase
+        .from(conversations)
+        .stream(
+          primaryKey: ['id'],
+        )
+        .map((rows) {
+          final visibleRows =
+              rows.where(
+            (row) =>
+                row['buyer_id']
+                        ?.toString() ==
+                    userId ||
+                row['seller_id']
+                        ?.toString() ==
+                    userId,
+          );
 
-        final chats = visibleRows
-            .map(
-              (row) => Chat.fromJson(row),
-            )
-            .toList();
-
-        chats.sort((a, b) {
-          final aDate =
-              a.lastMessageAt ??
-              a.createdAt;
-
-          final bDate =
-              b.lastMessageAt ??
-              b.createdAt;
-
-          return bDate.compareTo(aDate);
-        });
-
-        return chats;
-      })
-      .asyncMap((chats) async {
-        for (final chat in chats) {
-         if (chat.annonceId != null) {
-  final annonce = await supabase
-      .from(annonces)
-      .select('title, imageUrl')
-      .eq(
-        'id',
-        chat.annonceId!,
-      )
-      .maybeSingle();
-
-  if (annonce != null) {
-    chat.annonceTitle =
-        annonce['title']
-            ?.toString();
-
-    chat.annonceImageUrl =
-        annonce['imageUrl']
-            ?.toString();
-  }
-         }
-          final lastMessage =
-              await supabase
-                  .from(messages)
-                  .select(
-                    'id, sender_id, text, created_at, read_at',
+          final chats =
+              visibleRows
+                  .map(
+                    (row) =>
+                        Chat.fromJson(row),
                   )
-                  .eq(
-                    'conversation_id',
-                    chat.id,
-                  )
-                  .order(
-                    'created_at',
-                    ascending: false,
-                  )
-                  .limit(1)
-                  .maybeSingle();
+                  .toList();
 
-          if (lastMessage != null) {
-            chat.lastMessageId =
-                lastMessage['id']
-                    ?.toString();
+          chats.sort((a, b) {
+            final aDate =
+                a.lastMessageAt ??
+                    a.createdAt;
 
-            chat.lastMessageSenderId =
-                lastMessage['sender_id']
-                    ?.toString();
+            final bDate =
+                b.lastMessageAt ??
+                    b.createdAt;
 
-            chat.lastMessageText =
-                lastMessage['text']
-                    ?.toString();
-
-            chat.lastMessageCreatedAt =
-                DateTime.tryParse(
-              lastMessage['created_at']
-                      ?.toString() ??
-                  '',
+            return bDate.compareTo(
+              aDate,
             );
+          });
 
-            chat.lastMessageReadAt =
-                DateTime.tryParse(
-              lastMessage['read_at']
-                      ?.toString() ??
-                  '',
-            );
+          return chats;
+        })
+        .asyncMap((chats) async {
+          for (final chat in chats) {
+            // Informations de l'annonce.
+            if (chat.annonceId != null) {
+              final annonce =
+                  await supabase
+                      .from(annonces)
+                      .select(
+                        'title, imageUrl',
+                      )
+                      .eq(
+                        'id',
+                        chat.annonceId!,
+                      )
+                      .maybeSingle();
+
+              if (annonce != null) {
+                chat.annonceTitle =
+                    annonce['title']
+                        ?.toString();
+
+                chat.annonceImageUrl =
+                    annonce['imageUrl']
+                        ?.toString();
+              }
+            }
+
+            // Dernier message.
+            final lastMessage =
+                await supabase
+                    .from(messages)
+                    .select(
+                      'id, sender_id, text, created_at, read_at',
+                    )
+                    .eq(
+                      'conversation_id',
+                      chat.id,
+                    )
+                    .order(
+                      'created_at',
+                      ascending: false,
+                    )
+                    .limit(1)
+                    .maybeSingle();
+
+            if (lastMessage != null) {
+              chat.lastMessageId =
+                  lastMessage['id']
+                      ?.toString();
+
+              chat.lastMessageSenderId =
+                  lastMessage['sender_id']
+                      ?.toString();
+
+              chat.lastMessageText =
+                  lastMessage['text']
+                      ?.toString();
+
+              chat.lastMessageCreatedAt =
+                  DateTime.tryParse(
+                lastMessage['created_at']
+                        ?.toString() ??
+                    '',
+              );
+
+              chat.lastMessageReadAt =
+                  DateTime.tryParse(
+                lastMessage['read_at']
+                        ?.toString() ??
+                    '',
+              );
+            }
           }
-        }
 
-        return chats;
-      });
-}
+          return chats;
+        });
+  }
+
+  // =========================================================
+  // NOMBRE TOTAL DE MESSAGES NON LUS
+  // =========================================================
+
+  @override
+  Future<int> fetchUnreadMessagesCount({
+    required String userId,
+  }) async {
+    try {
+      final conversationRows =
+          await supabase
+              .from(conversations)
+              .select(
+                'id, buyer_id, seller_id',
+              );
+
+      final conversationIds =
+          conversationRows
+              .where(
+                (row) =>
+                    row['buyer_id']
+                            ?.toString() ==
+                        userId ||
+                    row['seller_id']
+                            ?.toString() ==
+                        userId,
+              )
+              .map(
+                (row) =>
+                    row['id'].toString(),
+              )
+              .toList();
+
+      if (conversationIds.isEmpty) {
+        return 0;
+      }
+
+      int unreadCount = 0;
+
+      for (final chatId
+          in conversationIds) {
+        final rows =
+            await supabase
+                .from(messages)
+                .select('id')
+                .eq(
+                  'conversation_id',
+                  chatId,
+                )
+                .neq(
+                  'sender_id',
+                  userId,
+                )
+                .isFilter(
+                  'read_at',
+                  null,
+                );
+
+        unreadCount += rows.length;
+      }
+
+      return unreadCount;
+    } catch (e) {
+      Log.warning(
+        'Erreur compteur messages non lus : $e',
+      );
+
+      return 0;
+    }
+  }
 
   // =========================================================
   // SUPPRESSION DU COMPTE
