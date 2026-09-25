@@ -221,36 +221,28 @@ class _ChatsListScreenState
                     ),
                     child: Row(
                       children: [
-                        Container(
-                          width: 52,
-                          height: 52,
-                          decoration:
-                              BoxDecoration(
-                            color:
-                                const Color.fromRGBO(
-                              16,
-                              20,
-                              94,
-                              0.08,
-                            ),
-                            borderRadius:
-                                BorderRadius.circular(
-                              12,
-                            ),
-                          ),
-                          child:
-                              const Icon(
-                            Icons
-                                .chat_bubble_outline,
-                            color:
-                                Color.fromRGBO(
-                              16,
-                              20,
-                              94,
-                              1,
-                            ),
-                          ),
-                        ),
+                        ClipRRect(
+  borderRadius: BorderRadius.circular(12),
+  child:
+      chat.annonceImageUrl != null &&
+              chat.annonceImageUrl!
+                  .trim()
+                  .isNotEmpty
+          ? Image.network(
+              chat.annonceImageUrl!,
+              width: 52,
+              height: 52,
+              fit: BoxFit.cover,
+              errorBuilder: (
+                context,
+                error,
+                stackTrace,
+              ) {
+                return _chatPlaceholder();
+              },
+            )
+          : _chatPlaceholder(),
+),
 
                         const SizedBox(
                           width: 12,
@@ -263,10 +255,14 @@ class _ChatsListScreenState
                                     .start,
                             children: [
                               Text(
-                                chat.annonceId !=
-                                        null
-                                    ? 'Annonce #${chat.annonceId}'
-                                    : 'Conversation',
+                                chat.annonceTitle
+            ?.trim()
+            .isNotEmpty ==
+        true
+    ? chat.annonceTitle!
+    : chat.annonceId != null
+        ? 'Annonce #${chat.annonceId}'
+        : 'Conversation',
                                 maxLines: 1,
                                 overflow:
                                     TextOverflow
@@ -393,6 +389,27 @@ class _ChatsListScreenState
     );
   }
 
+  Widget _chatPlaceholder() {
+  return Container(
+    width: 52,
+    height: 52,
+    color: const Color.fromRGBO(
+      16,
+      20,
+      94,
+      0.08,
+    ),
+    child: const Icon(
+      Icons.chat_bubble_outline,
+      color: Color.fromRGBO(
+        16,
+        20,
+        94,
+        1,
+      ),
+    ),
+  );
+  }
   String _formatDate(DateTime date) {
     final now = DateTime.now();
 
