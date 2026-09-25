@@ -78,6 +78,8 @@ class _ChatsListScreenState
           }
 
           final chats = snapshot.data!;
+          final currentUserId =
+              chatsListVM.userId;
 
           if (chats.isEmpty) {
             return const Center(
@@ -154,11 +156,26 @@ class _ChatsListScreenState
                   chats[index];
 
               final date =
-                  chat.lastMessageAt ??
+                  chat.lastMessageCreatedAt ??
+                      chat.lastMessageAt ??
                       chat.createdAt;
 
+              final isUnread =
+                  currentUserId != null &&
+                  currentUserId.isNotEmpty &&
+                  chat.isUnreadFor(
+                    currentUserId,
+                  );
+
               return Material(
-                color: Colors.white,
+                color: isUnread
+                    ? const Color.fromRGBO(
+                        16,
+                        20,
+                        94,
+                        0.08,
+                      )
+                    : Colors.white,
                 borderRadius:
                     BorderRadius.circular(
                   14,
@@ -168,8 +185,8 @@ class _ChatsListScreenState
                       BorderRadius.circular(
                     14,
                   ),
-                  onTap: () {
-                    Navigator.of(context)
+                  onTap: () async {
+                    await Navigator.of(context)
                         .push(
                       MaterialPageRoute(
                         builder:
@@ -185,10 +202,17 @@ class _ChatsListScreenState
                                       chat.id]
                                   ?.$2,
                           hasUnreadMessages:
-                              false,
+                              isUnread,
                         ),
                       ),
                     );
+
+                    if (!mounted) {
+                      return;
+                    }
+
+                    await chatsListVM
+                        .enterChatsList();
                   },
                   child: Padding(
                     padding:
@@ -248,14 +272,16 @@ class _ChatsListScreenState
                                     TextOverflow
                                         .ellipsis,
                                 style:
-                                    const TextStyle(
-                                  fontSize:
-                                      16,
+                                    TextStyle(
+                                  fontSize: 16,
                                   fontWeight:
-                                      FontWeight
-                                          .w600,
+                                      isUnread
+                                          ? FontWeight
+                                              .w700
+                                          : FontWeight
+                                              .w600,
                                   color:
-                                      Color.fromRGBO(
+                                      const Color.fromRGBO(
                                     16,
                                     20,
                                     94,
@@ -268,17 +294,45 @@ class _ChatsListScreenState
                                 height: 5,
                               ),
 
-                              Text(
-                                'Ouvrir la conversation',
-                                style:
-                                    TextStyle(
-                                  fontSize:
-                                      14,
-                                  color: Colors
-                                      .grey
-                                      .shade600,
+                              if (isUnread)
+                                const Text(
+                                  'Non lu',
+                                  style:
+                                      TextStyle(
+                                    fontSize: 14,
+                                    fontWeight:
+                                        FontWeight
+                                            .w700,
+                                    color:
+                                        Color.fromRGBO(
+                                      16,
+                                      20,
+                                      94,
+                                      1,
+                                    ),
+                                  ),
+                                )
+                              else
+                                Text(
+                                  chat.lastMessageText
+                                              ?.trim()
+                                              .isNotEmpty ==
+                                          true
+                                      ? chat
+                                          .lastMessageText!
+                                      : 'Ouvrir la conversation',
+                                  maxLines: 1,
+                                  overflow:
+                                      TextOverflow
+                                          .ellipsis,
+                                  style:
+                                      TextStyle(
+                                    fontSize: 14,
+                                    color: Colors
+                                        .grey
+                                        .shade600,
+                                  ),
                                 ),
-                              ),
                             ],
                           ),
                         ),
@@ -291,9 +345,24 @@ class _ChatsListScreenState
                           _formatDate(date),
                           style: TextStyle(
                             fontSize: 12,
-                            color: Colors
-                                .grey
-                                .shade600,
+                            fontWeight:
+                                isUnread
+                                    ? FontWeight
+                                        .w700
+                                    : FontWeight
+                                        .normal,
+                            color:
+                                isUnread
+                                    ? const Color
+                                        .fromRGBO(
+                                        16,
+                                        20,
+                                        94,
+                                        1,
+                                      )
+                                    : Colors
+                                        .grey
+                                        .shade600,
                           ),
                         ),
 
