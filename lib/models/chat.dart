@@ -1,7 +1,6 @@
 /// Conversation Koteka entre un acheteur et un vendeur.
 class Chat {
   final String id;
-
   final String type;
   final String? title;
 
@@ -23,12 +22,34 @@ class Chat {
   DateTime? lastMessageCreatedAt;
   DateTime? lastMessageReadAt;
 
+  // Compatibilité avec ChatScreen.
   DateTime? deletedAt;
+
+  Chat({
+    required this.id,
+    this.type = 'private',
+    this.title,
+    this.annonceId,
+    this.buyerId,
+    this.sellerId,
+    required this.createdAt,
+    this.lastMessageAt,
+    this.annonceTitle,
+    this.annonceImageUrl,
+    this.lastMessageText,
+    this.lastMessageSenderId,
+    this.lastMessageId,
+    this.lastMessageCreatedAt,
+    this.lastMessageReadAt,
+    this.deletedAt,
   });
 
   factory Chat.fromJson(
     Map<String, dynamic> json,
   ) {
+    final rawAnnonceId =
+        json['annonce_id'];
+
     return Chat(
       id: json['id'].toString(),
 
@@ -40,10 +61,10 @@ class Chat {
           json['title']?.toString(),
 
       annonceId:
-          json['annonce_id'] is int
-              ? json['annonce_id'] as int
+          rawAnnonceId is int
+              ? rawAnnonceId
               : int.tryParse(
-                  json['annonce_id']
+                  rawAnnonceId
                           ?.toString() ??
                       '',
                 ),
@@ -78,18 +99,17 @@ class Chat {
     );
   }
 
-  /// Indique si le dernier message reçu
-  /// n'a pas encore été lu.
   bool isUnreadFor(
     String currentUserId,
   ) {
-    if (lastMessageId == null ||
-        lastMessageSenderId == null) {
+    if (lastMessageId == null) {
       return false;
     }
 
-    // Son propre message n'est jamais
-    // considéré comme non lu.
+    if (lastMessageSenderId == null) {
+      return false;
+    }
+
     if (lastMessageSenderId ==
         currentUserId) {
       return false;
