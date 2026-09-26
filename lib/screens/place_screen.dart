@@ -21,6 +21,17 @@ class PlaceScreen extends StatefulWidget {
 
 class _PlaceScreenState extends State<PlaceScreen> {
   bool _isOpeningConversation = false;
+  bool get _isOwnAnnonce {
+  final currentUserId =
+      context.read<IUserService>().getCurrentUserId();
+
+  if (currentUserId == null ||
+      currentUserId.isEmpty) {
+    return false;
+  }
+
+  return widget.annonce.userId == currentUserId;
+  }
 
   static const Color _primaryColor = Color.fromRGBO(
     16,
@@ -566,61 +577,61 @@ class _PlaceScreenState extends State<PlaceScreen> {
                       ),
                     ],
 
-                    const SizedBox(height: 24),
+                    if (!_isOwnAnnonce) ...[
+  const SizedBox(height: 24),
 
-                    SizedBox(
-                      width: double.infinity,
-                      child: FilledButton.icon(
-                        onPressed:
-                            _isOpeningConversation
-                                ? null
-                                : _openConversation,
-                        style: FilledButton.styleFrom(
-                          backgroundColor:
-                              _primaryColor,
-                          foregroundColor:
-                              Colors.white,
-                          padding:
-                              const EdgeInsets
-                                  .symmetric(
-                            vertical: 15,
-                          ),
-                          shape:
-                              RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.circular(
-                              12,
-                            ),
-                          ),
-                        ),
-                        icon: _isOpeningConversation
-                            ? const SizedBox(
-                                width: 20,
-                                height: 20,
-                                child:
-                                    CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: Colors.white,
-                                ),
-                              )
-                            : const Icon(
-                                Icons
-                                    .chat_bubble_outline_rounded,
-                              ),
-                        label: Text(
-                          _isOpeningConversation
-                              ? 'Ouverture...'
-                              : annonce.isService
-                                  ? 'Contacter le prestataire'
-                                  : 'Envoyer un message',
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight:
-                                FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ),
+  SizedBox(
+    width: double.infinity,
+    child: FilledButton.icon(
+      onPressed:
+          _isOpeningConversation
+              ? null
+              : _openConversation,
+      style: FilledButton.styleFrom(
+        backgroundColor:
+            _primaryColor,
+        foregroundColor:
+            Colors.white,
+        padding:
+            const EdgeInsets.symmetric(
+          vertical: 15,
+        ),
+        shape:
+            RoundedRectangleBorder(
+          borderRadius:
+              BorderRadius.circular(
+            12,
+          ),
+        ),
+      ),
+      icon: _isOpeningConversation
+          ? const SizedBox(
+              width: 20,
+              height: 20,
+              child:
+                  CircularProgressIndicator(
+                strokeWidth: 2,
+                color: Colors.white,
+              ),
+            )
+          : const Icon(
+              Icons
+                  .chat_bubble_outline_rounded,
+            ),
+      label: Text(
+        _isOpeningConversation
+            ? 'Ouverture...'
+            : annonce.isService
+                ? 'Contacter le prestataire'
+                : 'Envoyer un message',
+        style: const TextStyle(
+          fontSize: 16,
+          fontWeight:
+              FontWeight.w600,
+        ),
+      ),
+    ),
+  ),
                   ],
                 ),
               ),
