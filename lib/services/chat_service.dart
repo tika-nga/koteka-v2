@@ -244,55 +244,89 @@ class ChatServiceSupabase implements IChatService {
   // =========================================================
 
   @override
-  Future<FetchResponse<Message>> sendMessage({
-    required String senderId,
-    required String chatId,
-    required String text,
-    String? replyTo,
-  }) async {
-    final cleanText = text.trim();
+@override
+Future<FetchResponse<Message>> sendMessage({
+  required String senderId,
+  required String chatId,
+  required String text,
+  String? replyTo,
+}) async {
+  final cleanText = text.trim();
 
-    if (cleanText.isEmpty) {
-      return FetchOneFailure(
-        'Le message est vide.',
-      );
-    }
-
-    try {
-      final currentUserId = _currentUserId();
-
-      if (currentUserId == null ||
-          currentUserId.isEmpty) {
-        return FetchOneFailure(
-          'Utilisateur non connecté',
-        );
-      }
-
-      if (currentUserId != senderId) {
-        return FetchOneFailure(
-          'Utilisateur invalide.',
-        );
-      }
-
-      final response = await supabase
-          .from(messages)
-          .insert({
-            'conversation_id': chatId,
-            'sender_id': currentUserId,
-            'text': cleanText,
-          })
-          .select()
-          .single();
-
-      return FetchOneSuccess(
-        Message.fromJson(response),
-      );
-    } catch (e) {
-      return FetchOneFailure(
-        'Erreur lors de l’envoi du message : $e',
-      );
-    }
+  if (cleanText.isEmpty) {
+    return FetchOneFailure(
+      'Le message est vide.',
+    );
   }
+
+  try {
+    final currentUserId = _currentUserId();
+
+    if (currentUserId == null ||
+        currentUserId.isEmpty) {
+      return FetchOneFailure(
+        'Utilisateur non connecté',
+      );
+    }
+
+    // Vérifie que l'utilisateur connecté
+    // appartient bien à cette conversation.
+    final conversation =
+        await supabase
+            .from(conversations)
+            .select(
+              'buyer_id, seller_id',
+            )
+            .eq(
+              'id',
+              chatId,
+            )
+            .maybeSingle();
+
+    if (conversation == null) {
+      return FetchOneFailure(
+        'Conversation introuvable.',
+      );
+    }
+
+    final buyerId =
+        conversation['buyer_id']
+            ?.toString();
+
+    final sellerId =
+        conversation['seller_id']
+            ?.toString();
+
+    if (currentUserId != buyerId &&
+        currentUserId != sellerId) {
+      return FetchOneFailure(
+        'Vous ne participez pas à cette conversation.',
+      );
+    }
+
+    final response =
+        await supabase
+            .from(messages)
+            .insert({
+              'conversation_id':
+                  chatId,
+              'sender_id':
+                  currentUserId,
+              'text':
+                  cleanText,
+            })
+            .select()
+            .single();
+
+    return FetchOneSuccess(
+      Message.fromJson(response),
+    );
+  } catch (e) {
+    return FetchOneFailure(
+      'Erreur lors de l’envoi du message : $e',
+    );
+  }
+}
 
   // =========================================================
   // MESSAGES TEMPS RÉEL
