@@ -1487,21 +1487,17 @@ class _ReviewAdScreenState
         ),
       );
 
-      // Sélectionne Accueil dans la
-      // navigation principale.
-      final navigation =
-          context.read<
-              NavigationViewModel>();
+ final navigation =
+    context.read<NavigationViewModel>();
 
-      navigation
-          .onDestinationSelected(0);
+// Ferme "Vérifier l’annonce"
+Navigator.of(context).pop();
 
-      // Ferme les écrans Vérification
-      // et Photo pour revenir à
-      // l'écran principal.
-      Navigator.of(context).popUntil(
-        (route) => route.isFirst,
-      );
+// Ferme "Ajouter une photo"
+Navigator.of(context).pop();
+
+// Affiche directement Accueil
+navigation.onDestinationSelected(0);
     } catch (e) {
       if (!mounted) return;
 
