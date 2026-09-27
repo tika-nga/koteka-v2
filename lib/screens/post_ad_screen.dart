@@ -1490,22 +1490,10 @@ class _ReviewAdScreenState
  final navigation =
     context.read<NavigationViewModel>();
 
-// Sélectionne Accueil
-navigation.onDestinationSelected(0);
-
-// Supprime tous les écrans ouverts pendant
-// le dépôt de l'annonce et revient à l'écran principal.
 Navigator.of(context).popUntil(
   (route) => route.isFirst,
 );
 
-// Ferme "Vérifier l’annonce"
-Navigator.of(context).pop();
-
-// Ferme "Ajouter une photo"
-Navigator.of(context).pop();
-
-// Affiche directement Accueil
 navigation.onDestinationSelected(0);
     } catch (e) {
       if (!mounted) return;
