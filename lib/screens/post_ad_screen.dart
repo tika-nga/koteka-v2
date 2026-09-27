@@ -824,22 +824,15 @@ class _PostAdScreenState extends State<PostAdScreen> {
 
           const SizedBox(height: 24),
 
-          _textField(
-            controller: _titleController,
-            label: _isService
-                ? 'Titre de la prestation'
-                : 'Titre de l’annonce',
-          ),
-
-          _space(),
-
-          if (!_isService)
-            _textField(
-              controller: _priceController,
-              label: 'Prix',
-              hint: 'Prix en FC',
-              number: true,
-            ),
+          if (!_isService) ...[
+  _textField(
+    controller: _priceController,
+    label: 'Prix',
+    hint: 'Prix en FC',
+    number: true,
+  ),
+  _space(),
+],
 
           if (!_isService) _space(),
 
