@@ -5,8 +5,8 @@ import 'package:flutter_marketplace_template/models/annonce.dart';
 import 'package:flutter_marketplace_template/screens/chat_screen.dart';
 import 'package:flutter_marketplace_template/services/chat_service.dart';
 import 'package:flutter_marketplace_template/services/fetch_response.dart';
+import 'package:flutter_marketplace_template/services/user_service.dart';
 import 'package:flutter_marketplace_template/view_models/favorite_places_view_model.dart';
-
 class PlaceScreen extends StatefulWidget {
   final Annonce annonce;
 
@@ -577,61 +577,62 @@ class _PlaceScreenState extends State<PlaceScreen> {
                       ),
                     ],
 
-                    if (!_isOwnAnnonce) ...[
-  const SizedBox(height: 24),
+                                        if (!_isOwnAnnonce) ...[
+                      const SizedBox(height: 24),
 
-  SizedBox(
-    width: double.infinity,
-    child: FilledButton.icon(
-      onPressed:
-          _isOpeningConversation
-              ? null
-              : _openConversation,
-      style: FilledButton.styleFrom(
-        backgroundColor:
-            _primaryColor,
-        foregroundColor:
-            Colors.white,
-        padding:
-            const EdgeInsets.symmetric(
-          vertical: 15,
-        ),
-        shape:
-            RoundedRectangleBorder(
-          borderRadius:
-              BorderRadius.circular(
-            12,
-          ),
-        ),
-      ),
-      icon: _isOpeningConversation
-          ? const SizedBox(
-              width: 20,
-              height: 20,
-              child:
-                  CircularProgressIndicator(
-                strokeWidth: 2,
-                color: Colors.white,
-              ),
-            )
-          : const Icon(
-              Icons
-                  .chat_bubble_outline_rounded,
-            ),
-      label: Text(
-        _isOpeningConversation
-            ? 'Ouverture...'
-            : annonce.isService
-                ? 'Contacter le prestataire'
-                : 'Envoyer un message',
-        style: const TextStyle(
-          fontSize: 16,
-          fontWeight:
-              FontWeight.w600,
-        ),
-      ),
-    ),
-  ),
+                      SizedBox(
+                        width: double.infinity,
+                        child: FilledButton.icon(
+                          onPressed:
+                              _isOpeningConversation
+                                  ? null
+                                  : _openConversation,
+                          style: FilledButton.styleFrom(
+                            backgroundColor:
+                                _primaryColor,
+                            foregroundColor:
+                                Colors.white,
+                            padding:
+                                const EdgeInsets.symmetric(
+                              vertical: 15,
+                            ),
+                            shape:
+                                RoundedRectangleBorder(
+                              borderRadius:
+                                  BorderRadius.circular(
+                                12,
+                              ),
+                            ),
+                          ),
+                          icon: _isOpeningConversation
+                              ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child:
+                                      CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Colors.white,
+                                  ),
+                                )
+                              : const Icon(
+                                  Icons
+                                      .chat_bubble_outline_rounded,
+                                ),
+                          label: Text(
+                            _isOpeningConversation
+                                ? 'Ouverture...'
+                                : annonce.isService
+                                    ? 'Contacter le prestataire'
+                                    : 'Envoyer un message',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight:
+                                  FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),
