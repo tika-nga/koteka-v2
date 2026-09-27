@@ -2,10 +2,10 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import 'package:flutter_marketplace_template/models/annonce.dart';
-import 'package:flutter_marketplace_template/screens/place_screen.dart';
+import 'package:flutter_marketplace_template/view_models/navigation_view_model.dart';
 
 class PostAdScreen extends StatefulWidget {
   const PostAdScreen({super.key});
@@ -49,7 +49,6 @@ class _PostAdScreenState extends State<PostAdScreen> {
       'Pièces automobiles',
       'Pièces moto/quad',
     ],
-
     'Électronique': [
       'Ordinateurs',
       'Téléphone',
@@ -59,7 +58,6 @@ class _PostAdScreenState extends State<PostAdScreen> {
       'Tablettes',
       'Consoles et jeux vidéo',
     ],
-
     'Instruments': [
       'Guitares',
       'Pianos / Claviers',
@@ -68,24 +66,20 @@ class _PostAdScreenState extends State<PostAdScreen> {
       'Autres instruments',
       'Accessoires instruments',
     ],
-
     'Électroménager': [
       'Électroménager',
     ],
-
     'Maison / Ndaku': [
-  'Table',
-  'Armoire',
-  'Chaise',
-  'Lit',
-  'Matelas',
-],
-
+      'Table',
+      'Armoire',
+      'Chaise',
+      'Lit',
+      'Matelas',
+    ],
     'Matériel chantier': [
       'Machines',
       'Outillage',
     ],
-
     'Prestations de services': [
       'Bâtiment / Construction',
       'Mécanique automobile / moto',
@@ -102,7 +96,6 @@ class _PostAdScreenState extends State<PostAdScreen> {
       'Formation / Cours',
       'Autres services',
     ],
-
     'Autres': [
       'Autres',
     ],
@@ -309,7 +302,6 @@ class _PostAdScreenState extends State<PostAdScreen> {
           ),
         ),
         const SizedBox(height: 6),
-
         RadioListTile<String>(
           contentPadding: EdgeInsets.zero,
           title: const Text('Prix fixe'),
@@ -323,7 +315,6 @@ class _PostAdScreenState extends State<PostAdScreen> {
             });
           },
         ),
-
         RadioListTile<String>(
           contentPadding: EdgeInsets.zero,
           title: const Text('Sur devis'),
@@ -338,7 +329,6 @@ class _PostAdScreenState extends State<PostAdScreen> {
             });
           },
         ),
-
         if (_pricingType == 'Prix fixe') ...[
           const SizedBox(height: 8),
           _textField(
@@ -399,27 +389,27 @@ class _PostAdScreenState extends State<PostAdScreen> {
             label: 'Type de meuble',
           ),
           items: const [
-  DropdownMenuItem(
-    value: 'Table',
-    child: Text('Table'),
-  ),
-  DropdownMenuItem(
-    value: 'Armoire',
-    child: Text('Armoire'),
-  ),
-  DropdownMenuItem(
-    value: 'Chaise',
-    child: Text('Chaise'),
-  ),
-  DropdownMenuItem(
-    value: 'Lit',
-    child: Text('Lit'),
-  ),
-  DropdownMenuItem(
-    value: 'Matelas',
-    child: Text('Matelas'),
-  ),
-],
+            DropdownMenuItem(
+              value: 'Table',
+              child: Text('Table'),
+            ),
+            DropdownMenuItem(
+              value: 'Armoire',
+              child: Text('Armoire'),
+            ),
+            DropdownMenuItem(
+              value: 'Chaise',
+              child: Text('Chaise'),
+            ),
+            DropdownMenuItem(
+              value: 'Lit',
+              child: Text('Lit'),
+            ),
+            DropdownMenuItem(
+              value: 'Matelas',
+              child: Text('Matelas'),
+            ),
+          ],
           onChanged: (value) {
             setState(() {
               _selectedItemType = value;
@@ -454,7 +444,6 @@ class _PostAdScreenState extends State<PostAdScreen> {
             });
           },
         ),
-
         if (_selectedItemType == 'Console') ...[
           _space(),
           _textField(
@@ -471,7 +460,6 @@ class _PostAdScreenState extends State<PostAdScreen> {
           _space(),
           _conditionField(),
         ],
-
         if (_selectedItemType == 'Jeu') ...[
           _space(),
           _textField(
@@ -719,7 +707,9 @@ class _PostAdScreenState extends State<PostAdScreen> {
   }
 
   void _continueToPhotos() {
-    final title = _titleController.text.trim();
+    final title =
+        _titleController.text.trim();
+
     final description =
         _descriptionController.text.trim();
 
@@ -781,7 +771,8 @@ class _PostAdScreenState extends State<PostAdScreen> {
     }
 
     final price =
-        _isService && _pricingType == 'Sur devis'
+        _isService &&
+                _pricingType == 'Sur devis'
             ? '0'
             : _priceController.text.trim();
 
@@ -799,17 +790,23 @@ class _PostAdScreenState extends State<PostAdScreen> {
           brand: _brandController.text.trim(),
           model: _modelController.text.trim(),
           manufactureYear:
-              int.tryParse(_yearController.text.trim()),
+              int.tryParse(
+            _yearController.text.trim(),
+          ),
           horsepower:
               int.tryParse(
             _horsepowerController.text.trim(),
           ),
-          fuelType: _selectedFuel ?? '',
+          fuelType:
+              _selectedFuel ?? '',
           mileage:
-              int.tryParse(_mileageController.text.trim()),
+              int.tryParse(
+            _mileageController.text.trim(),
+          ),
           itemCondition:
               _selectedCondition ?? '',
-          itemType: _selectedItemType ?? '',
+          itemType:
+              _selectedItemType ?? '',
           compatibleConsole:
               _selectedConsole ?? '',
           usageHours:
@@ -1000,7 +997,8 @@ class _PostAdScreenState extends State<PostAdScreen> {
           _space(),
 
           TextField(
-            controller: _descriptionController,
+            controller:
+                _descriptionController,
             maxLines: 5,
             decoration: _decoration(
               label: _isService
@@ -1014,7 +1012,8 @@ class _PostAdScreenState extends State<PostAdScreen> {
           SizedBox(
             height: 55,
             child: FilledButton.icon(
-              onPressed: _continueToPhotos,
+              onPressed:
+                  _continueToPhotos,
               icon: const Icon(
                 Icons.arrow_forward,
               ),
@@ -1090,7 +1089,8 @@ class AddPhotoScreen extends StatefulWidget {
 
 class _AddPhotoScreenState
     extends State<AddPhotoScreen> {
-  final ImagePicker _picker = ImagePicker();
+  final ImagePicker _picker =
+      ImagePicker();
 
   XFile? _image;
 
@@ -1101,7 +1101,8 @@ class _AddPhotoScreenState
       builder: (context) {
         return SafeArea(
           child: Column(
-            mainAxisSize: MainAxisSize.min,
+            mainAxisSize:
+                MainAxisSize.min,
             children: [
               ListTile(
                 leading: const Icon(
@@ -1110,7 +1111,8 @@ class _AddPhotoScreenState
                 title: const Text(
                   'Choisir dans la galerie',
                 ),
-                onTap: () => Navigator.pop(
+                onTap: () =>
+                    Navigator.pop(
                   context,
                   ImageSource.gallery,
                 ),
@@ -1122,7 +1124,8 @@ class _AddPhotoScreenState
                 title: const Text(
                   'Prendre une photo',
                 ),
-                onTap: () => Navigator.pop(
+                onTap: () =>
+                    Navigator.pop(
                   context,
                   ImageSource.camera,
                 ),
@@ -1135,7 +1138,8 @@ class _AddPhotoScreenState
 
     if (source == null) return;
 
-    final image = await _picker.pickImage(
+    final image =
+        await _picker.pickImage(
       source: source,
       imageQuality: 85,
     );
@@ -1153,12 +1157,15 @@ class _AddPhotoScreenState
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => ReviewAdScreen(
+        builder: (_) =>
+            ReviewAdScreen(
           title: widget.title,
           price: widget.price,
           city: widget.city,
-          district: widget.district,
-          description: widget.description,
+          district:
+              widget.district,
+          description:
+              widget.description,
           imagePath: _image!.path,
           family: widget.family,
           category: widget.category,
@@ -1166,18 +1173,26 @@ class _AddPhotoScreenState
           model: widget.model,
           manufactureYear:
               widget.manufactureYear,
-          horsepower: widget.horsepower,
-          fuelType: widget.fuelType,
-          mileage: widget.mileage,
+          horsepower:
+              widget.horsepower,
+          fuelType:
+              widget.fuelType,
+          mileage:
+              widget.mileage,
           itemCondition:
               widget.itemCondition,
-          itemType: widget.itemType,
+          itemType:
+              widget.itemType,
           compatibleConsole:
               widget.compatibleConsole,
-          usageHours: widget.usageHours,
-          consoleName: widget.consoleName,
-          gameName: widget.gameName,
-          pricingType: widget.pricingType,
+          usageHours:
+              widget.usageHours,
+          consoleName:
+              widget.consoleName,
+          gameName:
+              widget.gameName,
+          pricingType:
+              widget.pricingType,
         ),
       ),
     );
@@ -1192,7 +1207,8 @@ class _AddPhotoScreenState
         ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
+        padding:
+            const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment:
               CrossAxisAlignment.stretch,
@@ -1200,14 +1216,19 @@ class _AddPhotoScreenState
             if (_image != null)
               Container(
                 height: 300,
-                decoration: BoxDecoration(
+                decoration:
+                    BoxDecoration(
                   color: Colors.black,
                   borderRadius:
-                      BorderRadius.circular(12),
+                      BorderRadius.circular(
+                    12,
+                  ),
                 ),
                 child: ClipRRect(
                   borderRadius:
-                      BorderRadius.circular(12),
+                      BorderRadius.circular(
+                    12,
+                  ),
                   child: Image.file(
                     File(_image!.path),
                     fit: BoxFit.contain,
@@ -1217,11 +1238,14 @@ class _AddPhotoScreenState
             else
               Container(
                 height: 220,
-                decoration: BoxDecoration(
+                decoration:
+                    BoxDecoration(
                   color:
                       Colors.grey.shade200,
                   borderRadius:
-                      BorderRadius.circular(12),
+                      BorderRadius.circular(
+                    12,
+                  ),
                 ),
                 child: const Icon(
                   Icons
@@ -1233,7 +1257,8 @@ class _AddPhotoScreenState
             const SizedBox(height: 20),
 
             OutlinedButton.icon(
-              onPressed: _chooseImage,
+              onPressed:
+                  _chooseImage,
               icon: const Icon(
                 Icons
                     .add_photo_alternate_outlined,
@@ -1248,9 +1273,10 @@ class _AddPhotoScreenState
             const SizedBox(height: 24),
 
             FilledButton(
-              onPressed: _image == null
-                  ? null
-                  : _continueToReview,
+              onPressed:
+                  _image == null
+                      ? null
+                      : _continueToReview,
               child: const Text(
                 'Continuer',
               ),
@@ -1327,7 +1353,8 @@ class _ReviewAdScreenState
   String get _displayPrice {
     if (widget.family ==
             'Prestations de services' &&
-        widget.pricingType == 'Sur devis') {
+        widget.pricingType ==
+            'Sur devis') {
       return 'Sur devis';
     }
 
@@ -1344,6 +1371,7 @@ class _ReviewAdScreenState
     try {
       final supabase =
           Supabase.instance.client;
+
       final user =
           supabase.auth.currentUser;
 
@@ -1366,37 +1394,54 @@ class _ReviewAdScreenState
             imageFile,
           );
 
-      final imageUrl = supabase.storage
-          .from('annonces')
-          .getPublicUrl(fileName);
+      final imageUrl =
+          supabase.storage
+              .from('annonces')
+              .getPublicUrl(
+                fileName,
+              );
 
-      final data = <String, dynamic>{
-        'title': widget.title.trim(),
-        'price': widget.price.trim(),
-        'city': widget.city.trim(),
-        'district': widget.district.trim(),
+      final data =
+          <String, dynamic>{
+        'title':
+            widget.title.trim(),
+        'price':
+            widget.price.trim(),
+        'city':
+            widget.city.trim(),
+        'district':
+            widget.district.trim(),
         'description':
             widget.description.trim(),
-        'family': widget.family,
-        'category': widget.category,
-        'user_id': user.id,
-        'imageUrl': imageUrl,
+        'family':
+            widget.family,
+        'category':
+            widget.category,
+        'user_id':
+            user.id,
+        'imageUrl':
+            imageUrl,
         'created_at':
-            DateTime.now().toIso8601String(),
-        'brand': widget.brand.isEmpty
-            ? null
-            : widget.brand,
-        'model': widget.model.isEmpty
-            ? null
-            : widget.model,
+            DateTime.now()
+                .toIso8601String(),
+        'brand':
+            widget.brand.isEmpty
+                ? null
+                : widget.brand,
+        'model':
+            widget.model.isEmpty
+                ? null
+                : widget.model,
         'manufacture_year':
             widget.manufactureYear,
-        'horsepower': widget.horsepower,
+        'horsepower':
+            widget.horsepower,
         'fuel_type':
             widget.fuelType.isEmpty
                 ? null
                 : widget.fuelType,
-        'mileage': widget.mileage,
+        'mileage':
+            widget.mileage,
         'item_condition':
             widget.itemCondition.isEmpty
                 ? null
@@ -1415,28 +1460,21 @@ class _ReviewAdScreenState
             widget.pricingType,
       };
 
-      if (widget.itemType == 'Console') {
+      if (widget.itemType ==
+          'Console') {
         data['brand'] =
             widget.consoleName;
       }
 
-      if (widget.itemType == 'Jeu') {
+      if (widget.itemType ==
+          'Jeu') {
         data['model'] =
             widget.gameName;
       }
 
-      final insertedData =
-          await supabase
-              .from('annonces')
-              .insert(data)
-              .select()
-              .single();
-
-      final annonce = Annonce.fromJson(
-        Map<String, dynamic>.from(
-          insertedData,
-        ),
-      );
+      await supabase
+          .from('annonces')
+          .insert(data);
 
       if (!mounted) return;
 
@@ -1449,13 +1487,19 @@ class _ReviewAdScreenState
         ),
       );
 
-      Navigator.of(context)
-          .pushAndRemoveUntil(
-        MaterialPageRoute(
-          builder: (_) => PlaceScreen(
-            annonce: annonce,
-          ),
-        ),
+      // Sélectionne Accueil dans la
+      // navigation principale.
+      final navigation =
+          context.read<
+              NavigationViewModel>();
+
+      navigation
+          .onDestinationSelected(0);
+
+      // Ferme les écrans Vérification
+      // et Photo pour revenir à
+      // l'écran principal.
+      Navigator.of(context).popUntil(
         (route) => route.isFirst,
       );
     } catch (e) {
@@ -1509,21 +1553,27 @@ class _ReviewAdScreenState
         ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
+        padding:
+            const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment:
               CrossAxisAlignment.stretch,
           children: [
             Container(
               height: 300,
-              decoration: BoxDecoration(
+              decoration:
+                  BoxDecoration(
                 color: Colors.black,
                 borderRadius:
-                    BorderRadius.circular(12),
+                    BorderRadius.circular(
+                  12,
+                ),
               ),
               child: ClipRRect(
                 borderRadius:
-                    BorderRadius.circular(12),
+                    BorderRadius.circular(
+                  12,
+                ),
                 child: Image.file(
                   File(widget.imagePath),
                   fit: BoxFit.contain,
@@ -1559,6 +1609,7 @@ class _ReviewAdScreenState
               'Famille',
               widget.family,
             ),
+
             _row(
               'Catégorie',
               widget.category,
@@ -1584,14 +1635,16 @@ class _ReviewAdScreenState
                     .toString(),
               ),
 
-            if (widget.horsepower != null)
+            if (widget.horsepower !=
+                null)
               _row(
                 'CV',
                 widget.horsepower
                     .toString(),
               ),
 
-            if (widget.fuelType.isNotEmpty)
+            if (widget
+                .fuelType.isNotEmpty)
               _row(
                 'Carburant',
                 widget.fuelType,
@@ -1603,7 +1656,8 @@ class _ReviewAdScreenState
                 '${widget.mileage} km',
               ),
 
-            if (widget.itemType.isNotEmpty)
+            if (widget
+                .itemType.isNotEmpty)
               _row(
                 'Type',
                 widget.itemType,
@@ -1614,10 +1668,12 @@ class _ReviewAdScreenState
                 .isNotEmpty)
               _row(
                 'Console compatible',
-                widget.compatibleConsole,
+                widget
+                    .compatibleConsole,
               ),
 
-            if (widget.usageHours != null)
+            if (widget.usageHours !=
+                null)
               _row(
                 'Heures d’utilisation',
                 '${widget.usageHours} h',
@@ -1642,6 +1698,7 @@ class _ReviewAdScreenState
               'Ville',
               widget.city,
             ),
+
             _row(
               'Commune',
               widget.district,
@@ -1660,16 +1717,19 @@ class _ReviewAdScreenState
 
             const SizedBox(height: 8),
 
-            Text(widget.description),
+            Text(
+              widget.description,
+            ),
 
             const SizedBox(height: 32),
 
             SizedBox(
               height: 52,
               child: FilledButton(
-                onPressed: _isPublishing
-                    ? null
-                    : _publishAd,
+                onPressed:
+                    _isPublishing
+                        ? null
+                        : _publishAd,
                 child: _isPublishing
                     ? const SizedBox(
                         width: 22,
