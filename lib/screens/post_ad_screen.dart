@@ -164,7 +164,11 @@ class _PostAdScreenState extends State<PostAdScreen> {
       _selectedCategory == 'Motos / Quads';
 
   bool get _isFurniture =>
-      _selectedCategory == 'Meubles';
+      _selectedCategory == 'Table' ||
+      _selectedCategory == 'Armoire' ||
+      _selectedCategory == 'Chaise' ||
+      _selectedCategory == 'Lit' ||
+      _selectedCategory == 'Matelas';
 
   bool get _isConsoleGames =>
       _selectedCategory == 'Consoles et jeux vidéo';
@@ -383,40 +387,6 @@ class _PostAdScreenState extends State<PostAdScreen> {
 
     if (_isFurniture) {
       return [
-        DropdownButtonFormField<String>(
-          value: _selectedItemType,
-          decoration: _decoration(
-            label: 'Type de meuble',
-          ),
-          items: const [
-            DropdownMenuItem(
-              value: 'Table',
-              child: Text('Table'),
-            ),
-            DropdownMenuItem(
-              value: 'Armoire',
-              child: Text('Armoire'),
-            ),
-            DropdownMenuItem(
-              value: 'Chaise',
-              child: Text('Chaise'),
-            ),
-            DropdownMenuItem(
-              value: 'Lit',
-              child: Text('Lit'),
-            ),
-            DropdownMenuItem(
-              value: 'Matelas',
-              child: Text('Matelas'),
-            ),
-          ],
-          onChanged: (value) {
-            setState(() {
-              _selectedItemType = value;
-            });
-          },
-        ),
-        _space(),
         _conditionField(),
       ];
     }
@@ -623,10 +593,9 @@ class _PostAdScreenState extends State<PostAdScreen> {
     }
 
     if (_isFurniture &&
-        (_selectedItemType == null ||
-            _selectedCondition == null)) {
+        _selectedCondition == null) {
       _showMessage(
-        'Veuillez renseigner le type de meuble et son état.',
+        'Veuillez renseigner l’état du meuble.',
       );
       return false;
     }
@@ -1487,14 +1456,22 @@ class _ReviewAdScreenState
         ),
       );
 
- final navigation =
-    context.read<NavigationViewModel>();
+      // ==================================================
+      // APRÈS PUBLICATION :
+      // RETOUR DIRECT À L'ACCUEIL
+      // ==================================================
 
-Navigator.of(context).popUntil(
-  (route) => route.isFirst,
-);
+      final navigation =
+          context.read<NavigationViewModel>();
 
-navigation.onDestinationSelected(0);
+      // L'accueil correspond à l'index 0.
+      navigation.onDestinationSelected(0);
+
+      // Supprime les écrans Photo et Vérification
+      // et revient à l'écran principal de l'application.
+      Navigator.of(context).popUntil(
+        (route) => route.isFirst,
+      );
     } catch (e) {
       if (!mounted) return;
 
