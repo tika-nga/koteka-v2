@@ -12,12 +12,45 @@ abstract class IUserService {
   User requireUser();
   String? getCurrentUserId();
   Future<UserResult> createUserRecord(String uid, String email);
-  Future<UserResult> changeUserNickname(String nickname);
-  Future<FetchResponse<String?>> getUserNickname(String userId);
-  Future<UserResult> changePremiumStatus(bool isPremium);
-  Future<UserResult> getUser();
-  Future<UserResult> uploadAvatarFromBytes(Uint8List bytes, String fileExt);
-  Future<UserResult> deleteAvatar();
+  @override
+Future<UserResult> changeUserNickname(String nickname) async {
+  try {
+    final uid = getCurrentUserId();
+
+    if (uid == null || uid.isEmpty) {
+      return const UserError(
+        errorMessage: 'Utilisateur non connecté.',
+      );
+    }
+
+    final result = await supabase
+        .from(users)
+        .update({
+          'nickname': nickname.trim(),
+        })
+        .eq('id', uid)
+        .select();
+
+    Log.info('Modification du nom : $result');
+
+    if (result.isEmpty) {
+      return const UserError(
+        errorMessage:
+            'Le profil n’a pas été modifié. Vérifiez les autorisations Supabase.',
+      );
+    }
+
+    return UserSuccess();
+  } catch (e) {
+    Log.warning(
+      'Erreur modification du nom : $e',
+    );
+
+    return UserError(
+      errorMessage:
+          'Impossible de modifier le nom : $e',
+    );
+  }
 }
 
 /// Service for handling user-related operations via Supabase.
