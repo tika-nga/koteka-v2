@@ -25,6 +25,10 @@ class Annonce {
   final String? compatibleConsole;
   final int? usageHours;
   final String? pricingType;
+  final String? vehicleType;
+  final String? transmission;
+  final int? doorCount;
+  final int? seatCount;
 
   final DateTime? expiresAt;
   final DateTime? renewedAt;
@@ -64,6 +68,10 @@ class Annonce {
     this.compatibleConsole,
     this.usageHours,
     this.pricingType,
+    this.vehicleType,
+    this.transmission,
+    this.doorCount,
+    this.seatCount,
     this.expiresAt,
     this.renewedAt,
     this.renewalCount = 0,
@@ -194,6 +202,22 @@ class Annonce {
       pricingType:
           _readNullableString(
         json['pricing_type'],
+      ),
+      vehicleType:
+          _readNullableString(
+        json['vehicle_type'],
+      ),
+      transmission:
+          _readNullableString(
+        json['transmission'],
+      ),
+      doorCount:
+          _readNullableInt(
+        json['door_count'],
+      ),
+      seatCount:
+          _readNullableInt(
+        json['seat_count'],
       ),
       expiresAt:
           _readDateTime(

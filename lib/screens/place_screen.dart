@@ -126,7 +126,11 @@ class _PlaceScreenState extends State<PlaceScreen> {
         annonce.itemCondition?.isNotEmpty == true ||
         annonce.itemType?.isNotEmpty == true ||
         annonce.compatibleConsole?.isNotEmpty == true ||
-        annonce.usageHours != null;
+        annonce.usageHours != null ||
+        annonce.vehicleType?.isNotEmpty == true ||
+        annonce.transmission?.isNotEmpty == true ||
+        annonce.doorCount != null ||
+        annonce.seatCount != null;
   }
 
   Widget _informationRow({
@@ -189,9 +193,9 @@ class _PlaceScreenState extends State<PlaceScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(height: 20),
-        const Divider(),
         const SizedBox(height: 14),
+        const Divider(),
+        const SizedBox(height: 10),
 
         const Text(
           'Caractéristiques',
@@ -203,7 +207,7 @@ class _PlaceScreenState extends State<PlaceScreen> {
           ),
         ),
 
-        const SizedBox(height: 16),
+        const SizedBox(height: 10),
 
         if (annonce.itemType?.isNotEmpty == true)
           _informationRow(
@@ -237,6 +241,13 @@ class _PlaceScreenState extends State<PlaceScreen> {
             value: annonce.manufactureYear.toString(),
           ),
 
+        if (annonce.vehicleType?.isNotEmpty == true)
+          _informationRow(
+            icon: Icons.directions_car_outlined,
+            label: 'Type de véhicule',
+            value: annonce.vehicleType ?? '',
+          ),
+
         if (annonce.horsepower != null)
           _informationRow(
             icon: Icons.speed_outlined,
@@ -247,8 +258,15 @@ class _PlaceScreenState extends State<PlaceScreen> {
         if (annonce.fuelType?.isNotEmpty == true)
           _informationRow(
             icon: Icons.local_gas_station_outlined,
-            label: 'Carburant',
+            label: 'Énergie',
             value: annonce.fuelType ?? '',
+          ),
+
+        if (annonce.transmission?.isNotEmpty == true)
+          _informationRow(
+            icon: Icons.settings_outlined,
+            label: 'Boîte de vitesse',
+            value: annonce.transmission ?? '',
           ),
 
         if (annonce.mileage != null)
@@ -256,6 +274,20 @@ class _PlaceScreenState extends State<PlaceScreen> {
             icon: Icons.route_outlined,
             label: 'Kilométrage',
             value: '${annonce.mileage} km',
+          ),
+
+        if (annonce.doorCount != null)
+          _informationRow(
+            icon: Icons.sensor_door_outlined,
+            label: 'Nombre de portes',
+            value: annonce.doorCount.toString(),
+          ),
+
+        if (annonce.seatCount != null)
+          _informationRow(
+            icon: Icons.event_seat_outlined,
+            label: 'Nombre de places',
+            value: annonce.seatCount.toString(),
           ),
 
         if (annonce.usageHours != null)
