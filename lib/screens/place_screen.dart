@@ -330,9 +330,6 @@ class _PlaceScreenState extends State<PlaceScreen> {
   @override
   Widget build(BuildContext context) {
     final annonce = widget.annonce;
-    final screenWidth =
-        MediaQuery.of(context).size.width;
-
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F7),
       appBar: AppBar(
@@ -355,7 +352,7 @@ class _PlaceScreenState extends State<PlaceScreen> {
           children: [
             Container(
               width: double.infinity,
-              height: screenWidth * 0.78,
+              height: 260,
               color: Colors.black,
               child: annonce.imageUrl.isNotEmpty
                   ? Image.network(
