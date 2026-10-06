@@ -7,7 +7,8 @@ class KotekaFilterResult {
   final String? city;
   final String? commune;
   final int? distanceKm;
-  final String? vehicleCategory;
+  final String? family;
+  final String? category;
   final String? brand;
   final String? model;
   final int? manufactureYear;
@@ -25,7 +26,8 @@ class KotekaFilterResult {
     this.city,
     this.commune,
     this.distanceKm,
-    this.vehicleCategory,
+    this.family,
+    this.category,
     this.brand,
     this.model,
     this.manufactureYear,
@@ -100,7 +102,8 @@ class _FilterState extends State<Filter> {
   String? _selectedCity;
   String? _selectedCommune;
   int? _selectedDistanceKm;
-  String? _vehicleCategory;
+  String? _selectedFamily;
+  String? _selectedCategory;
   String? _brand;
   String? _model;
   String? _vehicleType;
@@ -111,7 +114,16 @@ class _FilterState extends State<Filter> {
   int? _seatCount;
 
   final List<int> _distances = [1, 5, 10, 20, 50, 100];
-  final List<String> _vehicleCategories = ['Voitures', 'Camions'];
+  final Map<String, List<String>> _categoriesByFamily = {
+    'Véhicules': ['Voitures','Camions','Motos / Quads','Vélos','Pièces automobiles','Pièces moto/quad'],
+    'Électronique': ['Ordinateurs','Téléphone','Accessoires téléphone','Appareil photo / Caméra','Hi-Fi','Tablettes','Consoles et jeux vidéo'],
+    'Électroménager': ['Électroménager'],
+    'Maison / Ndaku': ['Table','Armoire','Chaise','Lit','Matelas'],
+    'Instruments': ['Guitares','Pianos / Claviers','Batteries / Percussions','Instruments à vent','Autres instruments','Accessoires instruments'],
+    'Matériel chantier': ['Machines','Outillage'],
+    'Prestations de services': ['Bâtiment / Construction','Mécanique automobile / moto','Électricité','Plomberie','Menuiserie','Peinture','Informatique / Téléphonie','Transport / Livraison','Nettoyage','Couture','Coiffure / Beauté','Événementiel','Formation / Cours','Autres services'],
+    'Autres': ['Autres'],
+  };
   final List<String> _vehicleTypes = [
     'Berline', 'Break', 'Citadine', 'Coupé', 'Cabriolet',
     'Monospace', 'SUV / 4x4', 'Pick-up', 'Utilitaire',
@@ -203,7 +215,8 @@ class _FilterState extends State<Filter> {
       city: _selectedCity,
       commune: _selectedCommune,
       distanceKm: _selectedDistanceKm,
-      vehicleCategory: _vehicleCategory,
+      family: _selectedFamily,
+      category: _selectedCategory,
       brand: _brand,
       model: _model,
       manufactureYear: int.tryParse(_yearController.text.trim()),
@@ -232,8 +245,8 @@ class _FilterState extends State<Filter> {
   @override
   Widget build(BuildContext context) {
     final primaryColor = Theme.of(context).colorScheme.primary;
-    final isCar = _vehicleCategory == 'Voitures';
-    final isTruck = _vehicleCategory == 'Camions';
+    final isCar = _selectedCategory == 'Voitures';
+    final isTruck = _selectedCategory == 'Camions';
     final seatValues = isTruck ? <int>[2, 3] : <int>[2, 4, 5, 6, 7];
     final modelValues = _brand == null ? <String>[] : (_modelsByBrand[_brand] ?? <String>[]);
 
@@ -253,7 +266,26 @@ class _FilterState extends State<Filter> {
           Expanded(child: TextField(controller: _maxPriceController, keyboardType: TextInputType.number, inputFormatters: [FilteringTextInputFormatter.digitsOnly], decoration: const InputDecoration(labelText: 'Maximum', border: OutlineInputBorder()))),
         ]),
         const SizedBox(height: 20),
-        _drop<String>('Catégorie véhicule', _vehicleCategory, _vehicleCategories, (v) => setState(() { _vehicleCategory = v; _doorCount = null; _seatCount = null; })),
+        _drop<String>('Famille', _selectedFamily, _categoriesByFamily.keys.toList(), (v) => setState(() {
+          _selectedFamily = v;
+          _selectedCategory = null;
+          _brand = null; _model = null; _vehicleType = null; _fuelType = null;
+          _transmission = null; _vehicleCondition = null; _doorCount = null; _seatCount = null;
+          _yearController.clear(); _maxMileageController.clear();
+        })),
+        const SizedBox(height: 14),
+        DropdownButtonFormField<String>(
+          value: _selectedCategory,
+          isExpanded: true,
+          decoration: const InputDecoration(labelText: 'Catégorie', border: OutlineInputBorder()),
+          items: _selectedFamily == null ? const [] : (_categoriesByFamily[_selectedFamily] ?? const <String>[]).map((v) => DropdownMenuItem(value: v, child: Text(v))).toList(),
+          onChanged: _selectedFamily == null ? null : (v) => setState(() {
+            _selectedCategory = v;
+            _brand = null; _model = null; _vehicleType = null; _fuelType = null;
+            _transmission = null; _vehicleCondition = null; _doorCount = null; _seatCount = null;
+            _yearController.clear(); _maxMileageController.clear();
+          }),
+        ),
         if (isCar || isTruck) ...[
           const SizedBox(height: 14),
           _drop<String>('Marque', _brand, _modelsByBrand.keys.toList(), (v) => setState(() { _brand = v; _model = null; })),

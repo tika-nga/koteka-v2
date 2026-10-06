@@ -29,7 +29,6 @@ class _HomeScreenState extends State<HomeScreen> {
   String? _selectedCommune;
   int? _selectedDistanceKm;
 
-  String? _selectedVehicleCategory;
   String? _selectedBrand;
   String? _selectedModel;
   int? _selectedManufactureYear;
@@ -367,7 +366,6 @@ class _HomeScreenState extends State<HomeScreen> {
       _selectedCity = result.city;
       _selectedCommune = result.commune;
       _selectedDistanceKm = result.distanceKm;
-      _selectedVehicleCategory = result.vehicleCategory;
       _selectedBrand = result.brand;
       _selectedModel = result.model;
       _selectedManufactureYear = result.manufactureYear;
@@ -379,10 +377,8 @@ class _HomeScreenState extends State<HomeScreen> {
       _selectedDoorCount = result.doorCount;
       _selectedSeatCount = result.seatCount;
 
-      if (_selectedVehicleCategory != null) {
-        _selectedFamily = 'Véhicules';
-        _selectedCategory = _selectedVehicleCategory;
-      }
+      _selectedFamily = result.family;
+      _selectedCategory = result.category;
 
       _userPosition = newPosition;
     });
@@ -400,7 +396,6 @@ class _HomeScreenState extends State<HomeScreen> {
       _selectedCommune = null;
 
       _selectedDistanceKm = null;
-      _selectedVehicleCategory = null;
       _selectedBrand = null;
       _selectedModel = null;
       _selectedManufactureYear = null;
@@ -611,11 +606,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
     int? intValue(String key) =>
         int.tryParse(value(key));
-
-    if (_selectedVehicleCategory != null &&
-        value('category') != _selectedVehicleCategory) {
-      return false;
-    }
 
     if (_selectedBrand != null &&
         value('brand') != _selectedBrand) {
