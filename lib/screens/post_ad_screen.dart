@@ -38,6 +38,13 @@ class _PostAdScreenState extends State<PostAdScreen> {
   String? _selectedItemType;
   String? _selectedConsole;
 
+  String? _selectedCarBrand;
+  String? _selectedCarModel;
+  String? _selectedVehicleType;
+  String? _selectedTransmission;
+  String? _selectedDoorCount;
+  String? _selectedSeatCount;
+
   String _pricingType = 'Prix fixe';
 
   final Map<String, List<String>> _categoriesParFamille = {
@@ -142,7 +149,61 @@ class _PostAdScreenState extends State<PostAdScreen> {
   final List<String> _fuels = [
     'Essence',
     'Gasoil',
+    'Hybride',
   ];
+
+  final List<String> _vehicleTypes = [
+    'Berline',
+    'Break',
+    'Citadine',
+    'Coupé',
+    'Cabriolet',
+    'Monospace',
+    'SUV / 4x4',
+    'Pick-up',
+    'Utilitaire',
+  ];
+
+  final List<String> _transmissions = [
+    'Auto',
+    'Manuel',
+  ];
+
+  final List<String> _carDoorCounts = ['3', '5'];
+  final List<String> _carSeatCounts = ['2', '4', '5', '6', '7'];
+  final List<String> _truckSeatCounts = ['2', '3'];
+
+  final Map<String, List<String>> _carModelsByBrand = {
+    'Audi': ['A1', 'A3', 'A4', 'A5', 'A6', 'A8', 'Q2', 'Q3', 'Q5', 'Q7', 'Autre'],
+    'BMW': ['Série 1', 'Série 2', 'Série 3', 'Série 4', 'Série 5', 'Série 7', 'X1', 'X3', 'X5', 'X6', 'Autre'],
+    'Chevrolet': ['Aveo', 'Captiva', 'Cruze', 'Spark', 'Tahoe', 'Trailblazer', 'Autre'],
+    'Chrysler': ['300', 'Grand Voyager', 'Pacifica', 'PT Cruiser', 'Voyager', 'Autre'],
+    'Citroën': ['C1', 'C2', 'C3', 'C4', 'C4 Picasso', 'C5', 'Berlingo', 'Jumpy', 'Xsara Picasso', 'Autre'],
+    'Dacia': ['Duster', 'Logan', 'Sandero', 'Lodgy', 'Dokker', 'Autre'],
+    'Fiat': ['500', 'Panda', 'Punto', 'Tipo', 'Doblo', 'Ducato', 'Autre'],
+    'Ford': ['Fiesta', 'Focus', 'Mondeo', 'Kuga', 'EcoSport', 'Ranger', 'Transit', 'Autre'],
+    'Honda': ['Civic', 'Accord', 'CR-V', 'HR-V', 'Jazz', 'Autre'],
+    'Hyundai': ['i10', 'i20', 'i30', 'Accent', 'Elantra', 'Tucson', 'Santa Fe', 'Autre'],
+    'Isuzu': ['D-Max', 'MU-X', 'Trooper', 'Autre'],
+    'Jeep': ['Cherokee', 'Grand Cherokee', 'Compass', 'Renegade', 'Wrangler', 'Autre'],
+    'Kia': ['Picanto', 'Rio', 'Ceed', 'Sportage', 'Sorento', 'Carnival', 'Autre'],
+    'Land Rover': ['Defender', 'Discovery', 'Freelander', 'Range Rover', 'Range Rover Evoque', 'Range Rover Sport', 'Autre'],
+    'Lexus': ['CT', 'ES', 'GS', 'IS', 'NX', 'RX', 'LX', 'Autre'],
+    'Mazda': ['Mazda 2', 'Mazda 3', 'Mazda 6', 'CX-3', 'CX-5', 'CX-7', 'CX-9', 'BT-50', 'Autre'],
+    'Mercedes-Benz': ['Classe A', 'Classe B', 'Classe C', 'Classe E', 'Classe S', 'CLA', 'CLS', 'GLA', 'GLC', 'GLE', 'GLS', 'Vito', 'Sprinter', 'Autre'],
+    'Mitsubishi': ['Colt', 'Lancer', 'ASX', 'Outlander', 'Pajero', 'L200', 'Autre'],
+    'Nissan': ['Micra', 'Juke', 'Qashqai', 'X-Trail', 'Pathfinder', 'Patrol', 'Navara', 'Primastar', 'Autre'],
+    'Opel': ['Corsa', 'Astra', 'Insignia', 'Meriva', 'Zafira', 'Mokka', 'Vivaro', 'Autre'],
+    'Peugeot': ['108', '206', '207', '208', '307', '308', '407', '508', '2008', '3008', '5008', 'Partner', 'Expert', 'Boxer', 'Autre'],
+    'Renault': ['Twingo', 'Clio', 'Mégane', 'Laguna', 'Scénic', 'Captur', 'Kadjar', 'Koleos', 'Kangoo', 'Trafic', 'Master', 'Autre'],
+    'Seat': ['Ibiza', 'Leon', 'Toledo', 'Altea', 'Ateca', 'Autre'],
+    'Škoda': ['Fabia', 'Octavia', 'Superb', 'Karoq', 'Kodiaq', 'Autre'],
+    'Subaru': ['Impreza', 'Legacy', 'Forester', 'Outback', 'XV', 'Autre'],
+    'Suzuki': ['Alto', 'Swift', 'Vitara', 'Grand Vitara', 'Jimny', 'SX4', 'Autre'],
+    'Toyota': ['Aygo', 'Yaris', 'Corolla', 'Avensis', 'Camry', 'RAV4', 'Land Cruiser', 'Prado', 'Fortuner', 'Hilux', 'Hiace', 'Autre'],
+    'Volkswagen': ['Polo', 'Golf', 'Passat', 'Touran', 'Tiguan', 'Touareg', 'Caddy', 'Transporter', 'Autre'],
+    'Volvo': ['S40', 'S60', 'S80', 'V40', 'V60', 'XC40', 'XC60', 'XC90', 'Autre'],
+  };
 
   final List<String> _consoles = [
     'PlayStation 5',
@@ -158,6 +219,9 @@ class _PostAdScreenState extends State<PostAdScreen> {
 
   bool get _isService =>
       _selectedFamily == 'Prestations de services';
+
+  bool get _isCar => _selectedCategory == 'Voitures';
+  bool get _isTruck => _selectedCategory == 'Camions';
 
   bool get _isVehicle =>
       _selectedCategory == 'Voitures' ||
@@ -277,7 +341,7 @@ class _PostAdScreenState extends State<PostAdScreen> {
       value: _selectedFuel,
       isExpanded: true,
       decoration: _decoration(
-        label: 'Carburant',
+        label: _isCar || _isTruck ? 'Énergie' : 'Carburant',
       ),
       items: _fuels
           .map(
@@ -348,6 +412,138 @@ class _PostAdScreenState extends State<PostAdScreen> {
   }
 
   List<Widget> _specificFields() {
+    if (_isCar) {
+      final models = _selectedCarBrand == null
+          ? <String>[]
+          : (_carModelsByBrand[_selectedCarBrand] ?? <String>[]);
+
+      return [
+        DropdownButtonFormField<String>(
+          value: _selectedCarBrand,
+          isExpanded: true,
+          decoration: _decoration(label: 'Marque'),
+          items: _carModelsByBrand.keys
+              .map((brand) => DropdownMenuItem(value: brand, child: Text(brand)))
+              .toList(),
+          onChanged: (value) {
+            setState(() {
+              _selectedCarBrand = value;
+              _selectedCarModel = null;
+              _brandController.text = value ?? '';
+              _modelController.clear();
+            });
+          },
+        ),
+        _space(),
+        DropdownButtonFormField<String>(
+          value: _selectedCarModel,
+          isExpanded: true,
+          decoration: _decoration(label: 'Modèle'),
+          items: models
+              .map((model) => DropdownMenuItem(value: model, child: Text(model)))
+              .toList(),
+          onChanged: _selectedCarBrand == null
+              ? null
+              : (value) {
+                  setState(() {
+                    _selectedCarModel = value;
+                    _modelController.text = value ?? '';
+                  });
+                },
+        ),
+        _space(),
+        _textField(
+          controller: _yearController,
+          label: 'Année-Modèle',
+          number: true,
+        ),
+        _space(),
+        DropdownButtonFormField<String>(
+          value: _selectedVehicleType,
+          isExpanded: true,
+          decoration: _decoration(label: 'Type de véhicule'),
+          items: _vehicleTypes
+              .map((v) => DropdownMenuItem(value: v, child: Text(v)))
+              .toList(),
+          onChanged: (value) => setState(() => _selectedVehicleType = value),
+        ),
+        _space(),
+        _fuelField(),
+        _space(),
+        DropdownButtonFormField<String>(
+          value: _selectedTransmission,
+          isExpanded: true,
+          decoration: _decoration(label: 'Boîte de vitesse'),
+          items: _transmissions
+              .map((v) => DropdownMenuItem(value: v, child: Text(v)))
+              .toList(),
+          onChanged: (value) => setState(() => _selectedTransmission = value),
+        ),
+        _space(),
+        _textField(
+          controller: _mileageController,
+          label: 'Kilométrage',
+          hint: 'Ex : 85000',
+          number: true,
+        ),
+        _space(),
+        _conditionField(),
+        _space(),
+        DropdownButtonFormField<String>(
+          value: _selectedDoorCount,
+          isExpanded: true,
+          decoration: _decoration(label: 'Nombre de portes'),
+          items: _carDoorCounts
+              .map((v) => DropdownMenuItem(value: v, child: Text(v)))
+              .toList(),
+          onChanged: (value) => setState(() => _selectedDoorCount = value),
+        ),
+        _space(),
+        DropdownButtonFormField<String>(
+          value: _selectedSeatCount,
+          isExpanded: true,
+          decoration: _decoration(label: 'Nombre de places'),
+          items: _carSeatCounts
+              .map((v) => DropdownMenuItem(value: v, child: Text(v)))
+              .toList(),
+          onChanged: (value) => setState(() => _selectedSeatCount = value),
+        ),
+      ];
+    }
+
+    if (_isTruck) {
+      return [
+        _textField(controller: _brandController, label: 'Marque'),
+        _space(),
+        _textField(controller: _modelController, label: 'Modèle'),
+        _space(),
+        _textField(controller: _yearController, label: 'Année', number: true),
+        _space(),
+        _textField(controller: _horsepowerController, label: 'CV', number: true),
+        _space(),
+        _fuelField(),
+        _space(),
+        _textField(
+          controller: _mileageController,
+          label: 'Kilométrage',
+          hint: 'Ex : 85000',
+          number: true,
+        ),
+        _space(),
+        _conditionField(),
+        _space(),
+        DropdownButtonFormField<String>(
+          value: _selectedSeatCount,
+          isExpanded: true,
+          decoration: _decoration(label: 'Nombre de places'),
+          items: _truckSeatCounts
+              .map((v) => DropdownMenuItem(value: v, child: Text(v)))
+              .toList(),
+          onChanged: (value) => setState(() => _selectedSeatCount = value),
+        ),
+      ];
+    }
+
     if (_isVehicle) {
       return [
         _textField(
@@ -356,22 +552,11 @@ class _PostAdScreenState extends State<PostAdScreen> {
           hint: 'Ex : Toyota',
         ),
         _space(),
-        _textField(
-          controller: _modelController,
-          label: 'Modèle',
-        ),
+        _textField(controller: _modelController, label: 'Modèle'),
         _space(),
-        _textField(
-          controller: _yearController,
-          label: 'Année',
-          number: true,
-        ),
+        _textField(controller: _yearController, label: 'Année', number: true),
         _space(),
-        _textField(
-          controller: _horsepowerController,
-          label: 'CV',
-          number: true,
-        ),
+        _textField(controller: _horsepowerController, label: 'CV', number: true),
         _space(),
         _fuelField(),
         _space(),
@@ -539,9 +724,70 @@ class _PostAdScreenState extends State<PostAdScreen> {
     _selectedCondition = null;
     _selectedItemType = null;
     _selectedConsole = null;
+    _selectedCarBrand = null;
+    _selectedCarModel = null;
+    _selectedVehicleType = null;
+    _selectedTransmission = null;
+    _selectedDoorCount = null;
+    _selectedSeatCount = null;
   }
 
   bool _validateSpecificFields() {
+    if (_isCar) {
+      if (_selectedCarBrand == null || _selectedCarModel == null) {
+        _showMessage('Veuillez choisir la marque et le modèle.');
+        return false;
+      }
+      if (int.tryParse(_yearController.text.trim()) == null) {
+        _showMessage('Veuillez saisir une année-modèle valide.');
+        return false;
+      }
+      if (_selectedVehicleType == null) {
+        _showMessage('Veuillez choisir le type de véhicule.');
+        return false;
+      }
+      if (_selectedFuel == null) {
+        _showMessage('Veuillez choisir l’énergie.');
+        return false;
+      }
+      if (_selectedTransmission == null) {
+        _showMessage('Veuillez choisir la boîte de vitesse.');
+        return false;
+      }
+      if (int.tryParse(_mileageController.text.trim()) == null) {
+        _showMessage('Veuillez saisir le kilométrage.');
+        return false;
+      }
+      if (_selectedCondition == null) {
+        _showMessage('Veuillez choisir l’état du véhicule.');
+        return false;
+      }
+      if (_selectedDoorCount == null) {
+        _showMessage('Veuillez choisir le nombre de portes.');
+        return false;
+      }
+      if (_selectedSeatCount == null) {
+        _showMessage('Veuillez choisir le nombre de places.');
+        return false;
+      }
+      return true;
+    }
+
+    if (_isTruck) {
+      if (_brandController.text.trim().isEmpty ||
+          _modelController.text.trim().isEmpty ||
+          int.tryParse(_yearController.text.trim()) == null ||
+          int.tryParse(_horsepowerController.text.trim()) == null ||
+          _selectedFuel == null ||
+          int.tryParse(_mileageController.text.trim()) == null ||
+          _selectedCondition == null ||
+          _selectedSeatCount == null) {
+        _showMessage('Veuillez compléter les informations du camion.');
+        return false;
+      }
+      return true;
+    }
+
     if (_isVehicle) {
       if (_brandController.text.trim().isEmpty ||
           _modelController.text.trim().isEmpty) {
@@ -791,6 +1037,10 @@ class _PostAdScreenState extends State<PostAdScreen> {
               _isService
                   ? _pricingType
                   : 'Prix fixe',
+          vehicleType: _selectedVehicleType ?? '',
+          transmission: _selectedTransmission ?? '',
+          doorCount: int.tryParse(_selectedDoorCount ?? ''),
+          seatCount: int.tryParse(_selectedSeatCount ?? ''),
         ),
       ),
     );
@@ -1057,6 +1307,10 @@ class AddPhotoScreen extends StatefulWidget {
   final String consoleName;
   final String gameName;
   final String pricingType;
+  final String vehicleType;
+  final String transmission;
+  final int? doorCount;
+  final int? seatCount;
 
   const AddPhotoScreen({
     super.key,
@@ -1080,6 +1334,10 @@ class AddPhotoScreen extends StatefulWidget {
     required this.consoleName,
     required this.gameName,
     required this.pricingType,
+    required this.vehicleType,
+    required this.transmission,
+    required this.doorCount,
+    required this.seatCount,
   });
 
   @override
@@ -1193,6 +1451,10 @@ class _AddPhotoScreenState
               widget.gameName,
           pricingType:
               widget.pricingType,
+          vehicleType: widget.vehicleType,
+          transmission: widget.transmission,
+          doorCount: widget.doorCount,
+          seatCount: widget.seatCount,
         ),
       ),
     );
@@ -1315,6 +1577,10 @@ class ReviewAdScreen extends StatefulWidget {
   final String consoleName;
   final String gameName;
   final String pricingType;
+  final String vehicleType;
+  final String transmission;
+  final int? doorCount;
+  final int? seatCount;
 
   const ReviewAdScreen({
     super.key,
@@ -1339,6 +1605,10 @@ class ReviewAdScreen extends StatefulWidget {
     required this.consoleName,
     required this.gameName,
     required this.pricingType,
+    required this.vehicleType,
+    required this.transmission,
+    required this.doorCount,
+    required this.seatCount,
   });
 
   @override
@@ -1458,6 +1728,14 @@ class _ReviewAdScreenState
             widget.usageHours,
         'pricing_type':
             widget.pricingType,
+        'vehicle_type':
+            widget.vehicleType.isEmpty ? null : widget.vehicleType,
+        'transmission':
+            widget.transmission.isEmpty ? null : widget.transmission,
+        'door_count':
+            widget.doorCount,
+        'seat_count':
+            widget.seatCount,
       };
 
       if (widget.itemType ==
@@ -1652,11 +1930,23 @@ class _ReviewAdScreenState
                 widget.fuelType,
               ),
 
+            if (widget.vehicleType.isNotEmpty)
+              _row('Type de véhicule', widget.vehicleType),
+
+            if (widget.transmission.isNotEmpty)
+              _row('Boîte de vitesse', widget.transmission),
+
             if (widget.mileage != null)
               _row(
                 'Kilométrage',
                 '${widget.mileage} km',
               ),
+
+            if (widget.doorCount != null)
+              _row('Nombre de portes', widget.doorCount.toString()),
+
+            if (widget.seatCount != null)
+              _row('Nombre de places', widget.seatCount.toString()),
 
             if (widget
                 .itemType.isNotEmpty)
