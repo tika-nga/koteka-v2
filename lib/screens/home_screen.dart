@@ -29,6 +29,18 @@ class _HomeScreenState extends State<HomeScreen> {
   String? _selectedCommune;
   int? _selectedDistanceKm;
 
+  String? _selectedVehicleCategory;
+  String? _selectedBrand;
+  String? _selectedModel;
+  int? _selectedManufactureYear;
+  String? _selectedVehicleType;
+  String? _selectedFuelType;
+  String? _selectedTransmission;
+  int? _selectedMaxMileage;
+  String? _selectedVehicleCondition;
+  int? _selectedDoorCount;
+  int? _selectedSeatCount;
+
   Position? _userPosition;
   bool _isGettingPosition = false;
 
@@ -355,6 +367,23 @@ class _HomeScreenState extends State<HomeScreen> {
       _selectedCity = result.city;
       _selectedCommune = result.commune;
       _selectedDistanceKm = result.distanceKm;
+      _selectedVehicleCategory = result.vehicleCategory;
+      _selectedBrand = result.brand;
+      _selectedModel = result.model;
+      _selectedManufactureYear = result.manufactureYear;
+      _selectedVehicleType = result.vehicleType;
+      _selectedFuelType = result.fuelType;
+      _selectedTransmission = result.transmission;
+      _selectedMaxMileage = result.maxMileage;
+      _selectedVehicleCondition = result.vehicleCondition;
+      _selectedDoorCount = result.doorCount;
+      _selectedSeatCount = result.seatCount;
+
+      if (_selectedVehicleCategory != null) {
+        _selectedFamily = 'Véhicules';
+        _selectedCategory = _selectedVehicleCategory;
+      }
+
       _userPosition = newPosition;
     });
   }
@@ -371,6 +400,17 @@ class _HomeScreenState extends State<HomeScreen> {
       _selectedCommune = null;
 
       _selectedDistanceKm = null;
+      _selectedVehicleCategory = null;
+      _selectedBrand = null;
+      _selectedModel = null;
+      _selectedManufactureYear = null;
+      _selectedVehicleType = null;
+      _selectedFuelType = null;
+      _selectedTransmission = null;
+      _selectedMaxMileage = null;
+      _selectedVehicleCondition = null;
+      _selectedDoorCount = null;
+      _selectedSeatCount = null;
       _userPosition = null;
 
       _selectedSort = 'recent';
@@ -563,6 +603,69 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (_selectedCommune != null &&
         commune != _selectedCommune) {
+      return false;
+    }
+
+    String value(String key) =>
+        annonce[key]?.toString().trim() ?? '';
+
+    int? intValue(String key) =>
+        int.tryParse(value(key));
+
+    if (_selectedVehicleCategory != null &&
+        value('category') != _selectedVehicleCategory) {
+      return false;
+    }
+
+    if (_selectedBrand != null &&
+        value('brand') != _selectedBrand) {
+      return false;
+    }
+
+    if (_selectedModel != null &&
+        value('model') != _selectedModel) {
+      return false;
+    }
+
+    if (_selectedManufactureYear != null &&
+        intValue('manufacture_year') != _selectedManufactureYear) {
+      return false;
+    }
+
+    if (_selectedVehicleType != null &&
+        value('vehicle_type') != _selectedVehicleType) {
+      return false;
+    }
+
+    if (_selectedFuelType != null &&
+        value('fuel_type') != _selectedFuelType) {
+      return false;
+    }
+
+    if (_selectedTransmission != null &&
+        value('transmission') != _selectedTransmission) {
+      return false;
+    }
+
+    if (_selectedMaxMileage != null) {
+      final mileage = intValue('mileage');
+      if (mileage == null || mileage > _selectedMaxMileage!) {
+        return false;
+      }
+    }
+
+    if (_selectedVehicleCondition != null &&
+        value('item_condition') != _selectedVehicleCondition) {
+      return false;
+    }
+
+    if (_selectedDoorCount != null &&
+        intValue('door_count') != _selectedDoorCount) {
+      return false;
+    }
+
+    if (_selectedSeatCount != null &&
+        intValue('seat_count') != _selectedSeatCount) {
       return false;
     }
 
