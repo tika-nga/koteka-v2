@@ -22,7 +22,6 @@ class _PostAdScreenState extends State<PostAdScreen> {
   final _brandController = TextEditingController();
   final _modelController = TextEditingController();
   final _yearController = TextEditingController();
-  final _horsepowerController = TextEditingController();
   final _mileageController = TextEditingController();
   final _usageHoursController = TextEditingController();
   final _consoleNameController = TextEditingController();
@@ -42,6 +41,7 @@ class _PostAdScreenState extends State<PostAdScreen> {
   String? _selectedCarModel;
   String? _selectedVehicleType;
   String? _selectedTransmission;
+  String? _selectedMotorization;
   String? _selectedDoorCount;
   String? _selectedSeatCount;
 
@@ -169,6 +169,15 @@ class _PostAdScreenState extends State<PostAdScreen> {
     'Manuel',
   ];
 
+  final List<String> _motorizations = [
+    '0.8 L', '0.9 L', '1.0 L', '1.1 L', '1.2 L', '1.3 L',
+    '1.4 L', '1.5 L', '1.6 L', '1.7 L', '1.8 L', '1.9 L',
+    '2.0 L', '2.2 L', '2.3 L', '2.4 L', '2.5 L', '2.7 L',
+    '2.8 L', '3.0 L', '3.2 L', '3.5 L', '3.6 L', '4.0 L',
+    '4.2 L', '4.4 L', '4.5 L', '4.6 L', '5.0 L', '5.5 L',
+    '6.0 L', 'Électrique', 'Autre motorisation',
+  ];
+
   final List<String> _carDoorCounts = ['3', '5'];
   final List<String> _carSeatCounts = ['2', '4', '5', '6', '7'];
   final List<String> _truckSeatCounts = ['2', '3'];
@@ -263,7 +272,6 @@ class _PostAdScreenState extends State<PostAdScreen> {
     _brandController.dispose();
     _modelController.dispose();
     _yearController.dispose();
-    _horsepowerController.dispose();
     _mileageController.dispose();
     _usageHoursController.dispose();
     _consoleNameController.dispose();
@@ -459,6 +467,16 @@ class _PostAdScreenState extends State<PostAdScreen> {
         ),
         _space(),
         DropdownButtonFormField<String>(
+          value: _selectedMotorization,
+          isExpanded: true,
+          decoration: _decoration(label: 'Motorisation'),
+          items: _motorizations
+              .map((v) => DropdownMenuItem(value: v, child: Text(v)))
+              .toList(),
+          onChanged: (value) => setState(() => _selectedMotorization = value),
+        ),
+        _space(),
+        DropdownButtonFormField<String>(
           value: _selectedVehicleType,
           isExpanded: true,
           decoration: _decoration(label: 'Type de véhicule'),
@@ -519,7 +537,15 @@ class _PostAdScreenState extends State<PostAdScreen> {
         _space(),
         _textField(controller: _yearController, label: 'Année', number: true),
         _space(),
-        _textField(controller: _horsepowerController, label: 'CV', number: true),
+        DropdownButtonFormField<String>(
+          value: _selectedMotorization,
+          isExpanded: true,
+          decoration: _decoration(label: 'Motorisation'),
+          items: _motorizations
+              .map((v) => DropdownMenuItem(value: v, child: Text(v)))
+              .toList(),
+          onChanged: (value) => setState(() => _selectedMotorization = value),
+        ),
         _space(),
         _fuelField(),
         _space(),
@@ -556,7 +582,15 @@ class _PostAdScreenState extends State<PostAdScreen> {
         _space(),
         _textField(controller: _yearController, label: 'Année', number: true),
         _space(),
-        _textField(controller: _horsepowerController, label: 'CV', number: true),
+        DropdownButtonFormField<String>(
+          value: _selectedMotorization,
+          isExpanded: true,
+          decoration: _decoration(label: 'Motorisation'),
+          items: _motorizations
+              .map((v) => DropdownMenuItem(value: v, child: Text(v)))
+              .toList(),
+          onChanged: (value) => setState(() => _selectedMotorization = value),
+        ),
         _space(),
         _fuelField(),
         _space(),
@@ -714,7 +748,6 @@ class _PostAdScreenState extends State<PostAdScreen> {
     _brandController.clear();
     _modelController.clear();
     _yearController.clear();
-    _horsepowerController.clear();
     _mileageController.clear();
     _usageHoursController.clear();
     _consoleNameController.clear();
@@ -728,6 +761,7 @@ class _PostAdScreenState extends State<PostAdScreen> {
     _selectedCarModel = null;
     _selectedVehicleType = null;
     _selectedTransmission = null;
+    _selectedMotorization = null;
     _selectedDoorCount = null;
     _selectedSeatCount = null;
   }
@@ -740,6 +774,10 @@ class _PostAdScreenState extends State<PostAdScreen> {
       }
       if (int.tryParse(_yearController.text.trim()) == null) {
         _showMessage('Veuillez saisir une année-modèle valide.');
+        return false;
+      }
+      if (_selectedMotorization == null) {
+        _showMessage('Veuillez choisir la motorisation.');
         return false;
       }
       if (_selectedVehicleType == null) {
@@ -777,7 +815,7 @@ class _PostAdScreenState extends State<PostAdScreen> {
       if (_brandController.text.trim().isEmpty ||
           _modelController.text.trim().isEmpty ||
           int.tryParse(_yearController.text.trim()) == null ||
-          int.tryParse(_horsepowerController.text.trim()) == null ||
+          _selectedMotorization == null ||
           _selectedFuel == null ||
           int.tryParse(_mileageController.text.trim()) == null ||
           _selectedCondition == null ||
@@ -804,12 +842,9 @@ class _PostAdScreenState extends State<PostAdScreen> {
         return false;
       }
 
-      if (int.tryParse(
-            _horsepowerController.text.trim(),
-          ) ==
-          null) {
+      if (_selectedMotorization == null) {
         _showMessage(
-          'Veuillez saisir le nombre de CV.',
+          'Veuillez choisir la motorisation.',
         );
         return false;
       }
@@ -1009,10 +1044,7 @@ class _PostAdScreenState extends State<PostAdScreen> {
               int.tryParse(
             _yearController.text.trim(),
           ),
-          horsepower:
-              int.tryParse(
-            _horsepowerController.text.trim(),
-          ),
+          motorization: _selectedMotorization ?? '',
           fuelType:
               _selectedFuel ?? '',
           mileage:
@@ -1297,7 +1329,7 @@ class AddPhotoScreen extends StatefulWidget {
   final String brand;
   final String model;
   final int? manufactureYear;
-  final int? horsepower;
+  final String motorization;
   final String fuelType;
   final int? mileage;
   final String itemCondition;
@@ -1324,7 +1356,7 @@ class AddPhotoScreen extends StatefulWidget {
     required this.brand,
     required this.model,
     required this.manufactureYear,
-    required this.horsepower,
+    required this.motorization,
     required this.fuelType,
     required this.mileage,
     required this.itemCondition,
@@ -1431,8 +1463,8 @@ class _AddPhotoScreenState
           model: widget.model,
           manufactureYear:
               widget.manufactureYear,
-          horsepower:
-              widget.horsepower,
+          motorization:
+              widget.motorization,
           fuelType:
               widget.fuelType,
           mileage:
@@ -1567,7 +1599,7 @@ class ReviewAdScreen extends StatefulWidget {
   final String brand;
   final String model;
   final int? manufactureYear;
-  final int? horsepower;
+  final String motorization;
   final String fuelType;
   final int? mileage;
   final String itemCondition;
@@ -1595,7 +1627,7 @@ class ReviewAdScreen extends StatefulWidget {
     required this.brand,
     required this.model,
     required this.manufactureYear,
-    required this.horsepower,
+    required this.motorization,
     required this.fuelType,
     required this.mileage,
     required this.itemCondition,
@@ -1704,8 +1736,8 @@ class _ReviewAdScreenState
                 : widget.model,
         'manufacture_year':
             widget.manufactureYear,
-        'horsepower':
-            widget.horsepower,
+        'motorization':
+            widget.motorization.isEmpty ? null : widget.motorization,
         'fuel_type':
             widget.fuelType.isEmpty
                 ? null
@@ -1915,12 +1947,10 @@ class _ReviewAdScreenState
                     .toString(),
               ),
 
-            if (widget.horsepower !=
-                null)
+            if (widget.motorization.isNotEmpty)
               _row(
-                'CV',
-                widget.horsepower
-                    .toString(),
+                'Motorisation',
+                widget.motorization,
               ),
 
             if (widget

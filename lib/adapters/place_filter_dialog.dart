@@ -7,14 +7,14 @@ class KotekaFilterResult {
   final String? city;
   final String? commune;
   final int? distanceKm;
-  final String? family;
-  final String? category;
+  final String? vehicleCategory;
   final String? brand;
   final String? model;
   final int? manufactureYear;
   final String? vehicleType;
   final String? fuelType;
   final String? transmission;
+  final String? motorization;
   final int? maxMileage;
   final String? vehicleCondition;
   final int? doorCount;
@@ -26,14 +26,14 @@ class KotekaFilterResult {
     this.city,
     this.commune,
     this.distanceKm,
-    this.family,
-    this.category,
+    this.vehicleCategory,
     this.brand,
     this.model,
     this.manufactureYear,
     this.vehicleType,
     this.fuelType,
     this.transmission,
+    this.motorization,
     this.maxMileage,
     this.vehicleCondition,
     this.doorCount,
@@ -102,28 +102,19 @@ class _FilterState extends State<Filter> {
   String? _selectedCity;
   String? _selectedCommune;
   int? _selectedDistanceKm;
-  String? _selectedFamily;
-  String? _selectedCategory;
+  String? _vehicleCategory;
   String? _brand;
   String? _model;
   String? _vehicleType;
   String? _fuelType;
   String? _transmission;
+  String? _motorization;
   String? _vehicleCondition;
   int? _doorCount;
   int? _seatCount;
 
   final List<int> _distances = [1, 5, 10, 20, 50, 100];
-  final Map<String, List<String>> _categoriesByFamily = {
-    'Véhicules': ['Voitures','Camions','Motos / Quads','Vélos','Pièces automobiles','Pièces moto/quad'],
-    'Électronique': ['Ordinateurs','Téléphone','Accessoires téléphone','Appareil photo / Caméra','Hi-Fi','Tablettes','Consoles et jeux vidéo'],
-    'Électroménager': ['Électroménager'],
-    'Maison / Ndaku': ['Table','Armoire','Chaise','Lit','Matelas'],
-    'Instruments': ['Guitares','Pianos / Claviers','Batteries / Percussions','Instruments à vent','Autres instruments','Accessoires instruments'],
-    'Matériel chantier': ['Machines','Outillage'],
-    'Prestations de services': ['Bâtiment / Construction','Mécanique automobile / moto','Électricité','Plomberie','Menuiserie','Peinture','Informatique / Téléphonie','Transport / Livraison','Nettoyage','Couture','Coiffure / Beauté','Événementiel','Formation / Cours','Autres services'],
-    'Autres': ['Autres'],
-  };
+  final List<String> _vehicleCategories = ['Voitures', 'Camions'];
   final List<String> _vehicleTypes = [
     'Berline', 'Break', 'Citadine', 'Coupé', 'Cabriolet',
     'Monospace', 'SUV / 4x4', 'Pick-up', 'Utilitaire',
@@ -132,6 +123,13 @@ class _FilterState extends State<Filter> {
     'Essence', 'Gasoil', 'Hybride', 'Électrique', 'GPL',
   ];
   final List<String> _transmissions = ['Auto', 'Manuel'];
+  final List<String> _motorizations = [
+    '0.8 L','0.9 L','1.0 L','1.1 L','1.2 L','1.3 L','1.4 L','1.5 L',
+    '1.6 L','1.7 L','1.8 L','1.9 L','2.0 L','2.2 L','2.3 L','2.4 L',
+    '2.5 L','2.7 L','2.8 L','3.0 L','3.2 L','3.5 L','3.6 L','4.0 L',
+    '4.2 L','4.4 L','4.5 L','4.6 L','5.0 L','5.5 L','6.0 L',
+    'Électrique','Autre motorisation',
+  ];
   final List<String> _conditions = [
     'Neuf', 'Comme neuf', 'Bon état', 'État correct', 'Pour pièces',
   ];
@@ -215,14 +213,14 @@ class _FilterState extends State<Filter> {
       city: _selectedCity,
       commune: _selectedCommune,
       distanceKm: _selectedDistanceKm,
-      family: _selectedFamily,
-      category: _selectedCategory,
+      vehicleCategory: _vehicleCategory,
       brand: _brand,
       model: _model,
       manufactureYear: int.tryParse(_yearController.text.trim()),
       vehicleType: _vehicleType,
       fuelType: _fuelType,
       transmission: _transmission,
+      motorization: _motorization,
       maxMileage: int.tryParse(_maxMileageController.text.trim()),
       vehicleCondition: _vehicleCondition,
       doorCount: _doorCount,
@@ -245,8 +243,8 @@ class _FilterState extends State<Filter> {
   @override
   Widget build(BuildContext context) {
     final primaryColor = Theme.of(context).colorScheme.primary;
-    final isCar = _selectedCategory == 'Voitures';
-    final isTruck = _selectedCategory == 'Camions';
+    final isCar = _vehicleCategory == 'Voitures';
+    final isTruck = _vehicleCategory == 'Camions';
     final seatValues = isTruck ? <int>[2, 3] : <int>[2, 4, 5, 6, 7];
     final modelValues = _brand == null ? <String>[] : (_modelsByBrand[_brand] ?? <String>[]);
 
@@ -266,26 +264,7 @@ class _FilterState extends State<Filter> {
           Expanded(child: TextField(controller: _maxPriceController, keyboardType: TextInputType.number, inputFormatters: [FilteringTextInputFormatter.digitsOnly], decoration: const InputDecoration(labelText: 'Maximum', border: OutlineInputBorder()))),
         ]),
         const SizedBox(height: 20),
-        _drop<String>('Famille', _selectedFamily, _categoriesByFamily.keys.toList(), (v) => setState(() {
-          _selectedFamily = v;
-          _selectedCategory = null;
-          _brand = null; _model = null; _vehicleType = null; _fuelType = null;
-          _transmission = null; _vehicleCondition = null; _doorCount = null; _seatCount = null;
-          _yearController.clear(); _maxMileageController.clear();
-        })),
-        const SizedBox(height: 14),
-        DropdownButtonFormField<String>(
-          value: _selectedCategory,
-          isExpanded: true,
-          decoration: const InputDecoration(labelText: 'Catégorie', border: OutlineInputBorder()),
-          items: _selectedFamily == null ? const [] : (_categoriesByFamily[_selectedFamily] ?? const <String>[]).map((v) => DropdownMenuItem(value: v, child: Text(v))).toList(),
-          onChanged: _selectedFamily == null ? null : (v) => setState(() {
-            _selectedCategory = v;
-            _brand = null; _model = null; _vehicleType = null; _fuelType = null;
-            _transmission = null; _vehicleCondition = null; _doorCount = null; _seatCount = null;
-            _yearController.clear(); _maxMileageController.clear();
-          }),
-        ),
+        _drop<String>('Catégorie véhicule', _vehicleCategory, _vehicleCategories, (v) => setState(() { _vehicleCategory = v; _doorCount = null; _seatCount = null; })),
         if (isCar || isTruck) ...[
           const SizedBox(height: 14),
           _drop<String>('Marque', _brand, _modelsByBrand.keys.toList(), (v) => setState(() { _brand = v; _model = null; })),
@@ -299,6 +278,8 @@ class _FilterState extends State<Filter> {
           _drop<String>('Énergie', _fuelType, _fuels, (v) => setState(() => _fuelType = v)),
           const SizedBox(height: 14),
           _drop<String>('Boîte de vitesse', _transmission, _transmissions, (v) => setState(() => _transmission = v)),
+          const SizedBox(height: 14),
+          _drop<String>('Motorisation', _motorization, _motorizations, (v) => setState(() => _motorization = v)),
           const SizedBox(height: 14),
           TextField(controller: _maxMileageController, keyboardType: TextInputType.number, inputFormatters: [FilteringTextInputFormatter.digitsOnly], decoration: const InputDecoration(labelText: 'Kilométrage maximum', border: OutlineInputBorder())),
           const SizedBox(height: 14),

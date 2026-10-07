@@ -120,7 +120,7 @@ class _PlaceScreenState extends State<PlaceScreen> {
     return annonce.brand?.isNotEmpty == true ||
         annonce.model?.isNotEmpty == true ||
         annonce.manufactureYear != null ||
-        annonce.horsepower != null ||
+        annonce.motorization?.isNotEmpty == true ||
         annonce.fuelType?.isNotEmpty == true ||
         annonce.mileage != null ||
         annonce.itemCondition?.isNotEmpty == true ||
@@ -144,7 +144,7 @@ class _PlaceScreenState extends State<PlaceScreen> {
 
     return Padding(
       padding: const EdgeInsets.only(
-        bottom: 14,
+        bottom: 8,
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -248,11 +248,11 @@ class _PlaceScreenState extends State<PlaceScreen> {
             value: annonce.vehicleType ?? '',
           ),
 
-        if (annonce.horsepower != null)
+        if (annonce.motorization?.isNotEmpty == true)
           _informationRow(
-            icon: Icons.speed_outlined,
-            label: 'Puissance',
-            value: '${annonce.horsepower} CV',
+            icon: Icons.settings_suggest_outlined,
+            label: 'Motorisation',
+            value: annonce.motorization ?? '',
           ),
 
         if (annonce.fuelType?.isNotEmpty == true)
@@ -576,9 +576,9 @@ class _PlaceScreenState extends State<PlaceScreen> {
                       _buildServiceInformation(),
 
                     if (annonce.description.isNotEmpty) ...[
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 10),
                       const Divider(),
-                      const SizedBox(height: 14),
+                      const SizedBox(height: 10),
 
                       Text(
                         annonce.isService

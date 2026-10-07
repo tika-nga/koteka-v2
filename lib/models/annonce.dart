@@ -17,7 +17,8 @@ class Annonce {
   final String? brand;
   final String? model;
   final int? manufactureYear;
-  final int? horsepower;
+  final int? horsepower; // ancien champ, conservé pour compatibilité
+  final String? motorization;
   final String? fuelType;
   final int? mileage;
   final String? itemCondition;
@@ -61,6 +62,7 @@ class Annonce {
     this.model,
     this.manufactureYear,
     this.horsepower,
+    this.motorization,
     this.fuelType,
     this.mileage,
     this.itemCondition,
@@ -174,6 +176,10 @@ class Annonce {
       horsepower:
           _readNullableInt(
         json['horsepower'],
+      ),
+      motorization:
+          _readNullableString(
+        json['motorization'],
       ),
       fuelType:
           _readNullableString(

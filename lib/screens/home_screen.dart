@@ -29,12 +29,14 @@ class _HomeScreenState extends State<HomeScreen> {
   String? _selectedCommune;
   int? _selectedDistanceKm;
 
+  String? _selectedVehicleCategory;
   String? _selectedBrand;
   String? _selectedModel;
   int? _selectedManufactureYear;
   String? _selectedVehicleType;
   String? _selectedFuelType;
   String? _selectedTransmission;
+  String? _selectedMotorization;
   int? _selectedMaxMileage;
   String? _selectedVehicleCondition;
   int? _selectedDoorCount;
@@ -366,19 +368,23 @@ class _HomeScreenState extends State<HomeScreen> {
       _selectedCity = result.city;
       _selectedCommune = result.commune;
       _selectedDistanceKm = result.distanceKm;
+      _selectedVehicleCategory = result.vehicleCategory;
       _selectedBrand = result.brand;
       _selectedModel = result.model;
       _selectedManufactureYear = result.manufactureYear;
       _selectedVehicleType = result.vehicleType;
       _selectedFuelType = result.fuelType;
       _selectedTransmission = result.transmission;
+      _selectedMotorization = result.motorization;
       _selectedMaxMileage = result.maxMileage;
       _selectedVehicleCondition = result.vehicleCondition;
       _selectedDoorCount = result.doorCount;
       _selectedSeatCount = result.seatCount;
 
-      _selectedFamily = result.family;
-      _selectedCategory = result.category;
+      if (_selectedVehicleCategory != null) {
+        _selectedFamily = 'Véhicules';
+        _selectedCategory = _selectedVehicleCategory;
+      }
 
       _userPosition = newPosition;
     });
@@ -396,12 +402,14 @@ class _HomeScreenState extends State<HomeScreen> {
       _selectedCommune = null;
 
       _selectedDistanceKm = null;
+      _selectedVehicleCategory = null;
       _selectedBrand = null;
       _selectedModel = null;
       _selectedManufactureYear = null;
       _selectedVehicleType = null;
       _selectedFuelType = null;
       _selectedTransmission = null;
+      _selectedMotorization = null;
       _selectedMaxMileage = null;
       _selectedVehicleCondition = null;
       _selectedDoorCount = null;
@@ -481,7 +489,11 @@ class _HomeScreenState extends State<HomeScreen> {
       annonce['brand'],
       annonce['model'],
       annonce['manufacture_year'],
-      annonce['horsepower'],
+      annonce['motorization'],
+      annonce['vehicle_type'],
+      annonce['transmission'],
+      annonce['door_count'],
+      annonce['seat_count'],
       annonce['fuel_type'],
       annonce['mileage'],
       annonce['item_condition'],
@@ -607,6 +619,11 @@ class _HomeScreenState extends State<HomeScreen> {
     int? intValue(String key) =>
         int.tryParse(value(key));
 
+    if (_selectedVehicleCategory != null &&
+        value('category') != _selectedVehicleCategory) {
+      return false;
+    }
+
     if (_selectedBrand != null &&
         value('brand') != _selectedBrand) {
       return false;
@@ -634,6 +651,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (_selectedTransmission != null &&
         value('transmission') != _selectedTransmission) {
+      return false;
+    }
+
+    if (_selectedMotorization != null &&
+        value('motorization') != _selectedMotorization) {
       return false;
     }
 
