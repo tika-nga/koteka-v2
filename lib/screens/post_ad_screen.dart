@@ -214,6 +214,100 @@ class _PostAdScreenState extends State<PostAdScreen> {
     'Volvo': ['S40', 'S60', 'S80', 'V40', 'V60', 'XC40', 'XC60', 'XC90', 'Autre'],
   };
 
+
+  // Motorisations courantes par modèle. La liste reste volontairement courte.
+  // "Autre motorisation" permet de couvrir les versions rares ou propres à un marché.
+  final Map<String, List<String>> _carMotorizationsByModel = {
+    'Audi|A1': ['1.0 L','1.2 L','1.4 L','1.5 L','1.6 L','2.0 L'],
+    'Audi|A3': ['1.0 L','1.2 L','1.4 L','1.5 L','1.6 L','1.8 L','1.9 L','2.0 L'],
+    'Audi|A4': ['1.4 L','1.6 L','1.8 L','1.9 L','2.0 L','2.5 L','2.7 L','3.0 L'],
+    'Audi|A5': ['1.8 L','2.0 L','2.7 L','3.0 L','3.2 L'],
+    'Audi|A6': ['1.8 L','1.9 L','2.0 L','2.5 L','2.7 L','3.0 L','3.2 L','4.2 L'],
+    'Audi|A8': ['2.8 L','3.0 L','3.2 L','4.0 L','4.2 L'],
+    'Audi|Q2': ['1.0 L','1.4 L','1.5 L','1.6 L','2.0 L'],
+    'Audi|Q3': ['1.4 L','1.5 L','2.0 L'], 'Audi|Q5': ['2.0 L','3.0 L','3.2 L'], 'Audi|Q7': ['3.0 L','3.6 L','4.2 L'],
+    'BMW|Série 1': ['1.5 L','1.6 L','2.0 L','3.0 L'], 'BMW|Série 2': ['1.5 L','2.0 L','3.0 L'],
+    'BMW|Série 3': ['1.6 L','1.8 L','2.0 L','2.5 L','3.0 L'], 'BMW|Série 4': ['2.0 L','3.0 L'],
+    'BMW|Série 5': ['2.0 L','2.5 L','3.0 L','4.4 L'], 'BMW|Série 7': ['3.0 L','4.0 L','4.4 L'],
+    'BMW|X1': ['1.5 L','2.0 L'], 'BMW|X3': ['2.0 L','3.0 L'], 'BMW|X5': ['2.0 L','3.0 L','4.4 L'], 'BMW|X6': ['3.0 L','4.4 L'],
+    'Chevrolet|Aveo': ['1.2 L','1.4 L','1.6 L'], 'Chevrolet|Captiva': ['2.0 L','2.2 L','2.4 L','3.0 L'],
+    'Chevrolet|Cruze': ['1.4 L','1.6 L','1.8 L','2.0 L'], 'Chevrolet|Spark': ['0.8 L','1.0 L','1.2 L'],
+    'Chevrolet|Tahoe': ['4.8 L','5.3 L','6.0 L'], 'Chevrolet|Trailblazer': ['2.5 L','2.8 L','3.6 L'],
+    'Chrysler|300': ['2.7 L','3.0 L','3.5 L','3.6 L','5.7 L'], 'Chrysler|Grand Voyager': ['2.5 L','2.8 L','3.3 L','3.6 L'],
+    'Chrysler|Pacifica': ['3.5 L','3.6 L','4.0 L'], 'Chrysler|PT Cruiser': ['1.6 L','2.0 L','2.2 L','2.4 L'], 'Chrysler|Voyager': ['2.5 L','2.8 L','3.3 L','3.6 L'],
+    'Citroën|C1': ['1.0 L','1.2 L','1.4 L'], 'Citroën|C2': ['1.1 L','1.4 L','1.6 L'], 'Citroën|C3': ['1.0 L','1.1 L','1.2 L','1.4 L','1.5 L','1.6 L'],
+    'Citroën|C4': ['1.2 L','1.4 L','1.5 L','1.6 L','2.0 L'], 'Citroën|C4 Picasso': ['1.2 L','1.6 L','2.0 L'], 'Citroën|C5': ['1.6 L','1.8 L','2.0 L','2.2 L','2.7 L','3.0 L'],
+    'Citroën|Berlingo': ['1.2 L','1.4 L','1.5 L','1.6 L','1.9 L','2.0 L'], 'Citroën|Jumpy': ['1.6 L','2.0 L'], 'Citroën|Xsara Picasso': ['1.6 L','1.8 L','2.0 L'],
+    'Dacia|Duster': ['1.0 L','1.2 L','1.3 L','1.5 L','1.6 L'], 'Dacia|Logan': ['0.9 L','1.0 L','1.2 L','1.4 L','1.5 L','1.6 L'],
+    'Dacia|Sandero': ['0.9 L','1.0 L','1.2 L','1.4 L','1.5 L','1.6 L'], 'Dacia|Lodgy': ['1.2 L','1.3 L','1.5 L','1.6 L'], 'Dacia|Dokker': ['1.2 L','1.5 L','1.6 L'],
+    'Fiat|500': ['0.9 L','1.0 L','1.2 L','1.3 L','1.4 L'], 'Fiat|Panda': ['0.9 L','1.0 L','1.1 L','1.2 L','1.3 L','1.4 L'],
+    'Fiat|Punto': ['1.2 L','1.3 L','1.4 L','1.6 L','1.9 L'], 'Fiat|Tipo': ['1.0 L','1.3 L','1.4 L','1.6 L'], 'Fiat|Doblo': ['1.2 L','1.3 L','1.4 L','1.6 L','1.9 L','2.0 L'], 'Fiat|Ducato': ['2.0 L','2.2 L','2.3 L','2.8 L','3.0 L'],
+    'Ford|Fiesta': ['1.0 L','1.1 L','1.2 L','1.3 L','1.4 L','1.5 L','1.6 L'], 'Ford|Focus': ['1.0 L','1.4 L','1.5 L','1.6 L','1.8 L','2.0 L'],
+    'Ford|Mondeo': ['1.5 L','1.6 L','1.8 L','2.0 L','2.2 L','2.5 L'], 'Ford|Kuga': ['1.5 L','1.6 L','2.0 L','2.5 L'], 'Ford|EcoSport': ['1.0 L','1.5 L','2.0 L'],
+    'Ford|Ranger': ['2.0 L','2.2 L','2.5 L','3.0 L','3.2 L'], 'Ford|Transit': ['2.0 L','2.2 L','2.4 L','2.5 L'],
+    'Honda|Civic': ['1.0 L','1.3 L','1.4 L','1.5 L','1.6 L','1.8 L','2.0 L'], 'Honda|Accord': ['1.5 L','1.8 L','2.0 L','2.2 L','2.4 L','3.0 L','3.5 L'],
+    'Honda|CR-V': ['1.5 L','1.6 L','2.0 L','2.2 L','2.4 L'], 'Honda|HR-V': ['1.5 L','1.6 L','1.8 L'], 'Honda|Jazz': ['1.2 L','1.3 L','1.4 L','1.5 L'],
+    'Hyundai|i10': ['1.0 L','1.1 L','1.2 L'], 'Hyundai|i20': ['1.0 L','1.1 L','1.2 L','1.4 L'], 'Hyundai|i30': ['1.0 L','1.4 L','1.5 L','1.6 L','2.0 L'],
+    'Hyundai|Accent': ['1.3 L','1.4 L','1.5 L','1.6 L'], 'Hyundai|Elantra': ['1.6 L','1.8 L','2.0 L'], 'Hyundai|Tucson': ['1.6 L','1.7 L','2.0 L','2.4 L','2.7 L'], 'Hyundai|Santa Fe': ['2.0 L','2.2 L','2.4 L','2.7 L','3.3 L','3.5 L'],
+    'Isuzu|D-Max': ['1.9 L','2.5 L','3.0 L'], 'Isuzu|MU-X': ['1.9 L','2.5 L','3.0 L'], 'Isuzu|Trooper': ['2.8 L','3.0 L','3.1 L','3.2 L','3.5 L'],
+    'Jeep|Cherokee': ['2.0 L','2.2 L','2.4 L','2.8 L','3.2 L','3.7 L','4.0 L'], 'Jeep|Grand Cherokee': ['3.0 L','3.6 L','4.0 L','4.7 L','5.7 L'],
+    'Jeep|Compass': ['1.3 L','1.4 L','1.6 L','2.0 L','2.4 L'], 'Jeep|Renegade': ['1.0 L','1.3 L','1.4 L','1.6 L','2.0 L','2.4 L'], 'Jeep|Wrangler': ['2.0 L','2.2 L','2.8 L','3.6 L','4.0 L'],
+    'Kia|Picanto': ['1.0 L','1.1 L','1.2 L'], 'Kia|Rio': ['1.0 L','1.1 L','1.2 L','1.4 L','1.5 L','1.6 L'], 'Kia|Ceed': ['1.0 L','1.4 L','1.5 L','1.6 L','2.0 L'],
+    'Kia|Sportage': ['1.6 L','1.7 L','2.0 L','2.4 L','2.7 L'], 'Kia|Sorento': ['2.0 L','2.2 L','2.4 L','2.5 L','3.3 L','3.5 L'], 'Kia|Carnival': ['2.2 L','2.5 L','2.9 L','3.3 L','3.5 L'],
+    'Land Rover|Defender': ['2.0 L','2.2 L','2.4 L','2.5 L','3.0 L','3.5 L','4.0 L'], 'Land Rover|Discovery': ['2.0 L','2.5 L','2.7 L','3.0 L','4.0 L','4.4 L'],
+    'Land Rover|Freelander': ['1.8 L','2.0 L','2.2 L','2.5 L'], 'Land Rover|Range Rover': ['2.0 L','2.5 L','3.0 L','3.5 L','4.0 L','4.4 L','5.0 L'],
+    'Land Rover|Range Rover Evoque': ['1.5 L','2.0 L','2.2 L'], 'Land Rover|Range Rover Sport': ['2.0 L','2.7 L','3.0 L','3.6 L','4.2 L','4.4 L','5.0 L'],
+    'Lexus|CT': ['1.8 L'], 'Lexus|ES': ['2.0 L','2.5 L','3.0 L','3.5 L'], 'Lexus|GS': ['2.0 L','2.5 L','3.0 L','3.5 L','4.3 L','4.6 L'],
+    'Lexus|IS': ['2.0 L','2.2 L','2.5 L','3.0 L','3.5 L'], 'Lexus|NX': ['2.0 L','2.5 L'], 'Lexus|RX': ['2.0 L','2.7 L','3.0 L','3.3 L','3.5 L'], 'Lexus|LX': ['4.5 L','4.6 L','4.7 L','5.7 L'],
+    'Mazda|Mazda 2': ['1.3 L','1.5 L'], 'Mazda|Mazda 3': ['1.5 L','1.6 L','2.0 L','2.2 L','2.3 L','2.5 L'], 'Mazda|Mazda 6': ['1.8 L','2.0 L','2.2 L','2.3 L','2.5 L'],
+    'Mazda|CX-3': ['1.5 L','2.0 L'], 'Mazda|CX-5': ['2.0 L','2.2 L','2.5 L'], 'Mazda|CX-7': ['2.2 L','2.3 L','2.5 L'], 'Mazda|CX-9': ['2.5 L','3.5 L','3.7 L'], 'Mazda|BT-50': ['2.2 L','2.5 L','3.0 L','3.2 L'],
+    'Mercedes-Benz|Classe A': ['1.3 L','1.5 L','1.6 L','1.8 L','2.0 L','2.1 L'], 'Mercedes-Benz|Classe B': ['1.3 L','1.5 L','1.6 L','1.8 L','2.0 L','2.1 L'],
+    'Mercedes-Benz|Classe C': ['1.5 L','1.6 L','1.8 L','2.0 L','2.1 L','2.2 L','2.5 L','3.0 L'], 'Mercedes-Benz|Classe E': ['1.8 L','2.0 L','2.1 L','2.2 L','2.7 L','3.0 L','3.2 L','3.5 L'],
+    'Mercedes-Benz|Classe S': ['2.8 L','3.0 L','3.2 L','3.5 L','4.0 L','4.7 L','5.0 L','5.5 L'], 'Mercedes-Benz|CLA': ['1.3 L','1.6 L','2.0 L','2.1 L'], 'Mercedes-Benz|CLS': ['2.1 L','3.0 L','3.5 L','4.7 L','5.5 L'],
+    'Mercedes-Benz|GLA': ['1.3 L','1.6 L','2.0 L','2.1 L'], 'Mercedes-Benz|GLC': ['2.0 L','2.1 L','2.2 L','3.0 L'], 'Mercedes-Benz|GLE': ['2.0 L','2.1 L','3.0 L','3.5 L','4.7 L'], 'Mercedes-Benz|GLS': ['3.0 L','4.0 L','4.7 L','5.5 L'],
+    'Mercedes-Benz|Vito': ['1.6 L','2.0 L','2.1 L','2.2 L'], 'Mercedes-Benz|Sprinter': ['2.1 L','2.2 L','2.7 L','3.0 L'],
+    'Mitsubishi|Colt': ['1.1 L','1.3 L','1.5 L'], 'Mitsubishi|Lancer': ['1.3 L','1.5 L','1.6 L','1.8 L','2.0 L'], 'Mitsubishi|ASX': ['1.6 L','1.8 L','2.0 L','2.2 L'],
+    'Mitsubishi|Outlander': ['2.0 L','2.2 L','2.4 L','3.0 L'], 'Mitsubishi|Pajero': ['2.5 L','2.8 L','3.0 L','3.2 L','3.5 L','3.8 L'], 'Mitsubishi|L200': ['2.4 L','2.5 L','2.8 L'],
+    'Nissan|Micra': ['0.9 L','1.0 L','1.2 L','1.3 L','1.4 L','1.5 L','1.6 L'], 'Nissan|Juke': ['1.0 L','1.2 L','1.5 L','1.6 L'], 'Nissan|Qashqai': ['1.2 L','1.3 L','1.5 L','1.6 L','2.0 L'],
+    'Nissan|X-Trail': ['1.3 L','1.6 L','1.7 L','2.0 L','2.2 L','2.5 L'], 'Nissan|Pathfinder': ['2.5 L','3.0 L','3.5 L','4.0 L'], 'Nissan|Patrol': ['2.8 L','3.0 L','4.2 L','4.5 L','4.8 L','5.6 L'],
+    'Nissan|Navara': ['2.3 L','2.5 L','3.0 L'], 'Nissan|Primastar': ['1.6 L','2.0 L','2.5 L'],
+    'Opel|Corsa': ['1.0 L','1.2 L','1.3 L','1.4 L','1.5 L','1.6 L','1.7 L'], 'Opel|Astra': ['1.0 L','1.2 L','1.3 L','1.4 L','1.5 L','1.6 L','1.7 L','1.8 L','1.9 L','2.0 L'],
+    'Opel|Insignia': ['1.4 L','1.5 L','1.6 L','2.0 L','2.8 L'], 'Opel|Meriva': ['1.3 L','1.4 L','1.6 L','1.7 L'], 'Opel|Zafira': ['1.4 L','1.6 L','1.7 L','1.8 L','1.9 L','2.0 L','2.2 L'],
+    'Opel|Mokka': ['1.2 L','1.4 L','1.5 L','1.6 L','1.7 L'], 'Opel|Vivaro': ['1.6 L','1.9 L','2.0 L','2.5 L'],
+    'Peugeot|108': ['1.0 L','1.2 L'], 'Peugeot|206': ['1.1 L','1.4 L','1.6 L','1.9 L','2.0 L'], 'Peugeot|207': ['1.4 L','1.6 L'], 'Peugeot|208': ['1.0 L','1.2 L','1.4 L','1.5 L','1.6 L'],
+    'Peugeot|307': ['1.4 L','1.6 L','2.0 L'], 'Peugeot|308': ['1.2 L','1.5 L','1.6 L','2.0 L'], 'Peugeot|407': ['1.6 L','1.8 L','2.0 L','2.2 L','2.7 L','3.0 L'],
+    'Peugeot|508': ['1.2 L','1.5 L','1.6 L','2.0 L','2.2 L'], 'Peugeot|2008': ['1.2 L','1.5 L','1.6 L'], 'Peugeot|3008': ['1.2 L','1.5 L','1.6 L','2.0 L'], 'Peugeot|5008': ['1.2 L','1.5 L','1.6 L','2.0 L'],
+    'Peugeot|Partner': ['1.2 L','1.5 L','1.6 L','1.9 L','2.0 L'], 'Peugeot|Expert': ['1.6 L','2.0 L'], 'Peugeot|Boxer': ['2.0 L','2.2 L','2.5 L','2.8 L','3.0 L'],
+    'Renault|Twingo': ['0.9 L','1.0 L','1.2 L','1.6 L'], 'Renault|Clio': ['0.9 L','1.0 L','1.2 L','1.4 L','1.5 L','1.6 L','2.0 L'], 'Renault|Mégane': ['1.2 L','1.3 L','1.4 L','1.5 L','1.6 L','1.9 L','2.0 L'],
+    'Renault|Laguna': ['1.5 L','1.6 L','1.8 L','1.9 L','2.0 L','2.2 L','3.0 L'], 'Renault|Scénic': ['1.2 L','1.3 L','1.4 L','1.5 L','1.6 L','1.9 L','2.0 L'], 'Renault|Captur': ['0.9 L','1.0 L','1.2 L','1.3 L','1.5 L','1.6 L'],
+    'Renault|Kadjar': ['1.2 L','1.3 L','1.5 L','1.6 L','1.7 L'], 'Renault|Koleos': ['1.6 L','1.7 L','2.0 L','2.5 L'], 'Renault|Kangoo': ['1.2 L','1.3 L','1.4 L','1.5 L','1.6 L','1.9 L'],
+    'Renault|Trafic': ['1.6 L','1.9 L','2.0 L','2.5 L'], 'Renault|Master': ['2.3 L','2.5 L','2.8 L','3.0 L'],
+    'Seat|Ibiza': ['1.0 L','1.2 L','1.4 L','1.5 L','1.6 L','1.9 L','2.0 L'], 'Seat|Leon': ['1.0 L','1.2 L','1.4 L','1.5 L','1.6 L','1.8 L','1.9 L','2.0 L'],
+    'Seat|Toledo': ['1.2 L','1.4 L','1.6 L','1.8 L','1.9 L','2.0 L'], 'Seat|Altea': ['1.2 L','1.4 L','1.6 L','1.8 L','1.9 L','2.0 L'], 'Seat|Ateca': ['1.0 L','1.4 L','1.5 L','1.6 L','2.0 L'],
+    'Škoda|Fabia': ['1.0 L','1.2 L','1.4 L','1.6 L','1.9 L','2.0 L'], 'Škoda|Octavia': ['1.0 L','1.2 L','1.4 L','1.5 L','1.6 L','1.8 L','1.9 L','2.0 L'],
+    'Škoda|Superb': ['1.4 L','1.5 L','1.6 L','1.8 L','1.9 L','2.0 L','2.5 L','2.8 L','3.6 L'], 'Škoda|Karoq': ['1.0 L','1.5 L','1.6 L','2.0 L'], 'Škoda|Kodiaq': ['1.4 L','1.5 L','2.0 L'],
+    'Subaru|Impreza': ['1.5 L','1.6 L','2.0 L','2.5 L'], 'Subaru|Legacy': ['2.0 L','2.5 L','3.0 L','3.6 L'], 'Subaru|Forester': ['2.0 L','2.5 L'], 'Subaru|Outback': ['2.0 L','2.5 L','3.0 L','3.6 L'], 'Subaru|XV': ['1.6 L','2.0 L'],
+    'Suzuki|Alto': ['0.8 L','1.0 L','1.1 L'], 'Suzuki|Swift': ['1.0 L','1.2 L','1.3 L','1.4 L','1.5 L','1.6 L'], 'Suzuki|Vitara': ['1.0 L','1.4 L','1.6 L','1.9 L','2.0 L'],
+    'Suzuki|Grand Vitara': ['1.6 L','1.9 L','2.0 L','2.4 L','2.5 L','2.7 L','3.2 L'], 'Suzuki|Jimny': ['1.3 L','1.5 L'], 'Suzuki|SX4': ['1.5 L','1.6 L','1.9 L','2.0 L'],
+    'Toyota|Aygo': ['1.0 L','1.2 L'], 'Toyota|Yaris': ['1.0 L','1.3 L','1.4 L','1.5 L','1.8 L'], 'Toyota|Corolla': ['1.2 L','1.3 L','1.4 L','1.5 L','1.6 L','1.8 L','2.0 L'],
+    'Toyota|Avensis': ['1.6 L','1.8 L','2.0 L','2.2 L','2.4 L'], 'Toyota|Camry': ['2.0 L','2.4 L','2.5 L','3.0 L','3.5 L'], 'Toyota|RAV4': ['1.8 L','2.0 L','2.2 L','2.4 L','2.5 L'],
+    'Toyota|Land Cruiser': ['2.4 L','2.8 L','3.0 L','4.0 L','4.2 L','4.5 L','4.6 L','4.7 L'], 'Toyota|Prado': ['2.7 L','2.8 L','3.0 L','3.4 L','4.0 L'], 'Toyota|Fortuner': ['2.4 L','2.7 L','2.8 L','3.0 L','4.0 L'],
+    'Toyota|Hilux': ['2.0 L','2.4 L','2.5 L','2.7 L','2.8 L','3.0 L','4.0 L'], 'Toyota|Hiace': ['2.0 L','2.4 L','2.5 L','2.7 L','2.8 L','3.0 L'],
+    'Volkswagen|Polo': ['1.0 L','1.2 L','1.4 L','1.5 L','1.6 L','1.9 L','2.0 L'], 'Volkswagen|Golf': ['1.0 L','1.2 L','1.4 L','1.5 L','1.6 L','1.8 L','1.9 L','2.0 L','2.3 L','2.5 L','2.8 L','3.2 L'],
+    'Volkswagen|Passat': ['1.4 L','1.5 L','1.6 L','1.8 L','1.9 L','2.0 L','2.3 L','2.5 L','2.8 L','3.2 L','3.6 L'], 'Volkswagen|Touran': ['1.2 L','1.4 L','1.5 L','1.6 L','1.9 L','2.0 L'],
+    'Volkswagen|Tiguan': ['1.4 L','1.5 L','2.0 L'], 'Volkswagen|Touareg': ['2.5 L','3.0 L','3.2 L','3.6 L','4.2 L','5.0 L'], 'Volkswagen|Caddy': ['1.0 L','1.2 L','1.4 L','1.6 L','1.9 L','2.0 L'], 'Volkswagen|Transporter': ['1.9 L','2.0 L','2.4 L','2.5 L','3.2 L'],
+    'Volvo|S40': ['1.6 L','1.8 L','1.9 L','2.0 L','2.4 L','2.5 L'], 'Volvo|S60': ['1.5 L','1.6 L','2.0 L','2.4 L','2.5 L','3.0 L'], 'Volvo|S80': ['1.6 L','2.0 L','2.4 L','2.5 L','2.9 L','3.0 L','3.2 L','4.4 L'],
+    'Volvo|V40': ['1.5 L','1.6 L','2.0 L'], 'Volvo|V60': ['1.5 L','1.6 L','2.0 L','2.4 L'], 'Volvo|XC40': ['1.5 L','2.0 L'], 'Volvo|XC60': ['2.0 L','2.4 L','2.5 L','3.0 L'], 'Volvo|XC90': ['2.0 L','2.4 L','2.5 L','2.9 L','3.2 L','4.4 L'],
+  };
+
+  List<String> _motorizationOptionsForCar() {
+    if (_selectedCarBrand == null || _selectedCarModel == null) return <String>[];
+    if (_selectedCarModel == 'Autre') return const ['Autre motorisation'];
+    final key = '$_selectedCarBrand|$_selectedCarModel';
+    final values = _carMotorizationsByModel[key] ?? const <String>[];
+    return [...values, 'Autre motorisation'];
+  }
+
   final List<String> _consoles = [
     'PlayStation 5',
     'PlayStation 4',
@@ -424,6 +518,7 @@ class _PostAdScreenState extends State<PostAdScreen> {
       final models = _selectedCarBrand == null
           ? <String>[]
           : (_carModelsByBrand[_selectedCarBrand] ?? <String>[]);
+      final motorizationOptions = _motorizationOptionsForCar();
 
       return [
         DropdownButtonFormField<String>(
@@ -437,6 +532,7 @@ class _PostAdScreenState extends State<PostAdScreen> {
             setState(() {
               _selectedCarBrand = value;
               _selectedCarModel = null;
+              _selectedMotorization = null;
               _brandController.text = value ?? '';
               _modelController.clear();
             });
@@ -455,6 +551,7 @@ class _PostAdScreenState extends State<PostAdScreen> {
               : (value) {
                   setState(() {
                     _selectedCarModel = value;
+                    _selectedMotorization = null;
                     _modelController.text = value ?? '';
                   });
                 },
@@ -470,10 +567,12 @@ class _PostAdScreenState extends State<PostAdScreen> {
           value: _selectedMotorization,
           isExpanded: true,
           decoration: _decoration(label: 'Motorisation'),
-          items: _motorizations
+          items: motorizationOptions
               .map((v) => DropdownMenuItem(value: v, child: Text(v)))
               .toList(),
-          onChanged: (value) => setState(() => _selectedMotorization = value),
+          onChanged: _selectedCarModel == null
+              ? null
+              : (value) => setState(() => _selectedMotorization = value),
         ),
         _space(),
         DropdownButtonFormField<String>(
