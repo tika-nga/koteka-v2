@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -49,27 +50,27 @@ class _HomeScreenState extends State<HomeScreen> {
   String _selectedSort = 'recent';
 
   final Map<String, List<String>> _categoriesParFamille = {
-  'Véhicules': [
+  'VÃ©hicules': [
     'Voitures',
     'Camions',
     'Motos / Quads',
-    'Vélos',
-    'Pièces automobiles',
-    'Pièces moto/quad',
+    'VÃ©los',
+    'PiÃ¨ces automobiles',
+    'PiÃ¨ces moto/quad',
   ],
 
-  'Électronique': [
+  'Ã‰lectronique': [
     'Ordinateurs',
-    'Téléphone',
-    'Accessoires téléphone',
-    'Appareil photo / Caméra',
+    'TÃ©lÃ©phone',
+    'Accessoires tÃ©lÃ©phone',
+    'Appareil photo / CamÃ©ra',
     'Hi-Fi',
     'Tablettes',
-    'Consoles et jeux vidéo',
+    'Consoles et jeux vidÃ©o',
   ],
 
-  'Électroménager': [
-    'Électroménager',
+  'Ã‰lectromÃ©nager': [
+    'Ã‰lectromÃ©nager',
   ],
 
   'Maison / Ndaku': [
@@ -84,29 +85,29 @@ class _HomeScreenState extends State<HomeScreen> {
     'Guitares',
     'Pianos / Claviers',
     'Batteries / Percussions',
-    'Instruments à vent',
+    'Instruments Ã  vent',
     'Autres instruments',
     'Accessoires instruments',
   ],
 
-  'Matériel chantier': [
+  'MatÃ©riel chantier': [
     'Machines',
     'Outillage',
   ],
 
   'Prestations de services': [
-    'Bâtiment / Construction',
-    'Mécanique automobile / moto',
-    'Électricité',
+    'BÃ¢timent / Construction',
+    'MÃ©canique automobile / moto',
+    'Ã‰lectricitÃ©',
     'Plomberie',
     'Menuiserie',
     'Peinture',
-    'Informatique / Téléphonie',
+    'Informatique / TÃ©lÃ©phonie',
     'Transport / Livraison',
     'Nettoyage',
     'Couture',
-    'Coiffure / Beauté',
-    'Événementiel',
+    'Coiffure / BeautÃ©',
+    'Ã‰vÃ©nementiel',
     'Formation / Cours',
     'Autres services',
   ],
@@ -117,12 +118,12 @@ class _HomeScreenState extends State<HomeScreen> {
 };
 
    final Map<String, IconData> _familyIcons = {
-  'Véhicules': Icons.directions_car_outlined,
-  'Électronique': Icons.devices_outlined,
-  'Électroménager': Icons.kitchen_outlined,
+  'VÃ©hicules': Icons.directions_car_outlined,
+  'Ã‰lectronique': Icons.devices_outlined,
+  'Ã‰lectromÃ©nager': Icons.kitchen_outlined,
   'Maison / Ndaku': Icons.chair_outlined,
   'Instruments': Icons.music_note_outlined,
-  'Matériel chantier': Icons.construction_outlined,
+  'MatÃ©riel chantier': Icons.construction_outlined,
   'Prestations de services': Icons.handyman_outlined,
   'Autres': Icons.category_outlined,
 };
@@ -201,11 +202,11 @@ class _HomeScreenState extends State<HomeScreen> {
         builder: (context) {
           return AlertDialog(
             title: const Text(
-              'Localisation désactivée',
+              'Localisation dÃ©sactivÃ©e',
             ),
             content: const Text(
-              'Activez la localisation du téléphone '
-              'pour rechercher les annonces à proximité.',
+              'Activez la localisation du tÃ©lÃ©phone '
+              'pour rechercher les annonces Ã  proximitÃ©.',
             ),
             actions: [
               TextButton(
@@ -227,7 +228,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   );
                 },
                 child: const Text(
-                  'Ouvrir les paramètres',
+                  'Ouvrir les paramÃ¨tres',
                 ),
               ),
             ],
@@ -252,7 +253,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (permission == LocationPermission.denied) {
       _showMessage(
-        'La localisation doit être autorisée '
+        'La localisation doit Ãªtre autorisÃ©e '
         'pour utiliser le filtre de distance.',
       );
 
@@ -272,9 +273,9 @@ class _HomeScreenState extends State<HomeScreen> {
               'Autorisation de localisation',
             ),
             content: const Text(
-              'L’accès à la localisation a été refusé. '
-              'Vous pouvez l’autoriser dans les '
-              'paramètres de Koteka.',
+              'Lâ€™accÃ¨s Ã  la localisation a Ã©tÃ© refusÃ©. '
+              'Vous pouvez lâ€™autoriser dans les '
+              'paramÃ¨tres de Koteka.',
             ),
             actions: [
               TextButton(
@@ -296,7 +297,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   );
                 },
                 child: const Text(
-                  'Ouvrir les paramètres',
+                  'Ouvrir les paramÃ¨tres',
                 ),
               ),
             ],
@@ -319,7 +320,7 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     } catch (_) {
       _showMessage(
-        'Impossible de récupérer votre position.',
+        'Impossible de rÃ©cupÃ©rer votre position.',
       );
 
       return null;
@@ -382,7 +383,7 @@ class _HomeScreenState extends State<HomeScreen> {
       _selectedSeatCount = result.seatCount;
 
       if (_selectedVehicleCategory != null) {
-        _selectedFamily = 'Véhicules';
+        _selectedFamily = 'VÃ©hicules';
         _selectedCategory = _selectedVehicleCategory;
       }
 
@@ -485,7 +486,7 @@ class _HomeScreenState extends State<HomeScreen> {
       annonce['city'],
       annonce['district'],
 
-      // Nouvelles caractéristiques.
+      // Nouvelles caractÃ©ristiques.
       annonce['brand'],
       annonce['model'],
       annonce['manufacture_year'],
@@ -719,7 +720,7 @@ class _HomeScreenState extends State<HomeScreen> {
           final bQuote = _isQuote(b);
 
           // Les prestations "Sur devis" restent
-          // après les annonces ayant un vrai prix.
+          // aprÃ¨s les annonces ayant un vrai prix.
           if (aQuote && !bQuote) {
             return 1;
           }
@@ -920,7 +921,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Center(
                       child: Text(
                         'Aucune annonce ne correspond '
-                        'à votre recherche.',
+                        'Ã  votre recherche.',
                         textAlign:
                             TextAlign.center,
                       ),
@@ -947,6 +948,62 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  Future<void> _chooseSearchPhoto() async {
+    final source = await showModalBottomSheet<ImageSource>(
+      context: context,
+      builder: (sheetContext) => SafeArea(
+        child: Wrap(children: [
+          ListTile(
+            leading: const Icon(Icons.camera_alt_outlined),
+            title: const Text('Prendre une photo'),
+            onTap: () => Navigator.pop(sheetContext, ImageSource.camera),
+          ),
+          ListTile(
+            leading: const Icon(Icons.photo_library_outlined),
+            title: const Text('Choisir dans la galerie'),
+            onTap: () => Navigator.pop(sheetContext, ImageSource.gallery),
+          ),
+        ]),
+      ),
+    );
+    if (source == null || !mounted) return;
+    try {
+      final photo = await ImagePicker().pickImage(
+        source: source,
+        imageQuality: 75,
+        maxWidth: 1600,
+      );
+      if (photo == null || !mounted) return;
+      final bytes = await photo.readAsBytes();
+      if (!mounted) return;
+      await showDialog<void>(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          title: const Text('Photo sÃ©lectionnÃ©e'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Image.memory(bytes, height: 220, fit: BoxFit.contain),
+              const SizedBox(height: 12),
+              const Text('La reconnaissance des objets sera ajoutÃ©e Ã  la prochaine Ã©tape.'),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text('Fermer'),
+            ),
+          ],
+        ),
+      );
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Impossible dâ€™ouvrir la photo : $error')),
+      );
+    }
+  }
+
   Widget _buildSearchBar() {
     return TextField(
       controller: _searchController,
@@ -959,19 +1016,22 @@ class _HomeScreenState extends State<HomeScreen> {
             const Icon(
           Icons.search,
         ),
-        suffixIcon:
-            _searchController.text.isEmpty
-                ? null
-                : IconButton(
-                    tooltip:
-                        'Effacer la recherche',
-                    onPressed: () {
-                      _searchController.clear();
-                    },
-                    icon: const Icon(
-                      Icons.close,
-                    ),
-                  ),
+        suffixIcon: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (_searchController.text.isNotEmpty)
+              IconButton(
+                tooltip: 'Effacer la recherche',
+                onPressed: () => _searchController.clear(),
+                icon: const Icon(Icons.close),
+              ),
+            IconButton(
+              tooltip: 'Rechercher avec une photo',
+              onPressed: _chooseSearchPhoto,
+              icon: const Icon(Icons.camera_alt_outlined),
+            ),
+          ],
+        ),
         filled: true,
         fillColor:
             Theme.of(context).colorScheme.surface,
@@ -1035,7 +1095,7 @@ class _HomeScreenState extends State<HomeScreen> {
           CrossAxisAlignment.start,
       children: [
         const Text(
-          'Catégories',
+          'CatÃ©gories',
           style: TextStyle(
             fontSize: 18,
             fontWeight:
@@ -1263,7 +1323,7 @@ class _HomeScreenState extends State<HomeScreen> {
             label: const FittedBox(
               fit: BoxFit.scaleDown,
               child: Text(
-                'Réinitialiser',
+                'RÃ©initialiser',
               ),
             ),
             style:
@@ -1317,7 +1377,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
             Expanded(
               child: Text(
-                'Annonces à moins de '
+                'Annonces Ã  moins de '
                 '$_selectedDistanceKm km',
                 style: TextStyle(
                   fontSize: 13,
@@ -1348,8 +1408,8 @@ class _HomeScreenState extends State<HomeScreen> {
         _selectedDistanceKm != null;
 
     final title = hasActiveSearchOrFilter
-        ? 'Résultats'
-        : 'Annonces récentes';
+        ? 'RÃ©sultats'
+        : 'Annonces rÃ©centes';
 
     return Row(
       children: [
@@ -1375,7 +1435,7 @@ class _HomeScreenState extends State<HomeScreen> {
               PopupMenuItem<String>(
                 value: 'recent',
                 child: Text(
-                  'Plus récentes',
+                  'Plus rÃ©centes',
                 ),
               ),
               PopupMenuItem<String>(
@@ -1387,7 +1447,7 @@ class _HomeScreenState extends State<HomeScreen> {
               PopupMenuItem<String>(
                 value: 'price_desc',
                 child: Text(
-                  'Prix décroissant',
+                  'Prix dÃ©croissant',
                 ),
               ),
             ];
@@ -1618,7 +1678,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             Expanded(
                               child: Text(
                                 district.isNotEmpty
-                                    ? '$city • $district'
+                                    ? '$city â€¢ $district'
                                     : city,
                                 maxLines: 1,
                                 overflow:
