@@ -36,17 +36,12 @@ class _SignInScreenState extends State<SignInScreen> {
             showChat: false,
           ),
           body: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Stack(
-                children: [
-                  Positioned(
-                    top: 18,
-                    left: 28,
-                    right: 28,
-                    child: Container(
-                      width: 337,
-                      height: 350,
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(28, 26, 28, 24),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 420),
+                  child: Container(
                       padding: const EdgeInsets.only(
                         left: 15,
                         right: 15,
@@ -135,8 +130,9 @@ class _SignInScreenState extends State<SignInScreen> {
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
                                     children: [
-                                      RichText(
-                                        textAlign: TextAlign.start,
+                                      Expanded(
+                                        child: RichText(
+                                          textAlign: TextAlign.start,
                                         text: TextSpan(
                                           style: TextStyle(
                                             color:
@@ -222,11 +218,15 @@ class _SignInScreenState extends State<SignInScreen> {
                                                       );
                                                     },
                                             ),
-                                          ],
+                                            ],
+                                          ),
                                         ),
                                       ),
                                       Padding(
-                                        padding: EdgeInsets.only(top: 22),
+                                        padding: const EdgeInsets.only(
+                                          top: 22,
+                                          left: 8,
+                                        ),
                                         child: IconButton(
                                           icon: Icon(
                                             Icons.arrow_forward,
@@ -259,9 +259,11 @@ class _SignInScreenState extends State<SignInScreen> {
                                                 Navigator.of(context).pop();
                                               }
                                             }
-                                            setState(() {
-                                              isLoading = false;
-                                            });
+                                            if (mounted) {
+                                              setState(() {
+                                                isLoading = false;
+                                              });
+                                            }
                                           },
                                         ),
                                       ),
@@ -273,9 +275,8 @@ class _SignInScreenState extends State<SignInScreen> {
                           ),
                         ],
                       ),
-                    ),
                   ),
-                ],
+                ),
               ),
             ),
           ),
