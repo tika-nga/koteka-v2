@@ -1,4 +1,4 @@
-import 'dart:convert';
+
 import 'package:flutter_marketplace_template/core/auth_result.dart';
 import 'package:flutter_marketplace_template/main.dart';
 import 'package:flutter_marketplace_template/services/notifications_service.dart';
@@ -19,27 +19,27 @@ class AuthServiceSupabase implements IAuthService {
 
   /// Attempts to register a new user using an email address and password.
   ///
-  /// Sends data to a custom Edge Function in Supabase (`register-user`),
-  /// which creates a user in `auth` and a profile in the `users` table.
+  /// Uses Supabase Auth directly.
   ///
   /// Returns [AuthSuccess] if successful, otherwise [AuthError] with an error description.
   @override
   Future<AuthResult> signUpWithPassword(String email, String password) async {
     try {
-      // Wywołanie Edge Function ('register-user') z Supabase
-      final response = await Supabase.instance.client.functions.invoke(
-        'register-user',
-        body: {'email': email, 'password': password},
+      final AuthResponse res = await supabase.auth.signUp(
+        email: email,
+        password: password,
       );
 
-      if (response.status == 200) {
-        return AuthSuccess();
-      } else {
-        final error = jsonDecode(response.data)['error'];
-        return AuthError(error ?? 'Nieznany błąd podczas rejestracji.');
+      final User? user = res.user;
+      if (user == null) {
+        return AuthError('Impossible de créer le compte.');
       }
+
+      return AuthSuccess();
+    } on AuthException catch (e) {
+      return AuthError(e.message);
     } catch (e) {
-      return AuthError('Błąd sieci: $e');
+      return AuthError("Erreur lors de l'inscription : $e");
     }
   }
 
