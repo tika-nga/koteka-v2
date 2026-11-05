@@ -50,27 +50,27 @@ class _HomeScreenState extends State<HomeScreen> {
   String _selectedSort = 'recent';
 
   final Map<String, List<String>> _categoriesParFamille = {
-  'VÃ©hicules': [
+  'Véhicules': [
     'Voitures',
     'Camions',
     'Motos / Quads',
-    'VÃ©los',
-    'PiÃ¨ces automobiles',
-    'PiÃ¨ces moto/quad',
+    'Vélos',
+    'Pièces automobiles',
+    'Pièces moto/quad',
   ],
 
-  'Ã‰lectronique': [
+  'Électronique': [
     'Ordinateurs',
-    'TÃ©lÃ©phone',
-    'Accessoires tÃ©lÃ©phone',
-    'Appareil photo / CamÃ©ra',
+    'Téléphone',
+    'Accessoires téléphone',
+    'Appareil photo / Caméra',
     'Hi-Fi',
     'Tablettes',
-    'Consoles et jeux vidÃ©o',
+    'Consoles et jeux vidéo',
   ],
 
-  'Ã‰lectromÃ©nager': [
-    'Ã‰lectromÃ©nager',
+  'Électroménager': [
+    'Électroménager',
   ],
 
   'Maison / Ndaku': [
@@ -85,29 +85,29 @@ class _HomeScreenState extends State<HomeScreen> {
     'Guitares',
     'Pianos / Claviers',
     'Batteries / Percussions',
-    'Instruments Ã  vent',
+    'Instruments à vent',
     'Autres instruments',
     'Accessoires instruments',
   ],
 
-  'MatÃ©riel chantier': [
+  'Matériel chantier': [
     'Machines',
     'Outillage',
   ],
 
   'Prestations de services': [
-    'BÃ¢timent / Construction',
-    'MÃ©canique automobile / moto',
-    'Ã‰lectricitÃ©',
+    'Bâtiment / Construction',
+    'Mécanique automobile / moto',
+    'Électricité',
     'Plomberie',
     'Menuiserie',
     'Peinture',
-    'Informatique / TÃ©lÃ©phonie',
+    'Informatique / Téléphonie',
     'Transport / Livraison',
     'Nettoyage',
     'Couture',
-    'Coiffure / BeautÃ©',
-    'Ã‰vÃ©nementiel',
+    'Coiffure / Beauté',
+    'Événementiel',
     'Formation / Cours',
     'Autres services',
   ],
@@ -118,12 +118,12 @@ class _HomeScreenState extends State<HomeScreen> {
 };
 
    final Map<String, IconData> _familyIcons = {
-  'VÃ©hicules': Icons.directions_car_outlined,
-  'Ã‰lectronique': Icons.devices_outlined,
-  'Ã‰lectromÃ©nager': Icons.kitchen_outlined,
+  'Véhicules': Icons.directions_car_outlined,
+  'Électronique': Icons.devices_outlined,
+  'Électroménager': Icons.kitchen_outlined,
   'Maison / Ndaku': Icons.chair_outlined,
   'Instruments': Icons.music_note_outlined,
-  'MatÃ©riel chantier': Icons.construction_outlined,
+  'Matériel chantier': Icons.construction_outlined,
   'Prestations de services': Icons.handyman_outlined,
   'Autres': Icons.category_outlined,
 };
@@ -202,11 +202,11 @@ class _HomeScreenState extends State<HomeScreen> {
         builder: (context) {
           return AlertDialog(
             title: const Text(
-              'Localisation dÃ©sactivÃ©e',
+              'Localisation désactivée',
             ),
             content: const Text(
-              'Activez la localisation du tÃ©lÃ©phone '
-              'pour rechercher les annonces Ã  proximitÃ©.',
+              'Activez la localisation du téléphone '
+              'pour rechercher les annonces à proximité.',
             ),
             actions: [
               TextButton(
@@ -228,7 +228,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   );
                 },
                 child: const Text(
-                  'Ouvrir les paramÃ¨tres',
+                  'Ouvrir les paramètres',
                 ),
               ),
             ],
@@ -253,7 +253,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (permission == LocationPermission.denied) {
       _showMessage(
-        'La localisation doit Ãªtre autorisÃ©e '
+        'La localisation doit être autorisée '
         'pour utiliser le filtre de distance.',
       );
 
@@ -273,9 +273,9 @@ class _HomeScreenState extends State<HomeScreen> {
               'Autorisation de localisation',
             ),
             content: const Text(
-              'Lâ€™accÃ¨s Ã  la localisation a Ã©tÃ© refusÃ©. '
-              'Vous pouvez lâ€™autoriser dans les '
-              'paramÃ¨tres de Koteka.',
+              'L'accès à la localisation a été refusé. '
+              'Vous pouvez l'autoriser dans les '
+              'paramètres de Koteka.',
             ),
             actions: [
               TextButton(
@@ -297,7 +297,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   );
                 },
                 child: const Text(
-                  'Ouvrir les paramÃ¨tres',
+                  'Ouvrir les paramètres',
                 ),
               ),
             ],
@@ -320,7 +320,7 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     } catch (_) {
       _showMessage(
-        'Impossible de rÃ©cupÃ©rer votre position.',
+        'Impossible de récupérer votre position.',
       );
 
       return null;
@@ -383,7 +383,7 @@ class _HomeScreenState extends State<HomeScreen> {
       _selectedSeatCount = result.seatCount;
 
       if (_selectedVehicleCategory != null) {
-        _selectedFamily = 'VÃ©hicules';
+        _selectedFamily = 'Véhicules';
         _selectedCategory = _selectedVehicleCategory;
       }
 
@@ -486,7 +486,7 @@ class _HomeScreenState extends State<HomeScreen> {
       annonce['city'],
       annonce['district'],
 
-      // Nouvelles caractÃ©ristiques.
+      // Nouvelles caractéristiques.
       annonce['brand'],
       annonce['model'],
       annonce['manufacture_year'],
@@ -720,7 +720,7 @@ class _HomeScreenState extends State<HomeScreen> {
           final bQuote = _isQuote(b);
 
           // Les prestations "Sur devis" restent
-          // aprÃ¨s les annonces ayant un vrai prix.
+          // après les annonces ayant un vrai prix.
           if (aQuote && !bQuote) {
             return 1;
           }
@@ -921,7 +921,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Center(
                       child: Text(
                         'Aucune annonce ne correspond '
-                        'Ã  votre recherche.',
+                        'à votre recherche.',
                         textAlign:
                             TextAlign.center,
                       ),
@@ -979,13 +979,13 @@ class _HomeScreenState extends State<HomeScreen> {
       await showDialog<void>(
         context: context,
         builder: (dialogContext) => AlertDialog(
-          title: const Text('Photo sÃ©lectionnÃ©e'),
+          title: const Text('Photo sélectionnée'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Image.memory(bytes, height: 220, fit: BoxFit.contain),
               const SizedBox(height: 12),
-              const Text('La reconnaissance des objets sera ajoutÃ©e Ã  la prochaine Ã©tape.'),
+              const Text('La reconnaissance des objets sera ajoutée à la prochaine étape.'),
             ],
           ),
           actions: [
@@ -999,7 +999,7 @@ class _HomeScreenState extends State<HomeScreen> {
     } catch (error) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Impossible dâ€™ouvrir la photo : $error')),
+        SnackBar(content: Text('Impossible d'ouvrir la photo : $error')),
       );
     }
   }
@@ -1095,7 +1095,7 @@ class _HomeScreenState extends State<HomeScreen> {
           CrossAxisAlignment.start,
       children: [
         const Text(
-          'CatÃ©gories',
+          'Catégories',
           style: TextStyle(
             fontSize: 18,
             fontWeight:
@@ -1323,7 +1323,7 @@ class _HomeScreenState extends State<HomeScreen> {
             label: const FittedBox(
               fit: BoxFit.scaleDown,
               child: Text(
-                'RÃ©initialiser',
+                'Réinitialiser',
               ),
             ),
             style:
@@ -1377,7 +1377,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
             Expanded(
               child: Text(
-                'Annonces Ã  moins de '
+                'Annonces à moins de '
                 '$_selectedDistanceKm km',
                 style: TextStyle(
                   fontSize: 13,
@@ -1408,8 +1408,8 @@ class _HomeScreenState extends State<HomeScreen> {
         _selectedDistanceKm != null;
 
     final title = hasActiveSearchOrFilter
-        ? 'RÃ©sultats'
-        : 'Annonces rÃ©centes';
+        ? 'Résultats'
+        : 'Annonces récentes';
 
     return Row(
       children: [
@@ -1435,7 +1435,7 @@ class _HomeScreenState extends State<HomeScreen> {
               PopupMenuItem<String>(
                 value: 'recent',
                 child: Text(
-                  'Plus rÃ©centes',
+                  'Plus récentes',
                 ),
               ),
               PopupMenuItem<String>(
@@ -1447,7 +1447,7 @@ class _HomeScreenState extends State<HomeScreen> {
               PopupMenuItem<String>(
                 value: 'price_desc',
                 child: Text(
-                  'Prix dÃ©croissant',
+                  'Prix décroissant',
                 ),
               ),
             ];
@@ -1678,7 +1678,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             Expanded(
                               child: Text(
                                 district.isNotEmpty
-                                    ? '$city â€¢ $district'
+                                    ? '$city • $district'
                                     : city,
                                 maxLines: 1,
                                 overflow:
