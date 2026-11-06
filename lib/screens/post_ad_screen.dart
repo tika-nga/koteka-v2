@@ -1071,7 +1071,8 @@ class _PostAdScreenState extends State<PostAdScreen> {
     }
 
     if (_selectedFamily == null ||
-        _selectedCategory == null) {
+        (_selectedFamily != 'Autres' &&
+         _selectedCategory == null)) {
       _showMessage(
         'Veuillez choisir la famille et la sous-catégorie.',
       );
@@ -1136,7 +1137,9 @@ class _PostAdScreenState extends State<PostAdScreen> {
           district: _selectedCommune!,
           description: description,
           family: _selectedFamily!,
-          category: _selectedCategory!,
+          category: _selectedFamily == 'Autres'
+    ? 'Autres'
+    : _selectedCategory!,
           brand: _brandController.text.trim(),
           model: _modelController.text.trim(),
           manufactureYear:
