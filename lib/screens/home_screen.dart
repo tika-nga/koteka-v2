@@ -273,8 +273,8 @@ class _HomeScreenState extends State<HomeScreen> {
               'Autorisation de localisation',
             ),
             content: const Text(
-              'L'accès à la localisation a été refusé. '
-              'Vous pouvez l'autoriser dans les '
+              "L'accès à la localisation a été refusé. "
+              "Vous pouvez l'autoriser dans les "
               'paramètres de Koteka.',
             ),
             actions: [
@@ -999,7 +999,7 @@ class _HomeScreenState extends State<HomeScreen> {
     } catch (error) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Impossible d'ouvrir la photo : $error')),
+        SnackBar(content: Text("Impossible d'ouvrir la photo : $error")),
       );
     }
   }
