@@ -827,6 +827,16 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             _buildSearchBar(),
 
+          const SizedBox(height: 16),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(14),
+            child: Image.asset(
+              'assets/images/koteka_accueil.png',
+              width: double.infinity,
+              fit: BoxFit.fitWidth,
+            ),
+          ),
+
             const SizedBox(height: 20),
 
             _buildCategorySection(),
