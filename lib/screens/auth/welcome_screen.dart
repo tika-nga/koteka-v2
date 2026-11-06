@@ -31,8 +31,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              Color.fromRGBO(124, 231, 255, 1),
-              Color.fromRGBO(70, 79, 255, 1),
+              Color.fromRGBO(0, 122, 255, 1),
+              Color.fromRGBO(0, 51, 180, 1),
             ],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
@@ -41,6 +41,33 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         child: SafeArea(
           child: Stack(
             children: [
+
+          // Decoration RDC
+          Positioned(
+            top: 35,
+            right: -100,
+            child: Transform.rotate(
+              angle: -0.6,
+              child: Container(
+                width: 300,
+                height: 85,
+                color: const Color(0xFFFFD700),
+              ),
+            ),
+          ),
+          Positioned(
+            top: 50,
+            right: -85,
+            child: Transform.rotate(
+              angle: -0.6,
+              child: Container(
+                width: 270,
+                height: 55,
+                color: const Color(0xFFCE1126),
+              ),
+            ),
+          ),
+
               // Zdjęcie
               Positioned(
                 top: 175,
