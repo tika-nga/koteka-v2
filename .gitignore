@@ -60,3 +60,18 @@ ios/Runner/GoogleService-Info.plist
 !ios/Runner/GoogleService-Info.plist.example
 ios/Flutter/Secrets.xcconfig
 !ios/Flutter/Secrets.xcconfig.example
+# Signature Android Koteka
+*.jks
+*.keystore
+**/key.properties
+
+# Signature Android Koteka
+*.jks
+*.keystore
+**/key.properties
+
+*.bak
+*.backup
+*.backup-*
+.env.*
+!.env.example

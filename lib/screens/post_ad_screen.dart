@@ -6,6 +6,8 @@ import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:flutter_marketplace_template/view_models/navigation_view_model.dart';
+import 'package:latlong2/latlong.dart';
+import 'location_picker_screen.dart';
 
 class PostAdScreen extends StatefulWidget {
   const PostAdScreen({super.key});
@@ -1481,6 +1483,7 @@ class AddPhotoScreen extends StatefulWidget {
 
 class _AddPhotoScreenState
     extends State<AddPhotoScreen> {
+  LatLng? _selectedLocation;
   final ImagePicker _picker =
       ImagePicker();
 
@@ -1543,6 +1546,24 @@ class _AddPhotoScreenState
     }
   }
 
+
+Future<void> _chooseLocation() async {
+  final location = await Navigator.push<LatLng>(
+    context,
+    MaterialPageRoute(
+      builder: (_) => LocationPickerScreen(
+        initialLocation: _selectedLocation,
+      ),
+    ),
+  );
+
+  if (!mounted || location == null) return;
+
+  setState(() {
+    _selectedLocation = location;
+  });
+}
+
   void _continueToReview() {
     if (_image == null) return;
 
@@ -1589,6 +1610,7 @@ class _AddPhotoScreenState
           transmission: widget.transmission,
           doorCount: widget.doorCount,
           seatCount: widget.seatCount,
+          selectedLocation: _selectedLocation,
         ),
       ),
     );
@@ -1666,6 +1688,26 @@ class _AddPhotoScreenState
               ),
             ),
 
+            const SizedBox(height: 20),
+
+            OutlinedButton.icon(
+              onPressed: _chooseLocation,
+              icon: const Icon(Icons.location_on_outlined),
+              label: Text(_selectedLocation == null
+                  ? 'Choisir l’emplacement sur la carte (facultatif)'
+                  : 'Modifier l’emplacement sur la carte'),
+            ),
+            if (_selectedLocation != null) ...[
+              const SizedBox(height: 8),
+              Text('Emplacement sélectionné : '
+                  '${_selectedLocation!.latitude.toStringAsFixed(6)}, '
+                  '${_selectedLocation!.longitude.toStringAsFixed(6)}'),
+              TextButton(
+                onPressed: () => setState(() => _selectedLocation = null),
+                child: const Text('Supprimer cet emplacement'),
+              ),
+            ],
+
             const SizedBox(height: 24),
 
             FilledButton(
@@ -1689,6 +1731,7 @@ class _AddPhotoScreenState
 // ==========================================================
 
 class ReviewAdScreen extends StatefulWidget {
+  final LatLng? selectedLocation;
   final String title;
   final String price;
   final String city;
@@ -1718,6 +1761,7 @@ class ReviewAdScreen extends StatefulWidget {
 
   const ReviewAdScreen({
     super.key,
+    this.selectedLocation,
     required this.title,
     required this.price,
     required this.city,
@@ -1823,6 +1867,8 @@ class _ReviewAdScreenState
             widget.category,
         'user_id':
             user.id,
+        'latitude': widget.selectedLocation?.latitude,
+        'longitude': widget.selectedLocation?.longitude,
         'imageUrl':
             imageUrl,
         'created_at':
@@ -2117,6 +2163,11 @@ class _ReviewAdScreenState
                 'Tarification',
                 widget.pricingType,
               ),
+
+            if (widget.selectedLocation != null)
+              _row('Emplacement GPS',
+                  '${widget.selectedLocation!.latitude.toStringAsFixed(6)}, '
+                  '${widget.selectedLocation!.longitude.toStringAsFixed(6)}'),
 
             _row(
               'Ville',

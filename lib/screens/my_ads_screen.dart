@@ -18,6 +18,7 @@ class _MyAdsScreenState extends State<MyAdsScreen> {
   String? _errorMessage;
 
   List<Annonce> _annonces = [];
+  final Set<String> _deletingIds = <String>{};
 
   @override
   void initState() {
@@ -380,6 +381,101 @@ class _MyAdsScreenState extends State<MyAdsScreen> {
     }
   }
 
+  Future<void> _deleteAnnonce(Annonce annonce) async {
+    final user = _supabase.auth.currentUser;
+    if (user == null) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Vous devez être connecté.')),
+      );
+      return;
+    }
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Supprimer l’annonce ?'),
+        content: Text(
+          'Voulez-vous supprimer définitivement « ${annonce.title} » ? '
+          'Cette action est irréversible.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Annuler'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Supprimer'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !mounted) return;
+    final id = annonce.id.toString();
+    if (_deletingIds.contains(id)) return;
+    setState(() => _deletingIds.add(id));
+
+    try {
+      final deleted = await _supabase
+          .from('annonces')
+          .delete()
+          .eq('id', annonce.id)
+          .eq('user_id', user.id)
+          .select('id');
+
+      if (!mounted) return;
+      if (deleted.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Suppression non autorisée ou annonce introuvable.'),
+          ),
+        );
+        return;
+      }
+
+      final imageUrl = annonce.imageUrl.trim();
+
+if (imageUrl.isNotEmpty) {
+  try {
+    final uri = Uri.parse(imageUrl);
+    final marker = '/storage/v1/object/public/annonces/';
+    final position = uri.path.indexOf(marker);
+
+    if (position != -1) {
+      final filePath = Uri.decodeComponent(
+        uri.path.substring(position + marker.length),
+      );
+
+      if (filePath.startsWith('${user.id}/')) {
+        await _supabase.storage
+            .from('annonces')
+            .remove([filePath]);
+      }
+    }
+  } catch (e) {
+    debugPrint('Erreur suppression photo : $e');
+  }
+}
+if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Annonce supprimée.')),
+      );
+      await _loadMyAds();
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Impossible de supprimer cette annonce.'),
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _deletingIds.remove(id));
+    }
+  }
+
   Future<void> _openAnnonce(
     Annonce annonce,
   ) async {
@@ -631,8 +727,7 @@ class _MyAdsScreenState extends State<MyAdsScreen> {
                 ],
               ),
 
-              if (canLower ||
-                  canRenew) ...[
+              ...[
                 const SizedBox(height: 14),
 
                 const Divider(height: 1),
@@ -674,6 +769,17 @@ class _MyAdsScreenState extends State<MyAdsScreen> {
                           'Renouveler l’annonce',
                         ),
                       ),
+
+                    OutlinedButton.icon(
+                      onPressed: _deletingIds.contains(annonce.id.toString())
+                          ? null
+                          : () => _deleteAnnonce(annonce),
+                      icon: const Icon(Icons.delete_outline),
+                      label: const Text('Supprimer'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.red,
+                      ),
+                    ),
                   ],
                 ),
               ],
